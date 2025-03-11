@@ -1,4 +1,6 @@
 # TrainX
+![Uploading logo for FitnessX, a fitness site.png…]()
+
 Codigos para el sitio TrainX
 ### **Objetivo General**
 
