@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36" version="26.1.1">
   <diagram name="Page-1" id="UYk_7OX0EDJJeDHEVzLT">
-    <mxGraphModel dx="1855" dy="2288" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="652" dy="2617" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -375,6 +375,48 @@
           <mxGeometry width="100" height="100" relative="1" as="geometry">
             <mxPoint x="293" y="-263" as="sourcePoint" />
             <mxPoint x="390" y="-375" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="b5f6QTeWD_Qw4PzaojQV-39" value="Comidas" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="130" y="-1230" width="160" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="b5f6QTeWD_Qw4PzaojQV-40" value="+Nombre de comida&lt;div&gt;+Calorias&lt;/div&gt;" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;whiteSpace=wrap;" vertex="1" parent="b5f6QTeWD_Qw4PzaojQV-39">
+          <mxGeometry y="50" width="160" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="b5f6QTeWD_Qw4PzaojQV-41" value="Requerimiento Calorico" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="120" y="-1660" width="160" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="b5f6QTeWD_Qw4PzaojQV-42" value="&lt;b&gt;+ID&lt;/b&gt;&lt;div&gt;+Peso&lt;/div&gt;&lt;div&gt;+Altura&lt;/div&gt;&lt;div&gt;+Edad&lt;/div&gt;&lt;div&gt;+Calorias para mantener&lt;/div&gt;&lt;div&gt;+Calorias para aumentar&lt;/div&gt;&lt;div&gt;+Calorias para perder&lt;/div&gt;" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;whiteSpace=wrap;" vertex="1" parent="b5f6QTeWD_Qw4PzaojQV-41">
+          <mxGeometry y="50" width="160" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="b5f6QTeWD_Qw4PzaojQV-43" value="Calcula" style="shape=rhombus;perimeter=rhombusPerimeter;whiteSpace=wrap;html=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="365" y="-1490" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="b5f6QTeWD_Qw4PzaojQV-44" value="" style="edgeStyle=entityRelationEdgeStyle;fontSize=12;html=1;endArrow=ERmandOne;startArrow=ERmandOne;rounded=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0.006;exitY=0.027;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="oUaAyh6fzebVkO_aCxSh-35" target="b5f6QTeWD_Qw4PzaojQV-43">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="690" y="-1200" as="sourcePoint" />
+            <mxPoint x="790" y="-1300" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="b5f6QTeWD_Qw4PzaojQV-45" value="" style="edgeStyle=entityRelationEdgeStyle;fontSize=12;html=1;endArrow=ERmandOne;startArrow=ERmandOne;rounded=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="b5f6QTeWD_Qw4PzaojQV-43" target="b5f6QTeWD_Qw4PzaojQV-42">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="690" y="-1200" as="sourcePoint" />
+            <mxPoint x="790" y="-1300" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="b5f6QTeWD_Qw4PzaojQV-47" value="Muestra" style="shape=rhombus;perimeter=rhombusPerimeter;whiteSpace=wrap;html=1;align=center;" vertex="1" parent="1">
+          <mxGeometry x="380" y="-1190" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="b5f6QTeWD_Qw4PzaojQV-48" value="" style="edgeStyle=entityRelationEdgeStyle;fontSize=12;html=1;endArrow=ERmandOne;startArrow=ERmandOne;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="b5f6QTeWD_Qw4PzaojQV-40" target="b5f6QTeWD_Qw4PzaojQV-47">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="690" y="-1200" as="sourcePoint" />
+            <mxPoint x="790" y="-1300" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="b5f6QTeWD_Qw4PzaojQV-49" value="" style="edgeStyle=entityRelationEdgeStyle;fontSize=12;html=1;endArrow=ERmandOne;startArrow=ERmandOne;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=-0.005;entryY=0.062;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="b5f6QTeWD_Qw4PzaojQV-47" target="oUaAyh6fzebVkO_aCxSh-35">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="690" y="-1200" as="sourcePoint" />
+            <mxPoint x="790" y="-1300" as="targetPoint" />
           </mxGeometry>
         </mxCell>
       </root>
