@@ -61,7 +61,7 @@
             <mxPoint x="1070" y="-830" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="SsLR1r1AspN_L6EVD4On-16" value="Liga Fitness" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+        <mxCell id="SsLR1r1AspN_L6EVD4On-16" value="Duelos Semanales" style="swimlane;childLayout=stackLayout;horizontal=1;startSize=50;horizontalStack=0;rounded=1;fontSize=14;fontStyle=0;strokeWidth=2;resizeParent=0;resizeLast=1;shadow=0;dashed=0;align=center;arcSize=4;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="620" y="-775" width="160" height="100" as="geometry" />
         </mxCell>
         <mxCell id="SsLR1r1AspN_L6EVD4On-17" value="+Desafios semanales&lt;br&gt;+Ranking" style="align=left;strokeColor=none;fillColor=none;spacingLeft=4;spacingRight=4;fontSize=12;verticalAlign=top;resizable=0;rotatable=0;part=1;html=1;whiteSpace=wrap;" parent="SsLR1r1AspN_L6EVD4On-16" vertex="1">
