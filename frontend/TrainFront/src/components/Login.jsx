@@ -29,15 +29,12 @@ function Login({ onLogin }) {
                 throw new Error(data.message || 'Login failed');
             }
 
-            // Store user session data
             localStorage.setItem('sessionId', data.sessionId);
             localStorage.setItem('userId', data.userId);
             localStorage.setItem('username', data.username);
 
-            // Call the onLogin callback to update app state
             onLogin(data);
 
-            // Redirect
             navigate('/');
         } catch (err) {
             setError(err.message);

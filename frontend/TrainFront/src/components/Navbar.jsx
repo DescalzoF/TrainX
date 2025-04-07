@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import './Navbar.css';
-import logoImage from '../assets/trainx-logo.png'; // You'll need to put the logo in your assets folder
+import logoImage from '../assets/trainx-logo.png';
 
 function Navbar({ isLoggedIn, username, onLogout }) {
     const navigate = useNavigate();
@@ -9,7 +9,7 @@ function Navbar({ isLoggedIn, username, onLogout }) {
         try {
             const sessionId = localStorage.getItem('sessionId');
 
-            await fetch('http://localhost:8080/api/users/logout', {  // Updated to match API path
+            await fetch('http://localhost:8080/api/users/logout', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -17,15 +17,12 @@ function Navbar({ isLoggedIn, username, onLogout }) {
                 body: JSON.stringify({ sessionId }),
             });
 
-            // Clear local storage
             localStorage.removeItem('sessionId');
             localStorage.removeItem('userId');
             localStorage.removeItem('username');
 
-            // Call the onLogout callback to update app state
             onLogout();
 
-            // Redirect to home page
             navigate('/');
         } catch (error) {
             console.error('Logout failed:', error);

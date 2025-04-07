@@ -12,10 +12,10 @@ function Signup() {
         phoneNumber: '',
         height: '',
         weight: '',
-        userPhoto: 'default-profile.jpg', // Default photo
+        userPhoto: 'default-profile.jpg',
         address: '',
         email: '',
-        sex: 'male' // Default selection
+        sex: 'male'
     });
 
     const [error, setError] = useState('');
@@ -34,7 +34,6 @@ function Signup() {
         e.preventDefault();
         setError('');
 
-        // Validate passwords match
         if (formData.password !== formData.confirmPassword) {
             setError('Passwords do not match');
             return;
@@ -42,7 +41,6 @@ function Signup() {
 
         setIsLoading(true);
 
-        // Create user object without confirmPassword
         const userData = { ...formData };
         delete userData.confirmPassword;
 
@@ -61,7 +59,6 @@ function Signup() {
                 throw new Error(data.message || 'Registration failed');
             }
 
-            // Redirect to login page on success
             navigate('/login');
         } catch (err) {
             setError(err.message || 'An error occurred during registration');

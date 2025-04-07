@@ -12,7 +12,6 @@ function App() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Check if user is logged in from localStorage
         const sessionId = localStorage.getItem('sessionId');
         const userId = localStorage.getItem('userId');
         const username = localStorage.getItem('username');
@@ -50,20 +49,36 @@ function App() {
                 />
                 <main className="app-content">
                     <Routes>
-                        <Route path="/" element={<Home />} />
+                        <Route
+                            path="/"
+                            element={<Home isLoggedIn={!!user} username={user?.username} />}
+                        />
                         <Route
                             path="/login"
-                            element={!user ? <Login onLogin={handleLogin} /> : <Navigate to="/dashboard" />}
+                            element={!user ? <Login onLogin={handleLogin} /> : <Navigate to="/" />}
                         />
                         <Route
                             path="/signup"
-                            element={!user ? <Signup /> : <Navigate to="/dashboard" />}
+                            element={!user ? <Signup /> : <Navigate to="/" />}
                         />
                         <Route
                             path="/dashboard"
                             element={user ? <Dashboard /> : <Navigate to="/login" />}
                         />
-                        {/* Add more protected routes as needed */}
+                        {
+
+                        }
+                        <Route
+                            path="/camino"
+                            element={user ? <div className="dashboard">
+                                <h1>Welcome to Camino Fitness</h1>
+                                <p>Your personalized fitness journey starts here!</p>
+                                <p>This is a placeholder for the Camino Fitness page content.</p>
+                            </div> : <Navigate to="/login" />}
+                        />
+                        {
+
+                        }
                     </Routes>
                 </main>
                 <footer className="app-footer">
