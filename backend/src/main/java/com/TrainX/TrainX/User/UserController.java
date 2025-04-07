@@ -4,14 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.UUID;
 
 import java.util.List;
 import java.util.Optional;
 
 @RestController
-
+@RequestMapping("/api/users") // Added a base path
 public class UserController {
-    @Autowired
     private final UserService userService;
 
     @Autowired
@@ -25,7 +25,7 @@ public class UserController {
         try {
             UserEntity newUser = userService.createUser(user);
             return new ResponseEntity<>(newUser, HttpStatus.CREATED);
-        } catch (IllegalArgumentException e) {
+        } catch (RuntimeException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
@@ -40,10 +40,12 @@ public class UserController {
     // Get user by ID
     @GetMapping("/{id}")
     public ResponseEntity<UserEntity> getUserById(@PathVariable("id") Long id) {
-        Optional<UserEntity> userData = Optional.ofNullable(userService.getUserById(id));
-
-        return userData.map(user -> new ResponseEntity<>(user, HttpStatus.OK))
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        try {
+            UserEntity user = userService.getUserById(id);
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
 
     // Update user
@@ -52,7 +54,7 @@ public class UserController {
         try {
             UserEntity updatedUser = userService.updateUser(id, user);
             return new ResponseEntity<>(updatedUser, HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
+        } catch (RuntimeException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -63,15 +65,15 @@ public class UserController {
         try {
             userService.deleteUser(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } catch (IllegalArgumentException e) {
+        } catch (RuntimeException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
 
-    // Search users by name
+    // Search users by name - Fixed parameter name
     @GetMapping("/search/name/{name}")
-    public ResponseEntity<List<UserEntity>> searchUsersByName(@PathVariable String username) {
-        List<UserEntity> users = userService.searchUsersByName(username);
+    public ResponseEntity<List<UserEntity>> searchUsersByName(@PathVariable String name) {
+        List<UserEntity> users = userService.searchUsersByName(name);
         if (users.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
@@ -94,7 +96,7 @@ public class UserController {
         try {
             UserEntity updatedUser = userService.addCoins(id, amount);
             return new ResponseEntity<>(updatedUser, HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
+        } catch (RuntimeException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -105,7 +107,7 @@ public class UserController {
         try {
             UserEntity updatedUser = userService.addFitnessXP(id, points);
             return new ResponseEntity<>(updatedUser, HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
+        } catch (RuntimeException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -124,8 +126,27 @@ public class UserController {
     @GetMapping("/email/{email}")
     public ResponseEntity<UserEntity> getUserByEmail(@PathVariable String email) {
         Optional<UserEntity> userData = userService.getUserByEmail(email);
-
         return userData.map(user -> new ResponseEntity<>(user, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    // Login endpoint
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+        UserEntity user = userService.authenticateUser(loginRequest.getUsername(), loginRequest.getPassword());
+        if (user != null) {
+            // Create simple session identifier
+            String sessionId = UUID.randomUUID().toString();
+            return ResponseEntity.ok(new LoginResponse(sessionId, user.getId(), user.getUsername()));
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new MessageResponse("Invalid credentials"));
+        }
+    }
+
+    // Logout endpoint
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@RequestBody LogoutRequest logoutRequest) {
+        // Simple logout - in a real app you'd invalidate the session
+        return ResponseEntity.ok(new MessageResponse("Logged out successfully"));
     }
 }
