@@ -46,9 +46,9 @@ function Navbar({ isLoggedIn, username, onLogout }) {
                 <div className="dropdown">
                     <a href="/leaderboard" className="nav-link">Leaderboard ▼</a>
                     <div className="dropdown-content">
-                        <a href="/leaderboard/weekly">Weekly</a>
-                        <a href="/leaderboard/monthly">Monthly</a>
-                        <a href="/leaderboard/alltime">All Time</a>
+                        <a href="/leaderboard/General">General</a>
+                        <a href="/leaderboard/Por nivel">Por nivel</a>
+                        <a href="/leaderboard/Semanal">Semanal</a>
                     </div>
                 </div>
                 <a href="/challenges" className="nav-link">Duelos Semanales</a>
