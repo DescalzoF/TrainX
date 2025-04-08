@@ -1,11 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { CgProfile } from "react-icons/cg";
+import { FaCoins } from "react-icons/fa6";
 import './Navbar.css';
 import logoImage from '../../assets/trainx-logo.png';
+import {MdOutlineArrowDropDown} from "react-icons/md";
+import {IoIosLogOut} from "react-icons/io";
 
 function Navbar({ isLoggedIn, username, onLogout }) {
     const navigate = useNavigate();
     const [scrolled, setScrolled] = useState(false);
+    const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -32,6 +37,20 @@ function Navbar({ isLoggedIn, username, onLogout }) {
         navigate('/');
     };
 
+    const toggleProfileDropdown = () => {
+        setProfileDropdownOpen(!profileDropdownOpen);
+    };
+
+    // New handler for nav links that redirects to home if not logged in
+    const handleNavClick = (e, path) => {
+        if (!isLoggedIn) {
+            e.preventDefault();
+            navigate('/');
+        } else {
+            navigate(path);
+        }
+    };
+
     return (
         <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
             <div className="navbar-logo" onClick={() => navigate('/')}>
@@ -40,27 +59,46 @@ function Navbar({ isLoggedIn, username, onLogout }) {
             </div>
 
             <div className="navbar-links">
-                <a href="/camino" className="nav-link">Camino Fitness</a>
-                <a href="/gyms" className="nav-link">Gimnasios</a>
-                <a href="/progress" className="nav-link">Progreso</a>
+                <a href="#" onClick={(e) => handleNavClick(e, '/camino')} className="nav-link">Camino Fitness</a>
+                <a href="#" onClick={(e) => handleNavClick(e, '/gyms')} className="nav-link">Gimnasios</a>
+                <a href="#" onClick={(e) => handleNavClick(e, '/progress')} className="nav-link">Progreso</a>
                 <div className="dropdown">
-                    <a href="/leaderboard" className="nav-link">Leaderboard ▼</a>
+                    <a href="#" onClick={(e) => handleNavClick(e, '/leaderboard')} className="nav-link">
+                        Leaderboard <MdOutlineArrowDropDown size={30}/>
+                    </a>
                     <div className="dropdown-content">
-                        <a href="/leaderboard/General">General</a>
-                        <a href="/leaderboard/Por nivel">Por nivel</a>
-                        <a href="/leaderboard/Semanal">Semanal</a>
+                        <a href="#" onClick={(e) => handleNavClick(e, '/leaderboard/General')}>General</a>
+                        <a href="#" onClick={(e) => handleNavClick(e, '/leaderboard/Por nivel')}>Por nivel</a>
+                        <a href="#" onClick={(e) => handleNavClick(e, '/leaderboard/Semanal')}>Semanal</a>
                     </div>
                 </div>
-                <a href="/challenges" className="nav-link">Duelos Semanales</a>
-                <a href="/forum" className="nav-link">Foro</a>
+                <a href="#" onClick={(e) => handleNavClick(e, '/challenges')} className="nav-link">Duelos Semanales</a>
+                <a href="#" onClick={(e) => handleNavClick(e, '/forum')} className="nav-link">Foro</a>
             </div>
 
             <div className="navbar-menu">
                 {isLoggedIn ? (
-                    <>
-                        <span className="welcome-text">Hi, {username}</span>
-                        <button onClick={handleLogout} className="logout-button">Logout</button>
-                    </>
+                    <div className="profile-container">
+                        <span className="welcome-text">Hola, {username}</span>
+                        <div className="profile-dropdown">
+                            <button className="profile-button" onClick={toggleProfileDropdown}>
+                                <CgProfile size={34} />
+                            </button>
+                            {profileDropdownOpen && (
+                                <div className="profile-dropdown-content">
+                                    <a href="#" onClick={(e) => handleNavClick(e, '/perfil')} style={{ display: 'flex', alignItems: 'center' }}>
+                                        Perfil <CgProfile size={20} style={{ marginLeft: '55px' }} />
+                                    </a>
+                                    <a href="#" onClick={(e) => handleNavClick(e, '/tienda')} style={{ display: 'flex', alignItems: 'center' }}>
+                                        Monedas <FaCoins size={20} style={{ marginLeft: '20px' }} />
+                                    </a>
+                                    <a href="#" onClick={handleLogout} style={{ display: 'flex', alignItems: 'center' }}>
+                                        Logout <IoIosLogOut size={20} style={{ marginLeft: '40px' }}/>
+                                    </a>
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 ) : (
                     <div className="auth-buttons">
                         <button onClick={() => navigate('/login')} className="login-button">Login</button>

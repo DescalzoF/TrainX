@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Login.css';
+import LogoTitle from "../../components/logotitle/LogoTitle.jsx";
 
 function Login({ onLogin }) {
     const [username, setUsername] = useState('');
@@ -45,15 +46,18 @@ function Login({ onLogin }) {
 
     return (
         <div className="login-container">
+            <div className="logo-wrapper">
+                <LogoTitle />
+            </div>
             <div className="login-form-wrapper">
-                <h2>Welcome to TrainX</h2>
-                <p>Your fitness journey starts here</p>
+                <h2>Bienvenidos a TrainX</h2>
+                <p>Arranca ahora!</p>
 
                 <form onSubmit={handleSubmit} className="login-form">
                     {error && <div className="error-message">{error}</div>}
 
                     <div className="form-group">
-                        <label htmlFor="username">Username</label>
+                        <label htmlFor="username">Usuario</label>
                         <input
                             type="text"
                             id="username"
@@ -64,7 +68,7 @@ function Login({ onLogin }) {
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="password">Password</label>
+                        <label htmlFor="password">Contraseña</label>
                         <input
                             type="password"
                             id="password"

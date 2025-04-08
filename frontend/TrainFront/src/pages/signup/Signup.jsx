@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Signup.css';
-import LogoTitle from '../../components/LogoTitle/LogoTitle';
+import logoImage from '../../assets/trainx-logo.png';
+import LogoTitle from "../../components/logotitle/LogoTitle.jsx";
 
 function Signup() {
     const [formData, setFormData] = useState({
@@ -71,6 +72,7 @@ function Signup() {
     return (
         <div className="signup-container">
             <div className="logo-wrapper">
+                <LogoTitle />
             </div>
             <div className="signup-form-wrapper">
                 <h2>Crea tu cuenta TrainX</h2>
@@ -224,6 +226,8 @@ function Signup() {
                             Back to Login
                         </button>
                     </div>
+
+
                 </form>
             </div>
         </div>

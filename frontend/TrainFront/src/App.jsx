@@ -1,11 +1,27 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Navbar from './components/navbar/Navbar.jsx';
 import Login from './pages/login/Login.jsx';
 import Signup from './pages/signup/Signup.jsx';
 import Dashboard from './components/dashboard/Dashboard.jsx';
-import Home from './pages/home/Home.jsx';
+import HomeLoggedIn from './pages/HomeLoggedIn/HomeLoggedIn.jsx';
+import HomeNotLoggedIn from './pages/HomeNotLoggedIn/HomeNotLoggedIn.jsx';
 import './App.css';
+
+// Create a wrapper component for the Navbar that conditionally renders it
+const NavbarWrapper = ({ isLoggedIn, username, onLogout }) => {
+    const location = useLocation();
+    const hideNavbarPaths = ['/login', '/signup'];
+    const shouldShowNavbar = !hideNavbarPaths.includes(location.pathname);
+
+    return shouldShowNavbar ? (
+        <Navbar
+            isLoggedIn={isLoggedIn}
+            username={username}
+            onLogout={onLogout}
+        />
+    ) : null;
+};
 
 function App() {
     const [user, setUser] = useState(null);
@@ -42,16 +58,20 @@ function App() {
     return (
         <Router>
             <div className="app">
-                <Navbar
-                    isLoggedIn={!!user}
-                    username={user?.username}
-                    onLogout={handleLogout}
-                />
+                <Routes>
+                    <Route path="*" element={
+                        <NavbarWrapper
+                            isLoggedIn={!!user}
+                            username={user?.username}
+                            onLogout={handleLogout}
+                        />
+                    } />
+                </Routes>
                 <main className="app-content">
                     <Routes>
                         <Route
                             path="/"
-                            element={<Home isLoggedIn={!!user} username={user?.username} />}
+                            element={user ? <HomeLoggedIn username={user?.username} /> : <HomeNotLoggedIn />}
                         />
                         <Route
                             path="/login"
@@ -65,9 +85,6 @@ function App() {
                             path="/dashboard"
                             element={user ? <Dashboard /> : <Navigate to="/login" />}
                         />
-                        {
-
-                        }
                         <Route
                             path="/camino"
                             element={user ? <div className="dashboard">
@@ -76,14 +93,8 @@ function App() {
                                 <p>This is a placeholder for the Camino Fitness page content.</p>
                             </div> : <Navigate to="/login" />}
                         />
-                        {
-
-                        }
                     </Routes>
                 </main>
-                <footer className="app-footer">
-                    <p>© {new Date().getFullYear()} TrainX Fitness. All rights reserved.</p>
-                </footer>
             </div>
         </Router>
     );
