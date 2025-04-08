@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Signup.css';
+import LogoTitle from '../../components/LogoTitle/LogoTitle';
 
 function Signup() {
     const [formData, setFormData] = useState({
@@ -69,16 +70,18 @@ function Signup() {
 
     return (
         <div className="signup-container">
+            <div className="logo-wrapper">
+            </div>
             <div className="signup-form-wrapper">
-                <h2>Create Your TrainX Account</h2>
-                <p>Join our fitness community and start your journey</p>
+                <h2>Crea tu cuenta TrainX</h2>
+                <p>Únete a nuestra comunidad fitness y comienza tu camino.</p>
 
                 <form onSubmit={handleSubmit} className="signup-form">
                     {error && <div className="error-message">{error}</div>}
 
                     <div className="form-grid">
                         <div className="form-group">
-                            <label htmlFor="username">Username*</label>
+                            <label htmlFor="username">Nombre*</label>
                             <input
                                 type="text"
                                 id="username"
@@ -90,7 +93,7 @@ function Signup() {
                         </div>
 
                         <div className="form-group">
-                            <label htmlFor="surname">Surname*</label>
+                            <label htmlFor="surname">Apellido*</label>
                             <input
                                 type="text"
                                 id="surname"
@@ -114,7 +117,7 @@ function Signup() {
                         </div>
 
                         <div className="form-group">
-                            <label htmlFor="password">Password*</label>
+                            <label htmlFor="password">Contraseña*</label>
                             <input
                                 type="password"
                                 id="password"
@@ -126,7 +129,7 @@ function Signup() {
                         </div>
 
                         <div className="form-group">
-                            <label htmlFor="confirmPassword">Confirm Password*</label>
+                            <label htmlFor="confirmPassword">Confirmar Contraseña*</label>
                             <input
                                 type="password"
                                 id="confirmPassword"
@@ -138,7 +141,7 @@ function Signup() {
                         </div>
 
                         <div className="form-group">
-                            <label htmlFor="age">Age*</label>
+                            <label htmlFor="age">Edad*</label>
                             <input
                                 type="text"
                                 id="age"
@@ -150,7 +153,7 @@ function Signup() {
                         </div>
 
                         <div className="form-group">
-                            <label htmlFor="phoneNumber">Phone Number*</label>
+                            <label htmlFor="phoneNumber">Numero de telefono*</label>
                             <input
                                 type="tel"
                                 id="phoneNumber"
@@ -162,7 +165,7 @@ function Signup() {
                         </div>
 
                         <div className="form-group">
-                            <label htmlFor="address">Address*</label>
+                            <label htmlFor="address">Domicilio*</label>
                             <input
                                 type="text"
                                 id="address"
@@ -174,7 +177,7 @@ function Signup() {
                         </div>
 
                         <div className="form-group">
-                            <label htmlFor="height">Height (cm)*</label>
+                            <label htmlFor="height">Altura (cm)*</label>
                             <input
                                 type="number"
                                 id="height"
@@ -186,7 +189,7 @@ function Signup() {
                         </div>
 
                         <div className="form-group">
-                            <label htmlFor="weight">Weight (kg)*</label>
+                            <label htmlFor="weight">Peso (kg)*</label>
                             <input
                                 type="number"
                                 id="weight"
@@ -206,9 +209,9 @@ function Signup() {
                                 onChange={handleChange}
                                 required
                             >
-                                <option value="male">Male</option>
-                                <option value="female">Female</option>
-                                <option value="other">Other</option>
+                                <option value="male">Hombre</option>
+                                <option value="female">Mujer</option>
+                                <option value="other">Otro Sexo</option>
                             </select>
                         </div>
                     </div>

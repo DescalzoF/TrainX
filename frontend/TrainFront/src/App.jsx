@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Navbar from './components/Navbar';
-import Login from './components/Login';
-import Signup from './components/Signup';
-import Dashboard from './components/Dashboard';
-import Home from './components/Home';
+import Navbar from './components/navbar/Navbar.jsx';
+import Login from './pages/login/Login.jsx';
+import Signup from './pages/signup/Signup.jsx';
+import Dashboard from './components/dashboard/Dashboard.jsx';
+import Home from './pages/home/Home.jsx';
 import './App.css';
 
 function App() {

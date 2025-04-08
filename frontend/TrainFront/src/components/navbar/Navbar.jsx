@@ -1,47 +1,46 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Navbar.css';
-import logoImage from '../assets/trainx-logo.png';
+import logoImage from '../../assets/trainx-logo.png';
 
 function Navbar({ isLoggedIn, username, onLogout }) {
     const navigate = useNavigate();
+    const [scrolled, setScrolled] = useState(false);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.scrollY > 50) {
+                setScrolled(true);
+            } else {
+                setScrolled(false);
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     const handleLogout = async () => {
-        try {
-            const sessionId = localStorage.getItem('sessionId');
-
-            await fetch('http://localhost:8080/api/users/logout', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ sessionId }),
-            });
-
-            localStorage.removeItem('sessionId');
-            localStorage.removeItem('userId');
-            localStorage.removeItem('username');
-
-            onLogout();
-
-            navigate('/');
-        } catch (error) {
-            console.error('Logout failed:', error);
-        }
-    };
-
-    const goToHome = () => {
+        const sessionId = localStorage.getItem('sessionId');
+        await fetch('http://localhost:8080/api/users/logout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sessionId }),
+        });
+        localStorage.clear();
+        onLogout();
         navigate('/');
     };
 
     return (
-        <nav className="navbar">
-            <div className="navbar-logo" onClick={goToHome}>
+        <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
+            <div className="navbar-logo" onClick={() => navigate('/')}>
                 <img src={logoImage} alt="TrainX Logo" className="logo-image" />
                 <span className="navbar-brand">TrainX</span>
             </div>
 
             <div className="navbar-links">
-                <a href="/" className="nav-link">Camino Fitness</a>
+                <a href="/camino" className="nav-link">Camino Fitness</a>
                 <a href="/gyms" className="nav-link">Gimnasios</a>
                 <a href="/progress" className="nav-link">Progreso</a>
                 <div className="dropdown">
@@ -59,7 +58,7 @@ function Navbar({ isLoggedIn, username, onLogout }) {
             <div className="navbar-menu">
                 {isLoggedIn ? (
                     <>
-                        <span className="welcome-text">Welcome, {username}</span>
+                        <span className="welcome-text">Hi, {username}</span>
                         <button onClick={handleLogout} className="logout-button">Logout</button>
                     </>
                 ) : (

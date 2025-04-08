@@ -2,9 +2,9 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 80vh;
     padding: 20px;
     background-color: #f8f9fa;
+    min-height: calc(100vh - 100px);  /* Altura total menos espacio del header */
 }
 
 .signup-form-wrapper {
