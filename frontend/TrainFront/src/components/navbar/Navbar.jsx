@@ -1,16 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CgProfile } from "react-icons/cg";
 import { FaCoins } from "react-icons/fa6";
 import './Navbar.css';
 import logoImage from '../../assets/trainx-logo.png';
-import {MdOutlineArrowDropDown} from "react-icons/md";
-import {IoIosLogOut} from "react-icons/io";
+import { MdOutlineArrowDropDown } from "react-icons/md";
+import { IoIosLogOut } from "react-icons/io";
 
 function Navbar({ isLoggedIn, username, onLogout }) {
     const navigate = useNavigate();
     const [scrolled, setScrolled] = useState(false);
     const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+    const [profilePicture, setProfilePicture] = useState(null);
+    const dropdownRef = useRef(null); // Create a ref for the dropdown
 
     useEffect(() => {
         const handleScroll = () => {
@@ -21,8 +23,41 @@ function Navbar({ isLoggedIn, username, onLogout }) {
             }
         };
 
+        // Load profile picture from localStorage if available
+        const savedProfilePicture = localStorage.getItem('profilePicture');
+        if (savedProfilePicture) {
+            setProfilePicture(savedProfilePicture);
+        }
+
+        // Listen for profile picture updates
+        const handleProfilePictureUpdate = () => {
+            const updatedProfilePicture = localStorage.getItem('profilePicture');
+            setProfilePicture(updatedProfilePicture);
+        };
+
         window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
+        window.addEventListener('profilePictureUpdated', handleProfilePictureUpdate);
+
+        // Cleanup scroll and custom event listeners
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+            window.removeEventListener('profilePictureUpdated', handleProfilePictureUpdate);
+        };
+    }, []);
+
+    // Handle clicks outside the dropdown to close it
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            // If dropdownRef is set and the clicked target is not inside the dropdown ref
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setProfileDropdownOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
     }, []);
 
     const handleLogout = async () => {
@@ -41,7 +76,7 @@ function Navbar({ isLoggedIn, username, onLogout }) {
         setProfileDropdownOpen(!profileDropdownOpen);
     };
 
-    // New handler for nav links that redirects to home if not logged in
+    // Handler for nav links that redirects to home if not logged in
     const handleNavClick = (e, path) => {
         if (!isLoggedIn) {
             e.preventDefault();
@@ -80,9 +115,17 @@ function Navbar({ isLoggedIn, username, onLogout }) {
                 {isLoggedIn ? (
                     <div className="profile-container">
                         <span className="welcome-text">Hola, {username}</span>
-                        <div className="profile-dropdown">
+                        <div className="profile-dropdown" ref={dropdownRef}>
                             <button className="profile-button" onClick={toggleProfileDropdown}>
-                                <CgProfile size={34} />
+                                {profilePicture ? (
+                                    <img
+                                        src={profilePicture}
+                                        alt="Profile"
+                                        className="profile-image"
+                                    />
+                                ) : (
+                                    <CgProfile size={34} />
+                                )}
                             </button>
                             {profileDropdownOpen && (
                                 <div className="profile-dropdown-content">

@@ -17,7 +17,9 @@ function Signup() {
         userPhoto: 'default-profile.jpg',
         address: '',
         email: '',
-        sex: 'male'
+        sex: 'male',
+        // New field for account visibility
+        isPublic: true,
     });
 
     const [error, setError] = useState('');
@@ -26,10 +28,18 @@ function Signup() {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData({
-            ...formData,
+        setFormData((prevFormData) => ({
+            ...prevFormData,
             [name]: name === 'height' || name === 'weight' ? Number(value) : value
-        });
+        }));
+    };
+
+    // Toggle for the isPublic field
+    const handleToggle = () => {
+        setFormData((prevFormData) => ({
+            ...prevFormData,
+            isPublic: !prevFormData.isPublic
+        }));
     };
 
     const handleSubmit = async (e) => {
@@ -43,6 +53,7 @@ function Signup() {
 
         setIsLoading(true);
 
+        // Removing confirmPassword before sending to backend
         const userData = { ...formData };
         delete userData.confirmPassword;
 
@@ -155,7 +166,7 @@ function Signup() {
                         </div>
 
                         <div className="form-group">
-                            <label htmlFor="phoneNumber">Numero de telefono*</label>
+                            <label htmlFor="phoneNumber">Número de teléfono*</label>
                             <input
                                 type="tel"
                                 id="phoneNumber"
@@ -203,7 +214,7 @@ function Signup() {
                         </div>
 
                         <div className="form-group">
-                            <label htmlFor="sex">Sex*</label>
+                            <label htmlFor="sex">Sexo*</label>
                             <select
                                 id="sex"
                                 name="sex"
@@ -216,6 +227,21 @@ function Signup() {
                                 <option value="other">Otro Sexo</option>
                             </select>
                         </div>
+
+                        {/* ------------- Public/Private Toggle ------------- */}
+                        <div className="form-group slider-group">
+                            <label>Visibilidad de la cuenta</label>
+                            <label className="switch">
+                                <input
+                                    type="checkbox"
+                                    checked={formData.isPublic}
+                                    onChange={handleToggle}
+                                />
+                                <span className="slider round"></span>
+                            </label>
+                            {/* The toggle text will match the style of your other labels */}
+                            <span>{formData.isPublic ? "Pública" : "Privada"}</span>
+                        </div>
                     </div>
 
                     <div className="form-buttons">
@@ -226,8 +252,6 @@ function Signup() {
                             Back to Login
                         </button>
                     </div>
-
-
                 </form>
             </div>
         </div>

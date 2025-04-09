@@ -6,6 +6,7 @@ import Signup from './pages/signup/Signup.jsx';
 import Dashboard from './components/dashboard/Dashboard.jsx';
 import HomeLoggedIn from './pages/HomeLoggedIn/HomeLoggedIn.jsx';
 import HomeNotLoggedIn from './pages/HomeNotLoggedIn/HomeNotLoggedIn.jsx';
+import Perfil from './pages/perfil/Perfil.jsx'; // Import the new Perfil component
 import './App.css';
 
 // Create a wrapper component for the Navbar that conditionally renders it
@@ -92,6 +93,11 @@ function App() {
                                 <p>Your personalized fitness journey starts here!</p>
                                 <p>This is a placeholder for the Camino Fitness page content.</p>
                             </div> : <Navigate to="/login" />}
+                        />
+                        {/* Add the new Perfil route */}
+                        <Route
+                            path="/perfil"
+                            element={user ? <Perfil /> : <Navigate to="/login" />}
                         />
                     </Routes>
                 </main>
