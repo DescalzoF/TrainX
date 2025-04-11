@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Signup.css';
-import logoImage from '../../assets/trainx-logo.png';
 import LogoTitle from "../../components/logotitle/LogoTitle.jsx";
 
 function Signup() {
@@ -18,7 +17,6 @@ function Signup() {
         address: '',
         email: '',
         sex: 'male',
-        // New field for account visibility
         isPublic: true,
     });
 

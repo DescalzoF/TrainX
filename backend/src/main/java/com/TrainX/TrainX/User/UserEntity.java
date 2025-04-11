@@ -74,6 +74,7 @@ public class UserEntity {
         this.userPhoto = userPhoto;
         this.sex = sex;
         this.xpFitness = xpFitness;
+        this.address = address;
         this.coins = 0L; // Default value
     }
 
@@ -84,7 +85,7 @@ public class UserEntity {
 
     public String getUsername() {
         return username;
-    }
+    }   
 
     public String getSurname() {
         return surname;
