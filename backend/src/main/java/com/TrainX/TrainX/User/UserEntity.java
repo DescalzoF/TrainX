@@ -1,8 +1,12 @@
 package com.TrainX.TrainX.User;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
+@Getter
+@Setter
 @Table(name="users")
 public class UserEntity {
     @Id
@@ -48,6 +52,16 @@ public class UserEntity {
     @Column(nullable = false)
     private String sex;
 
+    @Column(nullable = false)
+    private Boolean isPublic;
+
+    @Column (nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Role role = Role.USER;
+
+
+
+
     public UserEntity() {}
 
     public UserEntity(
@@ -61,7 +75,11 @@ public class UserEntity {
             Long weight,
             Long xpFitness,
             String userPhoto,
-            String sex
+            String sex,
+            String address,
+            Boolean isPublic,
+            Long coins,
+            Role role
     ) {
         this.username = name;
         this.email = email;
@@ -76,6 +94,8 @@ public class UserEntity {
         this.xpFitness = xpFitness;
         this.address = address;
         this.coins = 0L; // Default value
+        this.isPublic = isPublic;
+
     }
 
     // Getters
