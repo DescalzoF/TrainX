@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Navbar from './components/navbar/Navbar.jsx';
 import Login from './pages/login/Login.jsx';
@@ -6,102 +5,105 @@ import Signup from './pages/signup/Signup.jsx';
 import Dashboard from './components/dashboard/Dashboard.jsx';
 import HomeLoggedIn from './pages/HomeLoggedIn/HomeLoggedIn.jsx';
 import HomeNotLoggedIn from './pages/HomeNotLoggedIn/HomeNotLoggedIn.jsx';
-import Perfil from './pages/perfil/Perfil.jsx'; // Import the new Perfil component
+import Perfil from './pages/perfil/Perfil.jsx';
+import { AuthProvider, useAuth } from './contexts/AuthContext.jsx';
 import './App.css';
 
+// Protected route component
+const ProtectedRoute = ({ children }) => {
+    const { isLoggedIn, isLoading } = useAuth();
+
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
+
+    if (!isLoggedIn) {
+        return <Navigate to="/login" />;
+    }
+
+    return children;
+};
+
 // Create a wrapper component for the Navbar that conditionally renders it
-const NavbarWrapper = ({ isLoggedIn, username, onLogout }) => {
+const NavbarWrapper = () => {
     const location = useLocation();
+    const { isLoggedIn, currentUser, logout } = useAuth();
     const hideNavbarPaths = ['/login', '/signup'];
     const shouldShowNavbar = !hideNavbarPaths.includes(location.pathname);
 
     return shouldShowNavbar ? (
         <Navbar
             isLoggedIn={isLoggedIn}
-            username={username}
-            onLogout={onLogout}
+            username={currentUser?.username}
+            onLogout={logout}
         />
     ) : null;
 };
 
-function App() {
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
+function AppContent() {
+    const { isLoggedIn, currentUser, isLoading } = useAuth();
 
-    useEffect(() => {
-        const sessionId = localStorage.getItem('sessionId');
-        const userId = localStorage.getItem('userId');
-        const username = localStorage.getItem('username');
-
-        if (sessionId && userId && username) {
-            setUser({
-                sessionId,
-                userId,
-                username
-            });
-        }
-
-        setLoading(false);
-    }, []);
-
-    const handleLogin = (userData) => {
-        setUser(userData);
-    };
-
-    const handleLogout = () => {
-        setUser(null);
-    };
-
-    if (loading) {
+    if (isLoading) {
         return <div>Loading...</div>;
     }
 
     return (
-        <Router>
-            <div className="app">
+        <div className="app">
+            <NavbarWrapper />
+            <main className="app-content">
                 <Routes>
-                    <Route path="*" element={
-                        <NavbarWrapper
-                            isLoggedIn={!!user}
-                            username={user?.username}
-                            onLogout={handleLogout}
-                        />
-                    } />
+                    <Route
+                        path="/"
+                        element={isLoggedIn ? <HomeLoggedIn username={currentUser?.username} /> : <HomeNotLoggedIn />}
+                    />
+                    <Route
+                        path="/login"
+                        element={!isLoggedIn ? <Login /> : <Navigate to="/" />}
+                    />
+                    <Route
+                        path="/signup"
+                        element={!isLoggedIn ? <Signup /> : <Navigate to="/" />}
+                    />
+                    <Route
+                        path="/dashboard"
+                        element={
+                            <ProtectedRoute>
+                                <Dashboard />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/camino"
+                        element={
+                            <ProtectedRoute>
+                                <div className="dashboard">
+                                    <h1>Welcome to Camino Fitness</h1>
+                                    <p>Your personalized fitness journey starts here!</p>
+                                    <p>This is a placeholder for the Camino Fitness page content.</p>
+                                </div>
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/perfil"
+                        element={
+                            <ProtectedRoute>
+                                <Perfil />
+                            </ProtectedRoute>
+                        }
+                    />
                 </Routes>
-                <main className="app-content">
-                    <Routes>
-                        <Route
-                            path="/"
-                            element={user ? <HomeLoggedIn username={user?.username} /> : <HomeNotLoggedIn />}
-                        />
-                        <Route
-                            path="/login"
-                            element={!user ? <Login onLogin={handleLogin} /> : <Navigate to="/" />}
-                        />
-                        <Route
-                            path="/signup"
-                            element={!user ? <Signup /> : <Navigate to="/" />}
-                        />
-                        <Route
-                            path="/dashboard"
-                            element={user ? <Dashboard /> : <Navigate to="/login" />}
-                        />
-                        <Route
-                            path="/camino"
-                            element={user ? <div className="dashboard">
-                                <h1>Welcome to Camino Fitness</h1>
-                                <p>Your personalized fitness journey starts here!</p>
-                                <p>This is a placeholder for the Camino Fitness page content.</p>
-                            </div> : <Navigate to="/login" />}
-                        />
-                        {/* Add the new Perfil route */}
-                        <Route
-                            path="/perfil"
-                            element={user ? <Perfil /> : <Navigate to="/login" />}
-                        />
-                    </Routes>
-                </main>
-            </div>
+            </main>
+        </div>
+    );
+}
+
+function App() {
+    return (
+        <Router>
+            <AuthProvider>
+                <AppContent />
+            </AuthProvider>
         </Router>
     );
 }

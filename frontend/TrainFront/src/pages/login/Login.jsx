@@ -1,15 +1,18 @@
+// Login.jsx adjusted for JWT auth
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Login.css';
 import LogoTitle from "../../components/logotitle/LogoTitle.jsx";
 import axios from 'axios';
+import {useAuth } from '../../contexts/AuthContext.jsx';
 
-function Login({ onLogin }) {
+function Login() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
+    const { login } = useAuth();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -28,15 +31,16 @@ function Login({ onLogin }) {
                 throw new Error(data.message || 'Login failed');
             }
 
-            localStorage.setItem('sessionId', data.sessionId);
-            localStorage.setItem('userId', data.userId);
-            localStorage.setItem('username', data.username);
-
-            onLogin(data);
+            // The JWT token should be in the response
+            login({
+                token: data.token,
+                username: data.username
+            });
 
             navigate('/');
         } catch (err) {
-            setError(err.message || 'Error al iniciar sesión');
+            console.error("Login error:", err);
+            setError(err.response?.data?.message || 'Usuario o contraseña incorrectos');
         } finally {
             setIsLoading(false);
         }

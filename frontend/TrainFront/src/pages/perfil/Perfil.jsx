@@ -27,10 +27,10 @@ function Perfil() {
 
     useEffect(() => {
         // Check if user is logged in
-        const sessionId = localStorage.getItem('sessionId');
+        const token = localStorage.getItem('token');
         const username = localStorage.getItem('username');
 
-        if (!sessionId || !username) {
+        if (!token || !username) {
             navigate('/login');
             return;
         }
@@ -43,8 +43,7 @@ function Perfil() {
 
                 const response = await axios.get('http://localhost:8080/api/users/profile', {
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Session-ID': sessionId
+                        'Authorization': `Bearer ${token}`
                     }
                 });
 
@@ -135,7 +134,7 @@ function Perfil() {
 
         try {
             setIsLoading(true);
-            const sessionId = localStorage.getItem('sessionId');
+            const token = localStorage.getItem('token');
 
             // Only send changed fields
             const updatedFields = {};
@@ -152,8 +151,7 @@ function Perfil() {
 
             const response = await axios.put('http://localhost:8080/api/users/update-profile', updatedFields, {
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Session-ID': sessionId
+                    'Authorization': `Bearer ${token}`
                 }
             });
 

@@ -1,3 +1,4 @@
+// Navbar.jsx - ensuring proper JWT usage
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CgProfile } from "react-icons/cg";
@@ -6,10 +7,11 @@ import './Navbar.css';
 import logoImage from '../../assets/trainx-logo.png';
 import { MdOutlineArrowDropDown } from "react-icons/md";
 import { IoIosLogOut } from "react-icons/io";
-import axios from 'axios';
+import { useAuth } from '../../contexts/AuthContext.jsx';
 
-function Navbar({ isLoggedIn, username, onLogout }) {
+function Navbar() {
     const navigate = useNavigate();
+    const { isLoggedIn, currentUser, logout } = useAuth();
     const [scrolled, setScrolled] = useState(false);
     const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
     const [profilePicture, setProfilePicture] = useState(null);
@@ -31,8 +33,20 @@ function Navbar({ isLoggedIn, username, onLogout }) {
         }
 
         window.addEventListener('scroll', handleScroll);
+
+        // Listen for profile picture updates
+        const handleProfileUpdate = () => {
+            const updatedPicture = localStorage.getItem('profilePicture');
+            if (updatedPicture) {
+                setProfilePicture(updatedPicture);
+            }
+        };
+
+        window.addEventListener('profilePictureUpdated', handleProfileUpdate);
+
         return () => {
             window.removeEventListener('scroll', handleScroll);
+            window.removeEventListener('profilePictureUpdated', handleProfileUpdate);
         };
     }, []);
 
@@ -52,12 +66,7 @@ function Navbar({ isLoggedIn, username, onLogout }) {
 
     const handleLogout = async () => {
         try {
-            const sessionId = localStorage.getItem('sessionId');
-            await axios.post('http://localhost:8080/api/users/logout', { sessionId }, {
-                headers: { 'Content-Type': 'application/json' }
-            });
-            localStorage.clear();
-            onLogout();
+            await logout();
             navigate('/');
         } catch (err) {
             console.error("Error logging out:", err);
@@ -105,7 +114,7 @@ function Navbar({ isLoggedIn, username, onLogout }) {
             <div className="navbar-menu">
                 {isLoggedIn ? (
                     <div className="profile-container">
-                        <span className="welcome-text">Hola, {username}</span>
+                        <span className="welcome-text">Hola, {currentUser?.username}</span>
                         <div className="profile-dropdown" ref={dropdownRef}>
                             <button className="profile-button" onClick={toggleProfileDropdown}>
                                 {profilePicture ? (

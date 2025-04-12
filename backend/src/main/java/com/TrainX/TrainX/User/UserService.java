@@ -10,11 +10,11 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
     private final UserRepository userRepository;
+
     @Autowired
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
-
 
     public List<UserEntity> listUsers() {
         return userRepository.findAll();
@@ -44,6 +44,18 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
     }
 
+    public Optional<UserEntity> getUserByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
+
+    public boolean existsByUsername(String username) {
+        return userRepository.existsByUsername(username);
+    }
+
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
     public UserEntity updateUser(Long id, UserEntity userDetails) {
         UserEntity existingUser = getUserById(id);
         existingUser.setUsername(userDetails.getUsername());
@@ -61,7 +73,6 @@ public class UserService {
         existingUser.setRole(userDetails.getRole());
         existingUser.setCoins(userDetails.getCoins());
         existingUser.setXpFitness(userDetails.getXpFitness());
-        // Don't update coins and xpFitness here as there are specific methods for that
         return userRepository.save(existingUser);
     }
 
@@ -108,6 +119,8 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
+    // Note: This is no longer needed as we're using Spring Security's authentication
+    // but we'll keep it for backward compatibility
     public UserEntity authenticateUser(String username, String password) {
         Optional<UserEntity> userOptional = userRepository.findByUsername(username);
         if (userOptional.isPresent()) {

@@ -1,12 +1,9 @@
 package com.TrainX.TrainX.User;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+
 
 @Entity
-@Getter
-@Setter
 @Table(name="users")
 public class UserEntity {
     @Id
@@ -105,7 +102,7 @@ public class UserEntity {
 
     public String getUsername() {
         return username;
-    }   
+    }
 
     public String getSurname() {
         return surname;
@@ -210,5 +207,21 @@ public class UserEntity {
 
     public void setSex(String sex) {
         this.sex = sex;
+    }
+
+    public void setIsPublic(boolean b) {
+        this.isPublic = b;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
+    public boolean getIsPublic() {
+        return this.isPublic;
+    }
+
+    public Role getRole() {
+        return this.role;
     }
 }
