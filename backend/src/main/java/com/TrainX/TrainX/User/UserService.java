@@ -34,7 +34,9 @@ public class UserService {
         if (user.getXpFitness() == null) {
             user.setXpFitness(0L);
         }
-        return userRepository.save(user);
+        UserEntity savedUser = userRepository.save(user);
+        System.out.println("Usuario guardado: " + savedUser.getUsername());
+        return savedUser;
     }
 
     public UserEntity getUserById(Long id) {
@@ -55,6 +57,10 @@ public class UserService {
         existingUser.setUserPhoto(userDetails.getUserPhoto());
         existingUser.setAddress(userDetails.getAddress());
         existingUser.setSex(userDetails.getSex());
+        existingUser.setIsPublic(userDetails.getIsPublic());
+        existingUser.setRole(userDetails.getRole());
+        existingUser.setCoins(userDetails.getCoins());
+        existingUser.setXpFitness(userDetails.getXpFitness());
         // Don't update coins and xpFitness here as there are specific methods for that
         return userRepository.save(existingUser);
     }

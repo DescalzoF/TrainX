@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Signup.css';
 import LogoTitle from "../../components/logotitle/LogoTitle.jsx";
+import axios from 'axios';
 
 function Signup() {
     const [formData, setFormData] = useState({
@@ -55,24 +56,37 @@ function Signup() {
         const userData = { ...formData };
         delete userData.confirmPassword;
 
+        // Log formData being sent
+        console.log("FormData being sent:", userData);
+
         try {
-            const response = await fetch('http://localhost:8080/api/users', {
-                method: 'POST',
+            const response = await axios.post('http://localhost:8080/api/users', userData, {
                 headers: {
                     'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(userData),
+                }
             });
 
-            const data = await response.json();
+            console.log("Response:", response);  // Log response for debugging
 
-            if (!response.ok) {
-                throw new Error(data.message || 'Registration failed');
+            if (response.status !== 201) {
+                throw new Error(response.data.message || 'Registration failed');
             }
 
             navigate('/login');
         } catch (err) {
-            setError(err.message || 'An error occurred during registration');
+            if (err.response) {
+                // Server responded with an error
+                console.error('Server error:', err.response.data);
+                setError(err.response.data.message || 'Registration failed');
+            } else if (err.request) {
+                // Request was made but no response was received
+                console.error('No response from server:', err.request);
+                setError('No response from server. Please try again.');
+            } else {
+                // Something else caused the error
+                console.error('Error message:', err.message);
+                setError('An unexpected error occurred during registration');
+            }
         } finally {
             setIsLoading(false);
         }

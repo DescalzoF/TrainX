@@ -23,12 +23,19 @@ public class UserController {
     @PostMapping
     public ResponseEntity<UserEntity> createUser(@RequestBody UserEntity user) {
         try {
+            // Validar los datos del usuario antes de la creación
+            if (user.getEmail() == null || user.getUsername() == null) {
+                return new ResponseEntity<>(HttpStatus.BAD_REQUEST); // Asegúrate de que los datos sean válidos
+            }
+
             UserEntity newUser = userService.createUser(user);
             return new ResponseEntity<>(newUser, HttpStatus.CREATED);
         } catch (RuntimeException e) {
+            System.err.println("Error creating user: " + e.getMessage());  // Agregar detalles del error
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
+
 
     // Get all users
     @GetMapping

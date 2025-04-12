@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import './Perfil.css';
 
 function Perfil() {
@@ -40,19 +41,14 @@ function Perfil() {
                 setIsLoading(true);
                 setError(null);
 
-                const response = await fetch('http://localhost:8080/api/users/profile', {
-                    method: 'GET',
+                const response = await axios.get('http://localhost:8080/api/users/profile', {
                     headers: {
                         'Content-Type': 'application/json',
                         'Session-ID': sessionId
                     }
                 });
 
-                if (!response.ok) {
-                    throw new Error('Failed to fetch user data');
-                }
-
-                const data = await response.json();
+                const data = response.data;
 
                 const formattedData = {
                     username: data.username || username,
@@ -154,16 +150,14 @@ function Perfil() {
                 updatedFields.password = userData.contrasena;
             }
 
-            const response = await fetch('http://localhost:8080/api/users/update-profile', {
-                method: 'PUT',
+            const response = await axios.put('http://localhost:8080/api/users/update-profile', updatedFields, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Session-ID': sessionId
-                },
-                body: JSON.stringify(updatedFields)
+                }
             });
 
-            if (!response.ok) {
+            if (response.status !== 200) {
                 throw new Error('Failed to update profile');
             }
 
@@ -363,8 +357,6 @@ function Perfil() {
                         name="phoneNumber"
                         value={userData.phoneNumber}
                         onChange={handleChange}
-                        pattern="[0-9]{9,15}"
-                        title="El número debe tener entre 9 y 15 dígitos"
                         disabled={!isEditing}
                     />
                 </div>
@@ -372,26 +364,11 @@ function Perfil() {
                 <div className="form-actions">
                     {isEditing ? (
                         <>
-                            <button type="submit" className="save-button" disabled={isLoading}>
-                                {isLoading ? 'Guardando...' : 'Guardar cambios'}
-                            </button>
-                            <button
-                                type="button"
-                                className="cancel-button"
-                                onClick={handleCancel}
-                                disabled={isLoading}
-                            >
-                                Cancelar
-                            </button>
+                            <button type="submit" className="btn-submit">Guardar cambios</button>
+                            <button type="button" className="btn-cancel" onClick={handleCancel}>Cancelar</button>
                         </>
                     ) : (
-                        <button
-                            type="button"
-                            className="save-button"
-                            onClick={handleEdit}
-                        >
-                            Editar perfil
-                        </button>
+                        <button type="button" className="btn-edit" onClick={handleEdit}>Editar perfil</button>
                     )}
                 </div>
             </form>

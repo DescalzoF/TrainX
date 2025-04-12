@@ -6,13 +6,14 @@ import './Navbar.css';
 import logoImage from '../../assets/trainx-logo.png';
 import { MdOutlineArrowDropDown } from "react-icons/md";
 import { IoIosLogOut } from "react-icons/io";
+import axios from 'axios';
 
 function Navbar({ isLoggedIn, username, onLogout }) {
     const navigate = useNavigate();
     const [scrolled, setScrolled] = useState(false);
     const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
     const [profilePicture, setProfilePicture] = useState(null);
-    const dropdownRef = useRef(null); // Create a ref for the dropdown
+    const dropdownRef = useRef(null);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -29,26 +30,15 @@ function Navbar({ isLoggedIn, username, onLogout }) {
             setProfilePicture(savedProfilePicture);
         }
 
-        // Listen for profile picture updates
-        const handleProfilePictureUpdate = () => {
-            const updatedProfilePicture = localStorage.getItem('profilePicture');
-            setProfilePicture(updatedProfilePicture);
-        };
-
         window.addEventListener('scroll', handleScroll);
-        window.addEventListener('profilePictureUpdated', handleProfilePictureUpdate);
-
-        // Cleanup scroll and custom event listeners
         return () => {
             window.removeEventListener('scroll', handleScroll);
-            window.removeEventListener('profilePictureUpdated', handleProfilePictureUpdate);
         };
     }, []);
 
     // Handle clicks outside the dropdown to close it
     useEffect(() => {
         const handleClickOutside = (event) => {
-            // If dropdownRef is set and the clicked target is not inside the dropdown ref
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
                 setProfileDropdownOpen(false);
             }
@@ -61,22 +51,23 @@ function Navbar({ isLoggedIn, username, onLogout }) {
     }, []);
 
     const handleLogout = async () => {
-        const sessionId = localStorage.getItem('sessionId');
-        await fetch('http://localhost:8080/api/users/logout', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ sessionId }),
-        });
-        localStorage.clear();
-        onLogout();
-        navigate('/');
+        try {
+            const sessionId = localStorage.getItem('sessionId');
+            await axios.post('http://localhost:8080/api/users/logout', { sessionId }, {
+                headers: { 'Content-Type': 'application/json' }
+            });
+            localStorage.clear();
+            onLogout();
+            navigate('/');
+        } catch (err) {
+            console.error("Error logging out:", err);
+        }
     };
 
     const toggleProfileDropdown = () => {
         setProfileDropdownOpen(!profileDropdownOpen);
     };
 
-    // Handler for nav links that redirects to home if not logged in
     const handleNavClick = (e, path) => {
         if (!isLoggedIn) {
             e.preventDefault();

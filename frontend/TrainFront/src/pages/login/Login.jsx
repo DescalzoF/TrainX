@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Login.css';
 import LogoTitle from "../../components/logotitle/LogoTitle.jsx";
+import axios from 'axios';
 
 function Login({ onLogin }) {
     const [username, setUsername] = useState('');
@@ -16,17 +17,14 @@ function Login({ onLogin }) {
         setIsLoading(true);
 
         try {
-            const response = await fetch('http://localhost:8080/api/users/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ username, password }),
+            const response = await axios.post('http://localhost:8080/api/users/login', {
+                username,
+                password
             });
 
-            const data = await response.json();
+            const data = response.data;
 
-            if (!response.ok) {
+            if (response.status !== 200) {
                 throw new Error(data.message || 'Login failed');
             }
 
@@ -38,7 +36,7 @@ function Login({ onLogin }) {
 
             navigate('/');
         } catch (err) {
-            setError(err.message);
+            setError(err.message || 'Error al iniciar sesión');
         } finally {
             setIsLoading(false);
         }

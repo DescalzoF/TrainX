@@ -6,7 +6,7 @@ import Signup from './pages/signup/Signup.jsx';
 import Dashboard from './components/dashboard/Dashboard.jsx';
 import HomeLoggedIn from './pages/HomeLoggedIn/HomeLoggedIn.jsx';
 import HomeNotLoggedIn from './pages/HomeNotLoggedIn/HomeNotLoggedIn.jsx';
-import Perfil from './pages/perfil/Perfil.jsx'; // Import the new Perfil componen
+import Perfil from './pages/perfil/Perfil.jsx'; // Import the new Perfil component
 import './App.css';
 
 // Create a wrapper component for the Navbar that conditionally renders it
