@@ -1,4 +1,4 @@
-package com.TrainX.TrainX.User;
+package com.TrainX.TrainX.jwt.dtos;
 
 // Login Request Model
 public class LoginRequest {

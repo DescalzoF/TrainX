@@ -1,4 +1,4 @@
-package com.TrainX.TrainX.User;
+package com.TrainX.TrainX.jwt.dtos;
 
 public class LogoutRequest {
     private String sessionId;

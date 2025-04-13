@@ -1,4 +1,4 @@
-package com.TrainX.TrainX;
+package com.TrainX.TrainX.jwt.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;

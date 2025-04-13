@@ -1,11 +1,17 @@
 package com.TrainX.TrainX.User;
 
 import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.List;
 
 
 @Entity
 @Table(name="users")
-public class UserEntity {
+public class UserEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -31,8 +37,6 @@ public class UserEntity {
     @Column(nullable = false)
     private Long weight;
 
-    @Column(nullable = false)
-    private String userPhoto;
 
     @Column(nullable = false)
     private String address;
@@ -56,6 +60,8 @@ public class UserEntity {
     @Enumerated(EnumType.STRING)
     private Role role = Role.USER;
 
+    @Column(nullable = false)
+    private String userPhoto;
 
 
 
@@ -104,8 +110,33 @@ public class UserEntity {
         return username;
     }
 
+    @Override
+    public boolean isAccountNonExpired() {
+        return UserDetails.super.isAccountNonExpired();
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return UserDetails.super.isAccountNonLocked();
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return UserDetails.super.isCredentialsNonExpired();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return UserDetails.super.isEnabled();
+    }
+
     public String getSurname() {
         return surname;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
     public String getPassword() {

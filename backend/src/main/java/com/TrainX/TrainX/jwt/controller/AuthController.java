@@ -1,0 +1,73 @@
+package com.TrainX.TrainX.jwt.controller;
+
+import com.TrainX.TrainX.User.MessageResponse;
+import com.TrainX.TrainX.User.Role;
+import com.TrainX.TrainX.User.UserEntity;
+import com.TrainX.TrainX.jwt.config.JwtService;
+import com.TrainX.TrainX.jwt.dtos.LoginRequest;
+import com.TrainX.TrainX.jwt.dtos.LoginResponse;
+import com.TrainX.TrainX.jwt.dtos.RegisterUserDto;
+import com.TrainX.TrainX.jwt.services.AuthenticationService;
+import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import java.util.HashMap;
+import java.util.Map;
+
+@RestController
+@AllArgsConstructor
+@RequestMapping("/api/auth")
+public class AuthController {
+
+    private final JwtService jwtService;
+    private final AuthenticationService authService;
+
+    @PostMapping("/login")
+    public ResponseEntity<?> authenticate(@RequestBody LoginRequest loginRequest) {
+
+        UserEntity user = authService.getUserByUsername(loginRequest.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        String jwtToken = jwtService.generateToken(user);
+        LoginResponse response = new LoginResponse();
+        response.setToken(jwtToken);
+        response.setExpiresIn(jwtService.getExpirationTime());
+        response.setUsername(user.getUsername());
+
+        return ResponseEntity.ok(response);
+
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody RegisterUserDto user) {
+        try {
+            // Check if username or email already exists
+            if (authService.existsByUsername(user.getUsername())) {
+                return ResponseEntity.badRequest().body(new MessageResponse("Username is already taken"));
+            }
+
+            if (authService.existsByEmail(user.getEmail())) {
+                return ResponseEntity.badRequest().body(new MessageResponse("Email is already in use"));
+            }
+
+            // Create user
+            UserEntity savedUser = authService.createUser(user);
+
+            System.out.println(savedUser.getUsername() + " registered successfully");
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("userId", savedUser.getId());
+            response.put("username", savedUser.getUsername());
+            response.put("role", savedUser.getRole().name());
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error during registration: " + e.getMessage()));
+        }
+    }
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout() {
+        return ResponseEntity.ok(new MessageResponse("Logout successful"));
+    }
+}

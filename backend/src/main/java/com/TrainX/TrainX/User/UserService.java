@@ -20,25 +20,6 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public UserEntity createUser(UserEntity user) {
-        if (userRepository.existsByEmail(user.getEmail())) {
-            throw new RuntimeException("Email ya existe");
-        }
-        if (userRepository.existsByUsername(user.getUsername())) {
-            throw new RuntimeException("Username ya existe");
-        }
-        // Initialize coins and xpFitness for new users if not set
-        if (user.getCoins() == null) {
-            user.setCoins(0L);
-        }
-        if (user.getXpFitness() == null) {
-            user.setXpFitness(0L);
-        }
-        UserEntity savedUser = userRepository.save(user);
-        System.out.println("Usuario guardado: " + savedUser.getUsername());
-        return savedUser;
-    }
-
     public UserEntity getUserById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));

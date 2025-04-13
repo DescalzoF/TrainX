@@ -1,5 +1,7 @@
-package com.TrainX.TrainX.User;
+package com.TrainX.TrainX.jwt.services;
 
+import com.TrainX.TrainX.User.UserEntity;
+import com.TrainX.TrainX.User.UserRepository;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;

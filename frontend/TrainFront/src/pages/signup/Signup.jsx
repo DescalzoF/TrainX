@@ -60,7 +60,7 @@ function Signup() {
         console.log("FormData being sent:", userData);
 
         try {
-            const response = await axios.post('http://localhost:8080/api/users', userData, {
+            const response = await axios.post('http://localhost:8080/api/auth/register', userData, {
                 headers: {
                     'Content-Type': 'application/json',
                 }

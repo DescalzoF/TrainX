@@ -33,11 +33,11 @@ public class JwtService {
         return claimsResolver.apply(claims);
     }
 
-    public String generateToken(UserEntity user) {
+    public String generateToken(UserDetails user) {
         return generateToken(new HashMap<>(), user);
     }
 
-    public String generateToken(Map<String, Object> extraClaims, UserEntity user) {
+    public String generateToken(Map<String, Object> extraClaims, UserDetails user) {
         return buildToken(extraClaims, user, jwtExpiration);
     }
 
@@ -47,7 +47,7 @@ public class JwtService {
 
     private String buildToken(
             Map<String, Object> extraClaims,
-            UserEntity userDetails,
+            UserDetails userDetails,
             long expiration
     ) {
         return Jwts
@@ -60,7 +60,7 @@ public class JwtService {
                 .compact();
     }
 
-    public boolean isTokenValid(String token, UserEntity user) {
+    public boolean isTokenValid(String token, UserDetails user) {
         final String username = extractUsername(token);
         return (username.equals(user.getUsername())) && !isTokenExpired(token);
     }
