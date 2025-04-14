@@ -1,6 +1,6 @@
-// AuthContext.jsx needs updates to work with JWT properly
 import { createContext, useState, useEffect, useContext } from 'react';
 import axios from 'axios';
+import { jwtDecode } from 'jwt-decode'; // Importamos la librería para decodificar el JWT
 
 const AuthContext = createContext(null);
 
@@ -10,16 +10,26 @@ export function AuthProvider({ children }) {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        // Check if user is already logged in by looking for JWT token in localStorage
         const token = localStorage.getItem('token');
-        const username = localStorage.getItem('username');
+        const storedUsername = localStorage.getItem('username'); // Recuperamos el username de localStorage
 
-        if (token) {
-            // Set axios default header for all future requests
-            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        if (token && storedUsername) {
+            // Decodificamos el token para verificar su expiración
+            const decodedToken = jwtDecode(token);
 
-            setCurrentUser({ username });
-            setIsLoggedIn(true);
+            // Verificamos si el token ha expirado
+            const isTokenExpired = decodedToken.exp * 1000 < Date.now();
+
+            if (isTokenExpired) {
+                logout();
+            } else {
+                // Si el token no ha expirado, lo usamos para autenticar la sesión
+                axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+                // Restauramos el username desde localStorage
+                setCurrentUser({ username: storedUsername });
+                setIsLoggedIn(true);
+            }
         }
 
         setIsLoading(false);
@@ -31,30 +41,31 @@ export function AuthProvider({ children }) {
 
         // Save token and user info in localStorage
         localStorage.setItem('token', userData.token);
-        localStorage.setItem('username', userData.username);
 
-        setCurrentUser({
-            username: userData.username,
-        });
+        // Decodificamos el token para obtener el username
+        const decodedToken = jwtDecode(userData.token);
+        const username = decodedToken.username || decodedToken.sub; // Si no existe username, usar sub
+
+        // Guardamos el username en localStorage
+        localStorage.setItem('username', username);
+
+        setCurrentUser({ username });
         setIsLoggedIn(true);
     };
 
     const logout = async () => {
         try {
-            // Call logout endpoint
             const token = localStorage.getItem('token');
             await axios.post('http://localhost:8080/api/users/logout', {}, {
                 headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+                    'Authorization': `Bearer ${token}`,
+                },
             });
         } catch (error) {
             console.error('Error during logout:', error);
         } finally {
-            // Remove token from axios headers
+            // Eliminar el token y el username de localStorage
             delete axios.defaults.headers.common['Authorization'];
-
-            // Clear localStorage
             localStorage.removeItem('token');
             localStorage.removeItem('username');
             localStorage.removeItem('profilePicture');

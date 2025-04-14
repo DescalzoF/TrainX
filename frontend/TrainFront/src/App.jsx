@@ -1,3 +1,5 @@
+// App.jsx
+
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Navbar from './components/navbar/Navbar.jsx';
 import Login from './pages/login/Login.jsx';
@@ -34,7 +36,7 @@ const NavbarWrapper = () => {
     return shouldShowNavbar ? (
         <Navbar
             isLoggedIn={isLoggedIn}
-            username={currentUser?.username}
+            username={currentUser?.username} // Make sure this is passed to Navbar
             onLogout={logout}
         />
     ) : null;
@@ -68,19 +70,7 @@ function AppContent() {
                         path="/dashboard"
                         element={
                             <ProtectedRoute>
-                                <Dashboard />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/camino"
-                        element={
-                            <ProtectedRoute>
-                                <div className="dashboard">
-                                    <h1>Welcome to Camino Fitness</h1>
-                                    <p>Your personalized fitness journey starts here!</p>
-                                    <p>This is a placeholder for the Camino Fitness page content.</p>
-                                </div>
+                                <Dashboard username={currentUser?.username} />  {/* Pass username here */}
                             </ProtectedRoute>
                         }
                     />
@@ -88,7 +78,7 @@ function AppContent() {
                         path="/perfil"
                         element={
                             <ProtectedRoute>
-                                <Perfil />
+                                <Perfil username={currentUser?.username} />  {/* Pass username here */}
                             </ProtectedRoute>
                         }
                     />

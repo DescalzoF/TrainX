@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom';
 import './HomeNotLoggedIn.css';
-import {GiWeightLiftingUp} from "react-icons/gi";
-import {IoIosStats} from "react-icons/io";
-import {FaTrophy} from "react-icons/fa";
-import {IoChatbox} from "react-icons/io5";
+import { GiWeightLiftingUp } from 'react-icons/gi';
+import { IoIosStats } from 'react-icons/io';
+import { FaTrophy } from 'react-icons/fa';
+import { IoChatbox } from 'react-icons/io5';
 
 function HomeNotLoggedIn() {
     const navigate = useNavigate();
@@ -59,7 +59,7 @@ function HomeNotLoggedIn() {
                 <p>Que nada te detenga</p>
             </section>
         </div>
-
     );
 }
+
 export default HomeNotLoggedIn;

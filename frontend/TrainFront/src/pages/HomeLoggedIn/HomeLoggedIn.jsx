@@ -1,17 +1,20 @@
 import { useNavigate } from 'react-router-dom';
 import './HomeLoggedIn.css';
-import {FaPlus, FaWeightHanging} from "react-icons/fa";
-import {MdOutlineSportsBaseball, MdOutlineSportsRugby, MdSportsSoccer} from "react-icons/md";
-import {GiMuscleUp} from "react-icons/gi";
+import { FaPlus, FaWeightHanging } from "react-icons/fa";
+import { MdOutlineSportsBaseball, MdOutlineSportsRugby, MdSportsSoccer } from "react-icons/md";
+import { GiMuscleUp } from "react-icons/gi";
+import { useAuth } from '../../contexts/AuthContext';  // Importar useAuth
 
-function HomeLoggedIn({username}) {
+function HomeLoggedIn() {
+    const { currentUser } = useAuth();  // Obtener el usuario desde el AuthContext
     const navigate = useNavigate();
+
     return (
         <div className="home-container">
             <section className="hero-section">
                 <div className="hero-content">
-                    <h1>Bienvenido, {username}!</h1>
-                    <p>Estas listo para continuar tu camino fitness con TrainX?</p>
+                    <h1>Bienvenido, {currentUser?.username || 'usuario'}!</h1>  {/* Usar currentUser directamente */}
+                    <p>Estas listo para continuar tu camino fitness con TrainX</p>
                     <div className="hero-buttons">
                         <button className="primary-button" onClick={() => navigate('/camino')}>
                             Arranca tu camino fitness ahora!
@@ -57,10 +60,12 @@ function HomeLoggedIn({username}) {
             </section>
 
             <section className="cta-section">
-                <h3>Interesado hablar con ayuda profresonal psicologica?</h3>
+                <h3>Interesado hablar con ayuda profesional psicológica?</h3>
                 <p>Que nada te detenga</p>
             </section>
         </div>
     );
 }
+
 export default HomeLoggedIn;
+
