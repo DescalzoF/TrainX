@@ -2,21 +2,26 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Perfil.css';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { useAuth } from '../../contexts/AuthContext';
 
 function Perfil() {
     const navigate = useNavigate();
+    const { currentUser } = useAuth();
     const [userData, setUserData] = useState({
         username: '',
         email: '',
         surname: '',
-        contrasena: '',
+        password: '',
         weight: '',
         height: '',
         address: '',
         phoneNumber: '',
         age: '',
         sex: '',
-        profilePicture: null
+        userPhoto: null,
+        isPublic: true,
+        role: 'USER'
     });
     const [originalData, setOriginalData] = useState({});
     const [previewImage, setPreviewImage] = useState(null);
@@ -24,62 +29,72 @@ function Perfil() {
     const [error, setError] = useState(null);
     const [successMessage, setSuccessMessage] = useState('');
     const [isEditing, setIsEditing] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     useEffect(() => {
-        // Check if user is logged in
         const token = localStorage.getItem('token');
-        const username = localStorage.getItem('username');
 
-        if (!token || !username) {
+        if (!token) {
             navigate('/login');
             return;
         }
 
-        // Fetch user data
         const fetchUserData = async () => {
             try {
                 setIsLoading(true);
                 setError(null);
 
-                const response = await axios.get('http://localhost:8080/api/users/profile', {
+                // Using the authenticated user endpoint defined in UserController
+                const response = await axios.get('http://localhost:8080/api/users/me/me', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
                 });
 
                 const data = response.data;
+                console.log("Fetched user data:", data);
 
                 const formattedData = {
-                    username: data.username || username,
+                    username: data.username || '',
                     surname: data.surname || '',
                     email: data.email || '',
-                    contrasena: '',  // Password field should be empty for security
-                    weight: data.weight || '',
-                    height: data.height || '',
+                    password: '',  // Password field should be empty for security
+                    weight: data.weight || 0,
+                    height: data.height || 0,
                     address: data.address || '',
                     phoneNumber: data.phoneNumber || '',
                     age: data.age || '',
                     sex: data.sex || 'male',
-                    profilePicture: data.userPhoto || null
+                    userPhoto: data.userPhoto || null,
+                    isPublic: data.isPublic || true,
+                    role: data.role || 'USER',
+                    coins: data.coins || 0,
+                    xpFitness: data.xpFitness || 0
                 };
 
                 setUserData(formattedData);
                 setOriginalData(formattedData);
 
-                // If user already has a profile picture, set it as preview
-                if (data.userPhoto && data.userPhoto !== 'default-profile.jpg') {
-                    setPreviewImage(data.userPhoto);
+                // Handle profile picture
+                if (data.userPhoto && data.userPhoto !== 'default.jpg') {
+                    // For base64 images
+                    if (data.userPhoto.startsWith('data:')) {
+                        setPreviewImage(data.userPhoto);
+                    } else {
+                        // Set a default path or handle as needed
+                        setPreviewImage(`http://localhost:8080/images/${data.userPhoto}`);
+                    }
                 }
             } catch (err) {
-                setError("No se pudo cargar los datos del usuario. Por favor, inténtelo de nuevo más tarde.");
                 console.error('Error fetching user data:', err);
+                setError("No se pudo cargar los datos del usuario. Por favor, inténtelo de nuevo más tarde.");
             } finally {
                 setIsLoading(false);
             }
         };
 
         fetchUserData();
-    }, [navigate]);
+    }, [navigate, currentUser]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -103,7 +118,7 @@ function Perfil() {
             setPreviewImage(reader.result);
             setUserData(prevData => ({
                 ...prevData,
-                profilePicture: reader.result
+                userPhoto: reader.result
             }));
         };
         reader.readAsDataURL(file);
@@ -120,11 +135,15 @@ function Perfil() {
         setSuccessMessage('');
 
         // Reset preview image to original
-        if (originalData.profilePicture && originalData.profilePicture !== 'default-profile.jpg') {
-            setPreviewImage(originalData.profilePicture);
+        if (originalData.userPhoto && originalData.userPhoto !== 'default.jpg') {
+            setPreviewImage(originalData.userPhoto);
         } else {
             setPreviewImage(null);
         }
+    };
+
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword);
     };
 
     const handleSubmit = async (e) => {
@@ -136,22 +155,25 @@ function Perfil() {
             setIsLoading(true);
             const token = localStorage.getItem('token');
 
-            // Only send changed fields
-            const updatedFields = {};
-            for (const key in userData) {
-                if (userData[key] !== originalData[key] && key !== 'contrasena') {
-                    updatedFields[key] = userData[key];
-                }
+            // Preserve fields that shouldn't be changed directly
+            const updatedFields = {
+                ...userData,
+                // Ensure these fields are not lost during update
+                coins: originalData.coins,
+                xpFitness: originalData.xpFitness,
+                role: originalData.role
+            };
+
+            // Remove password if it's empty
+            if (!updatedFields.password) {
+                delete updatedFields.password;
             }
 
-            // Add password only if it was changed
-            if (userData.contrasena) {
-                updatedFields.password = userData.contrasena;
-            }
-
-            const response = await axios.put('http://localhost:8080/api/users/update-profile', updatedFields, {
+            // Use the profile update endpoint
+            const response = await axios.put('http://localhost:8080/api/profile/update', updatedFields, {
                 headers: {
-                    'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
                 }
             });
 
@@ -159,20 +181,21 @@ function Perfil() {
                 throw new Error('Failed to update profile');
             }
 
-            // Update original data
-            setOriginalData({...userData});
+            // Update original data with new values
+            setOriginalData({...userData, password: ''});
 
-            // Save profile picture to localStorage for Navbar if needed
-            if (userData.profilePicture) {
-                localStorage.setItem('profilePicture', userData.profilePicture);
+            // Save profile picture to localStorage if needed
+            if (userData.userPhoto && userData.userPhoto !== originalData.userPhoto) {
+                localStorage.setItem('profilePicture', previewImage);
+                // Notify other components that profile picture has been updated
                 window.dispatchEvent(new Event('profilePictureUpdated'));
             }
 
             setIsEditing(false);
             setSuccessMessage('Perfil actualizado con éxito');
         } catch (err) {
-            setError("No se pudo actualizar el perfil. Por favor, inténtelo de nuevo más tarde.");
             console.error('Error updating profile:', err);
+            setError(err.response?.data?.message || "No se pudo actualizar el perfil. Por favor, inténtelo de nuevo más tarde.");
         } finally {
             setIsLoading(false);
         }
@@ -260,16 +283,25 @@ function Perfil() {
                 </div>
 
                 {isEditing && (
-                    <div className="form-group">
-                        <label htmlFor="contrasena">Contraseña</label>
-                        <input
-                            type="password"
-                            id="contrasena"
-                            name="contrasena"
-                            value={userData.contrasena}
-                            onChange={handleChange}
-                            placeholder="Introduce nueva contraseña"
-                        />
+                    <div className="form-group password-input-group">
+                        <label htmlFor="password">Contraseña</label>
+                        <div className="password-input-wrapper">
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                id="password"
+                                name="password"
+                                value={userData.password}
+                                onChange={handleChange}
+                                placeholder="Introduce nueva contraseña"
+                            />
+                            <button
+                                type="button"
+                                className="toggle-password-visibility"
+                                onClick={togglePasswordVisibility}
+                            >
+                                {showPassword ? <FaEyeSlash /> : <FaEye />}
+                            </button>
+                        </div>
                         <p className="field-info">Dejar en blanco para mantener la actual</p>
                     </div>
                 )}
@@ -310,7 +342,7 @@ function Perfil() {
                     <div className="form-group half">
                         <label htmlFor="age">Edad</label>
                         <input
-                            type="number"
+                            type="text"
                             id="age"
                             name="age"
                             value={userData.age}
@@ -335,28 +367,71 @@ function Perfil() {
                     </div>
                 </div>
 
-                <div className="form-group">
-                    <label htmlFor="address">Domicilio</label>
-                    <input
-                        type="text"
-                        id="address"
-                        name="address"
-                        value={userData.address}
-                        onChange={handleChange}
-                        disabled={!isEditing}
-                    />
+                <div className="form-row">
+                    <div className="form-group half">
+                        <label htmlFor="address">Domicilio</label>
+                        <input
+                            type="text"
+                            id="address"
+                            name="address"
+                            value={userData.address}
+                            onChange={handleChange}
+                            disabled={!isEditing}
+                        />
+                    </div>
+
+                    <div className="form-group half">
+                        <label htmlFor="phoneNumber">Número de teléfono</label>
+                        <input
+                            type="tel"
+                            id="phoneNumber"
+                            name="phoneNumber"
+                            value={userData.phoneNumber}
+                            onChange={handleChange}
+                            disabled={!isEditing}
+                        />
+                    </div>
                 </div>
 
-                <div className="form-group">
-                    <label htmlFor="phoneNumber">Número de teléfono</label>
-                    <input
-                        type="tel"
-                        id="phoneNumber"
-                        name="phoneNumber"
-                        value={userData.phoneNumber}
-                        onChange={handleChange}
-                        disabled={!isEditing}
-                    />
+                <div className="form-row">
+                    <div className="form-group half">
+                        <label htmlFor="isPublic">Perfil público</label>
+                        <select
+                            id="isPublic"
+                            name="isPublic"
+                            value={userData.isPublic.toString()}
+                            onChange={(e) => setUserData({...userData, isPublic: e.target.value === 'true'})}
+                            disabled={!isEditing}
+                        >
+                            <option value="true">Sí</option>
+                            <option value="false">No</option>
+                        </select>
+                    </div>
+                </div>
+
+                {/* Read-only fields to display */}
+                <div className="form-row">
+                    <div className="form-group half">
+                        <label htmlFor="coins">Monedas</label>
+                        <input
+                            type="number"
+                            id="coins"
+                            name="coins"
+                            value={userData.coins || 0}
+                            disabled={true}
+                        />
+                    </div>
+
+                    <div className="form-group half">
+                        <label htmlFor="xpFitness">XP Fitness</label>
+                        <input
+                            type="number"
+                            id="xpFitness"
+                            name="xpFitness"
+                            value={userData.xpFitness || 0}
+                            disabled={true}
+                        />
+                    </div>
                 </div>
 
                 <div className="form-actions">
