@@ -1,22 +1,26 @@
 import { useNavigate } from 'react-router-dom';
 import './HomeLoggedIn.css';
 import { FaPlus, FaWeightHanging } from "react-icons/fa";
-import { MdOutlineSportsBaseball, MdOutlineSportsRugby, MdSportsSoccer } from "react-icons/md";
+import { MdOutlineSportsBaseball, MdOutlineSportsRugby, MdOutlineSportsSoccer } from "react-icons/md";
 import { GiMuscleUp } from "react-icons/gi";
-import { useAuth } from '../../contexts/AuthContext';  // Importar useAuth
+import { useAuth } from '../../contexts/AuthContext';
 
 function HomeLoggedIn() {
-    const { currentUser } = useAuth();  // Obtener el usuario desde el AuthContext
+    const { currentUser } = useAuth();
     const navigate = useNavigate();
+
+    const handleCaminoClick = () => {
+        navigate('/camino');
+    };
 
     return (
         <div className="home-container">
             <section className="hero-section">
                 <div className="hero-content">
-                    <h1>Bienvenido, {currentUser?.username || 'usuario'}!</h1>  {/* Usar currentUser directamente */}
+                    <h1>Bienvenido, {currentUser?.username || 'usuario'}!</h1>
                     <p>Estas listo para continuar tu camino fitness con TrainX</p>
                     <div className="hero-buttons">
-                        <button className="primary-button" onClick={() => navigate('/camino')}>
+                        <button className="primary-button" onClick={handleCaminoClick}>
                             Arranca tu camino fitness ahora!
                         </button>
                     </div>
@@ -26,36 +30,49 @@ function HomeLoggedIn() {
             <section className="features-section">
                 <h2>Tu Camino Fitness</h2>
 
-                <div className="features-grid">
-                    <div className="feature-card">
-                        <div className="feature-icon"> <MdOutlineSportsBaseball size={40}/> <MdSportsSoccer size={40}/> <MdOutlineSportsRugby size={40}/></div>
+                <div className="caminos-grid">
+                    <div className="camino-card" onClick={handleCaminoClick}>
+                        <div className="camino-card-icon">
+                            <div className="icon-container">
+                                <MdOutlineSportsBaseball size={30} />
+                                <MdOutlineSportsSoccer size={30} />
+                                <MdOutlineSportsRugby size={30} />
+                            </div>
+                        </div>
                         <h3>Deportista</h3>
-                        <p>Creado para acceder tu mejor performance en el deporte que te guste!</p>
                     </div>
 
-                    <div className="feature-card">
-                        <div className="feature-icon"> <FaWeightHanging size={90} /></div>
+                    <div className="camino-card" onClick={handleCaminoClick}>
+                        <div className="camino-card-icon">
+                            <FaWeightHanging size={50} />
+                        </div>
                         <h3>Fuerza</h3>
-                        <p>Diseñado para maximizar tu fuerza!</p>
                     </div>
 
-                    <div className="feature-card">
-                        <div className="feature-icon"><FaWeightHanging size={50}/> <GiMuscleUp size={50}/></div>
+                    <div className="camino-card" onClick={handleCaminoClick}>
+                        <div className="camino-card-icon">
+                            <div className="icon-container">
+                                <FaWeightHanging size={30} />
+                                <GiMuscleUp size={30} />
+                            </div>
+                        </div>
                         <h3>Hibrido</h3>
-                        <p>El camino para mejorar en todos aspectos!</p>
                     </div>
 
-                    <div className="feature-card">
-                        <div className="feature-icon"> <GiMuscleUp size={90}/></div>
+                    <div className="camino-card" onClick={handleCaminoClick}>
+                        <div className="camino-card-icon">
+                            <GiMuscleUp size={50} />
+                        </div>
                         <h3>Hipertrofia</h3>
-                        <p>Diseñado para maximizar tu crecimiento muscular!</p>
                     </div>
 
-                    <div className="feature-card">
-                        <div className="feature-icon"><FaPlus size={90}/></div>
+                    <div className="camino-card" onClick={handleCaminoClick}>
+                        <div className="camino-card-icon">
+                            <FaPlus size={50} />
+                        </div>
                         <h3>Otro Camino</h3>
-                        <p>Elegi que queres hacer con tu Camino Fitness!</p>
                     </div>
+
                 </div>
             </section>
 
@@ -68,4 +85,3 @@ function HomeLoggedIn() {
 }
 
 export default HomeLoggedIn;
-

@@ -9,6 +9,9 @@ import HomeLoggedIn from './pages/HomeLoggedIn/HomeLoggedIn.jsx';
 import HomeNotLoggedIn from './pages/HomeNotLoggedIn/HomeNotLoggedIn.jsx';
 import Perfil from './pages/perfil/Perfil.jsx';
 import { AuthProvider, useAuth } from './contexts/AuthContext.jsx';
+import CaminoFitness from './pages/CaminoFitness/CaminoFitness.jsx';
+import ForgotPassword from './pages/auth/ForgotPassword/ForgotPassword.jsx';
+import ResetPassword from './pages/auth/ResetPassword/ResetPassword.jsx';
 import './App.css';
 
 // Protected route component
@@ -82,6 +85,20 @@ function AppContent() {
                             </ProtectedRoute>
                         }
                     />
+                    <Route
+                        path="/camino"
+                        element={
+                            <ProtectedRoute>
+                                <CaminoFitness username={currentUser?.username} />  {/* Pass username here */}
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route path="/forgot-password"
+                           element={
+                        <ForgotPassword />} />
+                    <Route
+                        path="/reset-password"
+                        element={<ResetPassword />} />
                 </Routes>
             </main>
         </div>
