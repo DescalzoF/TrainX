@@ -9,6 +9,7 @@ import HomeLoggedIn from './pages/HomeLoggedIn/HomeLoggedIn.jsx';
 import HomeNotLoggedIn from './pages/HomeNotLoggedIn/HomeNotLoggedIn.jsx';
 import Perfil from './pages/perfil/Perfil.jsx';
 import { AuthProvider, useAuth } from './contexts/AuthContext.jsx';
+import CaminoFitness from './pages/CaminoFitness/CaminoFitness.jsx';
 import ForgotPassword from './pages/auth/ForgotPassword/ForgotPassword.jsx';
 import ResetPassword from './pages/auth/ResetPassword/ResetPassword.jsx';
 import './App.css';
@@ -32,7 +33,7 @@ const ProtectedRoute = ({ children }) => {
 const NavbarWrapper = () => {
     const location = useLocation();
     const { isLoggedIn, currentUser, logout } = useAuth();
-    const hideNavbarPaths = ['/login', '/signup','/forgot-password', '/reset-password'];
+    const hideNavbarPaths = ['/login', '/signup'];
     const shouldShowNavbar = !hideNavbarPaths.includes(location.pathname);
 
     return shouldShowNavbar ? (
@@ -81,6 +82,14 @@ function AppContent() {
                         element={
                             <ProtectedRoute>
                                 <Perfil username={currentUser?.username} />  {/* Pass username here */}
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/camino"
+                        element={
+                            <ProtectedRoute>
+                                <CaminoFitness username={currentUser?.username} />  {/* Pass username here */}
                             </ProtectedRoute>
                         }
                     />

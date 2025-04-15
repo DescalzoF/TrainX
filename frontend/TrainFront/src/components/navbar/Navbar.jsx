@@ -94,11 +94,11 @@ function Navbar() {
             </div>
 
             <div className="navbar-links">
-                <a href="#" onClick={(e) => handleNavClick(e, '/camino')} className="nav-link">Camino Fitness</a>
-                <a href="#" onClick={(e) => handleNavClick(e, '/gyms')} className="nav-link">Gimnasios</a>
-                <a href="#" onClick={(e) => handleNavClick(e, '/progress')} className="nav-link">Progreso</a>
+                <a href="" onClick={(e) => handleNavClick(e, '/camino')} className="nav-link">Camino Fitness</a>
+                <a href="" onClick={(e) => handleNavClick(e, '/gyms')} className="nav-link">Gimnasios</a>
+                <a href="" onClick={(e) => handleNavClick(e, '/progress')} className="nav-link">Progreso</a>
                 <div className="dropdown">
-                    <a href="#" onClick={(e) => handleNavClick(e, '/leaderboard')} className="nav-link">
+                    <a href="" onClick={(e) => handleNavClick(e, '/leaderboard')} className="nav-link">
                         Leaderboard <MdOutlineArrowDropDown size={30}/>
                     </a>
                     <div className="dropdown-content">
@@ -107,8 +107,8 @@ function Navbar() {
                         <a href="#" onClick={(e) => handleNavClick(e, '/leaderboard/Semanal')}>Semanal</a>
                     </div>
                 </div>
-                <a href="#" onClick={(e) => handleNavClick(e, '/challenges')} className="nav-link">Duelos Semanales</a>
-                <a href="#" onClick={(e) => handleNavClick(e, '/forum')} className="nav-link">Foro</a>
+                <a href="" onClick={(e) => handleNavClick(e, '/challenges')} className="nav-link">Duelos Semanales</a>
+                <a href="" onClick={(e) => handleNavClick(e, '/forum')} className="nav-link">Foro</a>
             </div>
 
             <div className="navbar-menu">
