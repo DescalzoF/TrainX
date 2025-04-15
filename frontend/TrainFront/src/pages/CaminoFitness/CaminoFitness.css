@@ -1,34 +1,39 @@
 .camino-container {
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
-    padding: 20px;
-    background-color: #f5f5f5;
-    font-family: Arial, sans-serif;
+    min-height: calc(100vh - 70px);
+    padding: 15px;
+    padding-top: 120px; /* Increased to account for navbar */
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    width: 100%;
+    margin-top: 60px; /* Added margin to push content below navbar */
 }
 
 .camino-header {
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 40px;
+    z-index: 10; /* Ensure header is above other elements */
 }
 
 .camino-header h1 {
-    font-size: 2rem;
+    font-size: 2.2rem;
     margin-bottom: 10px;
-    color: #333;
+    color: #000000;
+    font-weight: 600;
 }
 
 .subtitle {
-    font-size: 1rem;
-    color: #666;
-    margin-bottom: 20px;
+    font-size: 1.1rem;
+    color: #000000;
+    letter-spacing: 0.5px;
 }
 
 .caminos-list {
     display: flex;
     flex-direction: column;
-    gap: 15px;
-    max-width: 800px;
+    gap: 20px;
+    max-width: 900px;
     margin: 0 auto;
     width: 100%;
 }
@@ -36,62 +41,114 @@
 .camino-option {
     display: flex;
     background-color: white;
-    border-radius: 5px;
-    padding: 15px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
     cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition: all 0.3s ease;
+    border-left: 5px solid transparent;
+    position: relative;
+    width: 100%;
+    min-height: 150px; /* Set minimum height for all containers */
+    height: auto; /* Allow height to grow as needed */
+    align-items: flex-start; /* Align items to top */
+}
+
+.camino-option:before {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 4px;
+    width: 0;
+    background: linear-gradient(90deg, #3498db, #2ecc71);
+    transition: width 0.4s ease;
 }
 
 .camino-option:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
 }
 
-.camino-icon {
+.camino-option:hover:before {
+    width: 100%;
+}
+
+.camino-option:nth-child(1):hover,
+.camino-option:nth-child(2):hover,
+.camino-option:nth-child(3):hover,
+.camino-option:nth-child(4):hover,
+.camino-option:nth-child(5):hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Updated icon container and styling */
+.camino-icon-container {
+    width: 70px;
+    min-width: 70px;
+    height: 70px;
+    margin-right: 20px;
+    border-radius: 50%;
+    background-color: #f0f0f0;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 80px;
-    min-width: 80px;
-    height: 80px;
-    margin-right: 15px;
+    transition: all 0.3s ease;
+    overflow: hidden;
 }
 
-.icon {
-    font-size: 24px;
-    margin: 0 2px;
+.camino-icon {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
 }
 
-.icon-large {
-    font-size: 40px;
+.camino-option:hover .camino-icon-container {
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+}
+
+.camino-option:hover .camino-icon {
+    transform: scale(1.08);
 }
 
 .camino-info {
     flex: 1;
+    width: calc(100% - 90px); /* Account for icon width and margin */
+    display: flex;
+    flex-direction: column;
 }
 
 .camino-info h3 {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     margin-bottom: 10px;
-    color: #333;
+    color: #000000;
+    font-weight: 600;
+    transition: all 0.3s ease;
 }
 
-.description-box {
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 10px;
-    background-color: #f9f9f9;
-    min-height: 30px;
-    max-height: 120px;
-    overflow-y: auto;
+.camino-option:hover .camino-info h3 {
+    transform: translateX(5px);
 }
 
-.description-box p {
+.complete-description {
+    color: #000000;
+    font-size: 0.95rem;
+    line-height: 1.6;
     margin: 0;
-    color: #666;
-    font-size: 0.9rem;
-    line-height: 1.4;
+    transition: all 0.3s ease;
+    text-align: left;
+    width: 100%; /* Ensure full width */
+    padding-right: 10px; /* Add some padding on the right */
+    display: block !important; /* Force display */
+    visibility: visible !important; /* Force visibility */
+    opacity: 1 !important; /* Ensure opacity is 100% */
+    position: static !important; /* Use static positioning */
+    overflow: visible !important; /* Ensure overflow is visible */
+    height: auto !important; /* Ensure height adjusts to content */
+    max-height: none !important; /* Remove any max-height constraints */
+    background: transparent !important; /* Ensure background is transparent */
 }
 
 /* Confirmation Modal */
@@ -101,26 +158,29 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.6);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1000;
+    backdrop-filter: blur(4px);
 }
 
 .confirmation-content {
     background-color: white;
-    padding: 30px;
-    border-radius: 8px;
+    padding: 35px;
+    border-radius: 15px;
     width: 90%;
-    max-width: 400px;
+    max-width: 450px;
     text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
 .confirmation-content h2 {
     margin-bottom: 30px;
-    font-size: 1.5rem;
-    color: #333;
+    font-size: 1.7rem;
+    color: #000000;
+    font-weight: 600;
 }
 
 .confirmation-buttons {
@@ -130,81 +190,138 @@
 }
 
 .no-button, .si-button {
-    padding: 10px 40px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    padding: 12px 40px;
+    border: none;
+    border-radius: 8px;
     font-size: 1.1rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: all 0.2s ease;
 }
 
 .no-button {
-    background-color: #f5f5f5;
-    color: #333;
+    background-color: #f1f2f6;
+    color: #000000;
 }
 
 .si-button {
-    background-color: #4a90e2;
+    background-color: #3498db;
     color: white;
-    border-color: #4a90e2;
 }
 
 .no-button:hover {
-    background-color: #e5e5e5;
+    background-color: #e5e7eb;
+    transform: scale(1.05);
 }
 
 .si-button:hover {
-    background-color: #3a7bc8;
+    background-color: #2980b9;
+    transform: scale(1.05);
 }
 
 .footer-note {
     margin-top: 40px;
     text-align: center;
-    color: #666;
+    color: #000000;
     font-size: 0.9rem;
-    border-top: 1px solid #ddd;
+    border-top: 1px solid #ecf0f1;
     padding-top: 20px;
 }
 
 .phone-number {
-    font-size: 0.8rem;
-    color: #888;
-}
-
-/* Individual camino icons styling */
-.camino-option:nth-child(1) .camino-icon {
-    color: #4285f4;
-}
-
-.camino-option:nth-child(2) .camino-icon {
-    color: #ea4335;
-}
-
-.camino-option:nth-child(3) .camino-icon {
-    color: #fbbc05;
-}
-
-.camino-option:nth-child(4) .camino-icon {
-    color: #34a853;
-}this
-
-.camino-option:nth-child(5) .camino-icon {
-    color: #8e44ad;
+    font-size: 0.85rem;
+    color: #000000;
+    margin-top: 5px;
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
+    .camino-container {
+        padding: 15px;
+        padding-top: 140px; /* Increased for navbar */
+        margin-top: 50px; /* Adjusted for mobile */
+    }
+
+    .camino-header h1 {
+        font-size: 1.8rem;
+    }
+
+    .subtitle {
+        font-size: 0.95rem;
+    }
+
+    .camino-option {
+        padding: 15px;
+        min-height: 120px; /* Slightly smaller min-height for mobile */
+    }
+
+    .camino-icon-container {
+        width: 60px;
+        min-width: 60px;
+        height: 60px;
+        margin-right: 15px;
+    }
+
+    .camino-info h3 {
+        font-size: 1.1rem;
+        margin-bottom: 8px;
+    }
+
+    .complete-description {
+        font-size: 0.9rem;
+    }
+
+    .confirmation-content {
+        padding: 25px;
+    }
+
+    .confirmation-content h2 {
+        font-size: 1.4rem;
+        margin-bottom: 25px;
+    }
+
+    .no-button, .si-button {
+        padding: 10px 30px;
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .camino-container {
+        padding-top: 150px; /* Further increased for mobile navbar */
+    }
+
+    .camino-header h1 {
+        font-size: 1.6rem;
+        margin-top: 20px; /* Add margin to push header down */
+    }
+
+    .subtitle {
+        font-size: 0.9rem;
+    }
+
     .camino-option {
         flex-direction: column;
-        align-items: center;
+        padding: 20px;
+        min-height: auto; /* Let it adjust to content on mobile */
+        height: auto;
     }
 
-    .camino-icon {
-        margin-right: 0;
-        margin-bottom: 15px;
+    .camino-icon-container {
+        margin: 0 auto 15px auto;
     }
 
-    .description-box {
+    .camino-info {
         width: 100%;
+        text-align: center;
+    }
+
+    .camino-info h3 {
+        text-align: center;
+    }
+
+    .complete-description {
+        text-align: center;
+        padding: 0 5px;
     }
 }

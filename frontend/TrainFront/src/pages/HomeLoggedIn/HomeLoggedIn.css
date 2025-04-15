@@ -223,12 +223,129 @@
     border-radius: 4px; /* Rounded corners */
     text-align: center; /* Centered text */
     z-index: 1; /* Ensure it appears above other elements */
-    width: 180px; /* Adjust width to fit below the card */
+    width: 190px; /* Adjust width to fit below the card */
+}
+
+.camino-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.camino-card-icon {
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.icon-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.camino-card:nth-child(1) .camino-card-icon {
+    color: #333;
+}
+
+.camino-card:nth-child(2) .camino-card-icon {
+    color: #333;
+}
+
+.camino-card:nth-child(3) .camino-card-icon {
+    color: #333;
+}
+
+.camino-card:nth-child(4) .camino-card-icon {
+    color: #333;
+}
+
+.camino-card:nth-child(5) .camino-card-icon {
+    color: #333;
+}
+
+.camino-card h3 {
+    font-size: 1.3rem;
+    color: #333;
+    margin-top: 0;
+}
+
+.cta-section {
+    background-color: #0D1117;
+    color: white;
+    padding: 80px 20px;
+    text-align: center;
+}
+
+.cta-section h3 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+}
+
+.cta-section p {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@media (max-width: 768px) {
+    .hero-content h1 {
+        font-size: 2.2rem;
+    }
+
+    .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .caminos-grid {
+        justify-content: center;
+    }
+
+    .camino-card {
+        width: 150px;
+        height: 200px;
+    }
+}
+.camino-card {
+    position: relative;
+    margin-bottom: 60px;
+}
+
+.camino-card:hover {
+    transform: translateY(-40px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.camino-description {
+    display: none;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 10px;
+    border-radius: 4px;
+    text-align: center;
+    z-index: 1;
+    width: 190px;
 }
 
 .camino-card:hover .camino-description {
-    display: block; /* Show on hover */
+    display: block;
 }
+
+/* New classes for individual card description positioning */
+.camino-card:nth-child(1) .camino-description { bottom: -155px; }
+.camino-card:nth-child(2) .camino-description { bottom: -95px; }
+.camino-card:nth-child(3) .camino-description { bottom: -95px; }
+.camino-card:nth-child(4) .camino-description { bottom: -125px; }
+.camino-card:nth-child(5) .camino-description { bottom: -95px; }
+
 
 .icon-container.horizontal {
     flex-direction: row; /* Align icons horizontally */

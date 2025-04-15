@@ -33,7 +33,7 @@ const ProtectedRoute = ({ children }) => {
 const NavbarWrapper = () => {
     const location = useLocation();
     const { isLoggedIn, currentUser, logout } = useAuth();
-    const hideNavbarPaths = ['/login', '/signup'];
+    const hideNavbarPaths = ['/login', '/signup', '/reset-password', '/forgot-password'];
     const shouldShowNavbar = !hideNavbarPaths.includes(location.pathname);
 
     return shouldShowNavbar ? (
