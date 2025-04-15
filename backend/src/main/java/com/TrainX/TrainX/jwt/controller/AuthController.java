@@ -4,9 +4,7 @@ import com.TrainX.TrainX.User.MessageResponse;
 import com.TrainX.TrainX.User.Role;
 import com.TrainX.TrainX.User.UserEntity;
 import com.TrainX.TrainX.jwt.config.JwtService;
-import com.TrainX.TrainX.jwt.dtos.LoginRequest;
-import com.TrainX.TrainX.jwt.dtos.LoginResponse;
-import com.TrainX.TrainX.jwt.dtos.RegisterUserDto;
+import com.TrainX.TrainX.jwt.dtos.*;
 import com.TrainX.TrainX.jwt.services.AuthenticationService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -14,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @AllArgsConstructor
@@ -70,4 +69,26 @@ public class AuthController {
     public ResponseEntity<?> logout() {
         return ResponseEntity.ok(new MessageResponse("Logout successful"));
     }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestBody ForgotPasswordDto dto) {
+        Optional<UserEntity> userOpt = authService.getUserByUsername(dto.getUsername());
+
+        if (userOpt.isPresent() && userOpt.get().getEmail().equalsIgnoreCase(dto.getEmail())) {
+            return ResponseEntity.ok("Identidad confirmada");
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Usuario o email incorrecto");
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordDto dto) {
+        if (dto.getNewPassword() == null || dto.getNewPassword().isEmpty()) {
+            return ResponseEntity.badRequest().body("La contraseña no puede estar vacía");
+        }
+
+        authService.updateUserPassword(dto.getUsername(), dto.getNewPassword());
+        return ResponseEntity.ok("Contraseña actualizada correctamente");
+    }
+
+
 }

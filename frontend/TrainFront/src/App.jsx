@@ -9,6 +9,8 @@ import HomeLoggedIn from './pages/HomeLoggedIn/HomeLoggedIn.jsx';
 import HomeNotLoggedIn from './pages/HomeNotLoggedIn/HomeNotLoggedIn.jsx';
 import Perfil from './pages/perfil/Perfil.jsx';
 import { AuthProvider, useAuth } from './contexts/AuthContext.jsx';
+import ForgotPassword from './pages/auth/ForgotPassword/ForgotPassword.jsx';
+import ResetPassword from './pages/auth/ResetPassword/ResetPassword.jsx';
 import './App.css';
 
 // Protected route component
@@ -30,7 +32,7 @@ const ProtectedRoute = ({ children }) => {
 const NavbarWrapper = () => {
     const location = useLocation();
     const { isLoggedIn, currentUser, logout } = useAuth();
-    const hideNavbarPaths = ['/login', '/signup'];
+    const hideNavbarPaths = ['/login', '/signup','/forgot-password', '/reset-password'];
     const shouldShowNavbar = !hideNavbarPaths.includes(location.pathname);
 
     return shouldShowNavbar ? (
@@ -82,6 +84,12 @@ function AppContent() {
                             </ProtectedRoute>
                         }
                     />
+                    <Route path="/forgot-password"
+                           element={
+                        <ForgotPassword />} />
+                    <Route
+                        path="/reset-password"
+                        element={<ResetPassword />} />
                 </Routes>
             </main>
         </div>

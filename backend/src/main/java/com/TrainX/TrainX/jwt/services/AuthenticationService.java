@@ -78,4 +78,24 @@ public class AuthenticationService {
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
     }
+
+    /**
+     * Actualiza la contraseña de un usuario
+     * @param username El nombre de usuario
+     * @param newPassword La nueva contraseña
+     * @return El usuario actualizado
+     */
+    public UserEntity updateUserPassword(String username, String newPassword) {
+        UserEntity user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        // Encriptar la nueva contraseña
+        String encodedPassword = passwordEncoder.encode(newPassword);
+
+        // Actualizar la contraseña del usuario
+        user.setPassword(encodedPassword);
+
+        // Guardar el usuario actualizado
+        return userRepository.save(user);
+    }
 }
