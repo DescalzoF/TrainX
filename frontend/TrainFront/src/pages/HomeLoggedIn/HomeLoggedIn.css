@@ -189,3 +189,48 @@
         height: 200px;
     }
 }
+.camino-card {
+    width: 220px;
+    height: 260px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 97, 255, 0.5); /* Less pronounced shadow with gradient */
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.3s, box-shadow 0.3s;
+    position: relative; /* Added for positioning the description */
+    margin-bottom: 60px; /* Added space for the description */
+}
+
+.camino-card:hover {
+    transform: translateY(-40px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.camino-description {
+    display: none; /* Initially hidden */
+    position: absolute; /* Positioned absolutely within the card */
+    bottom: -90px; /* Adjusted to appear below the card */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent background */
+    color: white; /* White text color */
+    padding: 10px; /* Padding for the description */
+    border-radius: 4px; /* Rounded corners */
+    text-align: center; /* Centered text */
+    z-index: 1; /* Ensure it appears above other elements */
+    width: 180px; /* Adjust width to fit below the card */
+}
+
+.camino-card:hover .camino-description {
+    display: block; /* Show on hover */
+}
+
+.icon-container.horizontal {
+    flex-direction: row; /* Align icons horizontally */
+    gap: 3px; /* Space between icons */
+}
