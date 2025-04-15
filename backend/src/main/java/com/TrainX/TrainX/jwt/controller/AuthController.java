@@ -25,8 +25,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> authenticate(@RequestBody LoginRequest loginRequest) {
 
-        UserEntity user = authService.getUserByUsername(loginRequest.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        UserEntity user = authService.login(loginRequest); // ✅ Esto autentica bien y lanza excepción si es incorrecto
 
         String jwtToken = jwtService.generateToken(user);
         LoginResponse response = new LoginResponse();

@@ -32,7 +32,7 @@ function ForgotPassword() {
             }
         } catch (err) {
             console.error("Forgot password error:", err);
-            setError(err.response?.data?.message || 'Hubo un error');
+            setError(err.response?.data?.message || 'Username or email is incorrect');
         } finally {
             setIsLoading(false);
         }

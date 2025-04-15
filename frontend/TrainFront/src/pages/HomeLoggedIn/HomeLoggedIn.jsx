@@ -33,13 +33,14 @@ function HomeLoggedIn() {
                 <div className="caminos-grid">
                     <div className="camino-card" onClick={handleCaminoClick}>
                         <div className="camino-card-icon">
-                            <div className="icon-container">
-                                <MdOutlineSportsBaseball size={30} />
-                                <MdOutlineSportsSoccer size={30} />
-                                <MdOutlineSportsRugby size={30} />
+                            <div className="icon-container horizontal">
+                                <MdOutlineSportsBaseball size={50} />
+                                <MdOutlineSportsSoccer size={50} />
+                                <MdOutlineSportsRugby size={50} />
                             </div>
                         </div>
                         <h3>Deportista</h3>
+                        <p className="camino-description">Descripción...</p>
                     </div>
 
                     <div className="camino-card" onClick={handleCaminoClick}>
@@ -47,16 +48,18 @@ function HomeLoggedIn() {
                             <FaWeightHanging size={50} />
                         </div>
                         <h3>Fuerza</h3>
+                        <p className="camino-description">Descripción...</p>
                     </div>
 
                     <div className="camino-card" onClick={handleCaminoClick}>
                         <div className="camino-card-icon">
-                            <div className="icon-container">
-                                <FaWeightHanging size={30} />
-                                <GiMuscleUp size={30} />
+                            <div className="icon-container horizontal">
+                                <FaWeightHanging size={50} />
+                                <GiMuscleUp size={50} />
                             </div>
                         </div>
                         <h3>Hibrido</h3>
+                        <p className="camino-description">Descripción...</p>
                     </div>
 
                     <div className="camino-card" onClick={handleCaminoClick}>
@@ -64,6 +67,7 @@ function HomeLoggedIn() {
                             <GiMuscleUp size={50} />
                         </div>
                         <h3>Hipertrofia</h3>
+                        <p className="camino-description">Descripción...</p>
                     </div>
 
                     <div className="camino-card" onClick={handleCaminoClick}>
@@ -71,6 +75,7 @@ function HomeLoggedIn() {
                             <FaPlus size={50} />
                         </div>
                         <h3>Otro Camino</h3>
+                        <p className="camino-description">Descripción...</p>
                     </div>
 
                 </div>
