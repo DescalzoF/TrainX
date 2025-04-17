@@ -1,5 +1,3 @@
-// App.jsx
-
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Navbar from './components/navbar/Navbar.jsx';
 import Login from './pages/login/Login.jsx';
@@ -10,11 +8,11 @@ import HomeNotLoggedIn from './pages/HomeNotLoggedIn/HomeNotLoggedIn.jsx';
 import Perfil from './pages/perfil/Perfil.jsx';
 import { AuthProvider, useAuth } from './contexts/AuthContext.jsx';
 import CaminoFitness from './pages/CaminoFitness/CaminoFitness.jsx';
+import CaminoFitnessAdmin from './pages/CaminoFitness/CaminoFitnessAdmin.jsx';
 import ForgotPassword from './pages/auth/ForgotPassword/ForgotPassword.jsx';
 import ResetPassword from './pages/auth/ResetPassword/ResetPassword.jsx';
 import './App.css';
 
-// Protected route component
 const ProtectedRoute = ({ children }) => {
     const { isLoggedIn, isLoading } = useAuth();
 
@@ -29,7 +27,24 @@ const ProtectedRoute = ({ children }) => {
     return children;
 };
 
-// Create a wrapper component for the Navbar that conditionally renders it
+const AdminRoute = ({ children }) => {
+    const { isLoggedIn, isAdmin, isLoading } = useAuth();
+
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
+
+    if (!isLoggedIn) {
+        return <Navigate to="/login" />;
+    }
+
+    if (!isAdmin) {
+        return <Navigate to="/camino" />;
+    }
+
+    return children;
+};
+
 const NavbarWrapper = () => {
     const location = useLocation();
     const { isLoggedIn, currentUser, logout } = useAuth();
@@ -39,7 +54,7 @@ const NavbarWrapper = () => {
     return shouldShowNavbar ? (
         <Navbar
             isLoggedIn={isLoggedIn}
-            username={currentUser?.username} // Make sure this is passed to Navbar
+            username={currentUser?.username}
             onLogout={logout}
         />
     ) : null;
@@ -73,7 +88,7 @@ function AppContent() {
                         path="/dashboard"
                         element={
                             <ProtectedRoute>
-                                <Dashboard username={currentUser?.username} />  {/* Pass username here */}
+                                <Dashboard username={currentUser?.username} />
                             </ProtectedRoute>
                         }
                     />
@@ -81,7 +96,7 @@ function AppContent() {
                         path="/perfil"
                         element={
                             <ProtectedRoute>
-                                <Perfil username={currentUser?.username} />  {/* Pass username here */}
+                                <Perfil username={currentUser?.username} />
                             </ProtectedRoute>
                         }
                     />
@@ -89,13 +104,21 @@ function AppContent() {
                         path="/camino"
                         element={
                             <ProtectedRoute>
-                                <CaminoFitness username={currentUser?.username} />  {/* Pass username here */}
+                                <CaminoFitness username={currentUser?.username} />
                             </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/camino/admin"
+                        element={
+                            <AdminRoute>
+                                <CaminoFitnessAdmin />
+                            </AdminRoute>
                         }
                     />
                     <Route path="/forgot-password"
                            element={
-                        <ForgotPassword />} />
+                               <ForgotPassword />} />
                     <Route
                         path="/reset-password"
                         element={<ResetPassword />} />

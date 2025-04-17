@@ -1,5 +1,7 @@
 package com.TrainX.TrainX.User;
 
+import com.TrainX.TrainX.caminoFitness.CaminoFitnessEntity;
+import com.TrainX.TrainX.caminoFitness.CaminoFitnessService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,10 +12,12 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final CaminoFitnessService caminoFitnessService;
 
     @Autowired
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, CaminoFitnessService caminoFitnessService) {
         this.userRepository = userRepository;
+        this.caminoFitnessService = caminoFitnessService;
     }
 
     public List<UserEntity> listUsers() {
@@ -91,5 +95,18 @@ public class UserService {
             }
         }
         return null;
+    }
+
+    public UserEntity selectCaminoFitness(Long userId, Long caminoFitnessId) {
+        UserEntity user = getUserById(userId);
+        CaminoFitnessEntity caminoFitness = caminoFitnessService.getCaminoFitnessById(caminoFitnessId)
+                .orElseThrow(() -> new RuntimeException("Camino Fitness program not found with id: " + caminoFitnessId));
+
+        user.setSelectedCaminoFitness(caminoFitness);
+        return userRepository.save(user);
+    }
+    public Optional<CaminoFitnessEntity> getUserSelectedCaminoFitness(Long userId) {
+        UserEntity user = getUserById(userId);
+        return Optional.ofNullable(user.getSelectedCaminoFitness());
     }
 }

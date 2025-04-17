@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import './HomeLoggedIn.css';
 import { FaPlus, FaWeightHanging } from "react-icons/fa";
-import { MdOutlineSportsBaseball, MdOutlineSportsRugby, MdOutlineSportsSoccer } from "react-icons/md";
+import { MdOutlineSportsRugby, MdOutlineSportsSoccer } from "react-icons/md";
 import { GiMuscleUp } from "react-icons/gi";
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -34,7 +34,6 @@ function HomeLoggedIn() {
                     <div className="camino-card" onClick={handleCaminoClick}>
                         <div className="camino-card-icon">
                             <div className="icon-container horizontal">
-                                <MdOutlineSportsBaseball size={50} />
                                 <MdOutlineSportsSoccer size={50} />
                                 <MdOutlineSportsRugby size={50} />
                             </div>

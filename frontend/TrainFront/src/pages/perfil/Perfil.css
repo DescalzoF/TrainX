@@ -33,6 +33,7 @@
 
 .profile-picture-section {
     display: flex;
+    flex-direction: column;
     align-items: center;
     margin-bottom: 30px;
     padding-bottom: 20px;
@@ -40,16 +41,17 @@
 }
 
 .profile-picture-container {
-    width: 120px;
-    height: 120px;
+    width: 150px;
+    height: 150px;
     border-radius: 50%;
     overflow: hidden;
     background-color: #f0f0f0;
-    margin-right: 30px;
+    margin-bottom: 20px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
     justify-content: center;
+    border: 3px solid #ddd;
 }
 
 .profile-picture-preview {
@@ -66,27 +68,33 @@
 }
 
 .profile-picture-upload {
-    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .upload-button {
     display: inline-block;
     padding: 10px 20px;
-    background-color: #4a90e2;
+    background-color: #4CAF50;
     color: white;
     border-radius: 5px;
     cursor: pointer;
     transition: background-color 0.3s;
+    font-size: 14px;
+    margin-bottom: 0.5rem;
+    border: none;
+    text-align: center;
 }
 
 .upload-button:hover {
-    background-color: #3a7bc8;
+    background-color: #45a049;
 }
 
 .upload-info {
-    font-size: 0.85rem;
+    font-size: 12px;
     color: #777;
-    margin-top: 8px;
+    margin-top: 5px;
 }
 
 .perfil-form {
@@ -115,7 +123,7 @@
     color: #333;
 }
 
-.form-group input {
+.form-group input, .form-group select {
     width: 100%;
     padding: 12px;
     border: 1px solid #ddd;
@@ -124,101 +132,16 @@
     transition: border-color 0.3s;
 }
 
-.form-group input:focus {
+.form-group input:focus, .form-group select:focus {
     border-color: #4a90e2;
     outline: none;
 }
 
-.form-group input:disabled {
+.form-group input:disabled, .form-group select:disabled {
     background-color: #f5f5f5;
     cursor: not-allowed;
 }
 
-.field-info {
-    font-size: 0.8rem;
-    color: #777;
-    margin-top: 5px;
-}
-
-.form-actions {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
-}
-
-.save-button, .cancel-button {
-    padding: 12px 30px;
-    border: none;
-    border-radius: 5px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.save-button {
-    background-color: #4a90e2;
-    color: white;
-}
-
-.save-button:hover {
-    background-color: #3a7bc8;
-}
-
-.save-button:disabled {
-    background-color: #a2c5ef;
-    cursor: not-allowed;
-}
-
-.cancel-button {
-    background-color: #f0f0f0;
-    color: #333;
-}
-
-.cancel-button:hover {
-    background-color: #e0e0e0;
-}
-
-.loading {
-    text-align: center;
-    padding: 50px;
-    font-size: 1.2rem;
-    color: #777;
-    margin-top: 100px;
-}
-
-@media (max-width: 600px) {
-    .perfil-container {
-        padding: 20px 15px;
-        margin: 80px 15px 30px;
-    }
-
-    .profile-picture-section {
-        flex-direction: column;
-        text-align: center;
-    }
-
-    .profile-picture-container {
-        margin-right: 0;
-        margin-bottom: 20px;
-    }
-
-    .form-row {
-        flex-direction: column;
-        gap: 20px;
-    }
-
-    .form-actions {
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    .save-button, .cancel-button {
-        width: 100%;
-    }
-}
-/* Add these styles to your existing Perfil.css file */
-
-/* Password field styling */
 .password-input-group {
     position: relative;
 }
@@ -245,102 +168,30 @@
     color: #000;
 }
 
-/* Profile picture styles */
-.profile-picture-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 2rem;
-}
-
-.profile-picture-container {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    overflow: hidden;
-    border: 3px solid #ddd;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #f0f0f0;
-    margin-bottom: 1rem;
-}
-
-.profile-picture-preview {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.profile-picture-placeholder {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
+.field-info {
+    font-size: 0.8rem;
     color: #777;
-    text-align: center;
-    padding: 10px;
+    margin-top: 5px;
 }
 
-.profile-picture-upload {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.upload-button {
-    background-color: #4CAF50;
-    color: white;
-    padding: 8px 16px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    margin-bottom: 0.5rem;
-}
-
-.upload-button:hover {
-    background-color: #45a049;
-}
-
-.upload-info {
-    font-size: 12px;
-    color: #777;
-    margin: 0;
-}
-
-/* Success and error messages */
-.success-message {
-    background-color: #dff0d8;
-    color: #3c763d;
-    padding: 10px;
-    border-radius: 4px;
-    margin-bottom: 1rem;
-}
-
-.error-message {
-    background-color: #f2dede;
-    color: #a94442;
-    padding: 10px;
-    border-radius: 4px;
-    margin-bottom: 1rem;
-}
-
-/* Form action buttons */
 .form-actions {
     display: flex;
-    gap: 10px;
-    margin-top: 1.5rem;
+    justify-content: space-between;
+    margin-top: 30px;
 }
 
-.btn-edit, .btn-submit, .btn-cancel {
-    padding: 10px 20px;
+.btn-edit, .btn-submit, .btn-cancel, .btn-delete {
+    padding: 12px 24px;
     border: none;
-    border-radius: 4px;
+    border-radius: 5px;
+    font-size: 1rem;
     cursor: pointer;
+    transition: background-color 0.3s;
     font-weight: bold;
-    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
 .btn-edit {
@@ -362,20 +213,134 @@
 }
 
 .btn-cancel {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+.btn-cancel:hover {
+    background-color: #e0e0e0;
+}
+
+.btn-delete {
     background-color: #f44336;
     color: white;
 }
 
-.btn-cancel:hover {
+.btn-delete:hover {
     background-color: #d32f2f;
 }
 
-/* Loading state */
 .loading {
+    text-align: center;
+    padding: 50px;
+    font-size: 1.2rem;
+    color: #777;
+    margin-top: 100px;
+}
+
+/* Modal styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
     display: flex;
-    justify-content: center;
     align-items: center;
-    height: 200px;
-    font-size: 18px;
-    color: #666;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: white;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+}
+
+.modal-header {
+    background-color: #f8f8f8;
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: #d32f2f;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.modal-body p {
+    margin-bottom: 15px;
+    line-height: 1.5;
+}
+
+.delete-confirmation-input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    margin-top: 10px;
+}
+
+.modal-footer {
+    padding: 15px 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    border-top: 1px solid #eee;
+}
+
+.btn-delete-confirm {
+    background-color: #f44336;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.btn-delete-confirm:hover {
+    background-color: #d32f2f;
+}
+
+.btn-delete-confirm:disabled {
+    background-color: #ffcdd2;
+    cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+    .perfil-container {
+        padding: 20px 15px;
+        margin: 80px 15px 30px;
+    }
+
+    .form-row {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .form-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .btn-edit, .btn-submit, .btn-cancel, .btn-delete {
+        width: 100%;
+    }
+
+    .modal-content {
+        width: 95%;
+    }
 }

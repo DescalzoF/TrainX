@@ -1,5 +1,6 @@
 package com.TrainX.TrainX.User;
 
+import com.TrainX.TrainX.caminoFitness.CaminoFitnessEntity;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -36,7 +37,6 @@ public class UserEntity implements UserDetails {
 
     @Column(nullable = false)
     private Long weight;
-
 
     @Column(nullable = false)
     private String address;
@@ -99,6 +99,17 @@ public class UserEntity implements UserDetails {
         this.coins = 0L; // Default value
         this.isPublic = isPublic;
 
+    }
+    @ManyToOne
+    @JoinColumn(name = "selected_camino_fitness_id")
+    private CaminoFitnessEntity selectedCaminoFitness;
+
+    public CaminoFitnessEntity getSelectedCaminoFitness() {
+        return selectedCaminoFitness;
+    }
+
+    public void setSelectedCaminoFitness(CaminoFitnessEntity selectedCaminoFitness) {
+        this.selectedCaminoFitness = selectedCaminoFitness;
     }
 
     // Getters

@@ -2,12 +2,12 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Perfil.css';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaTrashAlt, FaExclamationTriangle } from 'react-icons/fa';
 import { useAuth } from '../../contexts/AuthContext';
 
 function Perfil() {
     const navigate = useNavigate();
-    const { currentUser } = useAuth();
+    const { currentUser, logout } = useAuth();
     const [userData, setUserData] = useState({
         username: '',
         email: '',
@@ -30,6 +30,8 @@ function Perfil() {
     const [successMessage, setSuccessMessage] = useState('');
     const [isEditing, setIsEditing] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [deleteConfirmation, setDeleteConfirmation] = useState('');
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -44,8 +46,7 @@ function Perfil() {
                 setIsLoading(true);
                 setError(null);
 
-                // Using the authenticated user endpoint defined in UserController
-                const response = await axios.get('http://localhost:8080/api/users/me/me', {
+                const response = await axios.get('http://localhost:8080/api/users/me/currentUser', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -126,6 +127,8 @@ function Perfil() {
 
     const handleEdit = () => {
         setIsEditing(true);
+        setSuccessMessage('');
+        setError(null);
     };
 
     const handleCancel = () => {
@@ -183,6 +186,7 @@ function Perfil() {
 
             // Update original data with new values
             setOriginalData({...userData, password: ''});
+            setUserData({...userData, password: ''});
 
             // Save profile picture to localStorage if needed
             if (userData.userPhoto && userData.userPhoto !== originalData.userPhoto) {
@@ -193,12 +197,58 @@ function Perfil() {
 
             setIsEditing(false);
             setSuccessMessage('Perfil actualizado con éxito');
+
+            // Scroll to top to show success message
+            window.scrollTo(0, 0);
         } catch (err) {
             console.error('Error updating profile:', err);
             setError(err.response?.data?.message || "No se pudo actualizar el perfil. Por favor, inténtelo de nuevo más tarde.");
         } finally {
             setIsLoading(false);
         }
+    };
+
+    const handleDeleteAccount = async () => {
+        if (deleteConfirmation !== userData.username) {
+            setError("El nombre de usuario no coincide. No se ha eliminado la cuenta.");
+            return;
+        }
+
+        try {
+            setIsLoading(true);
+            const token = localStorage.getItem('token');
+
+            const response = await axios.delete('http://localhost:8080/api/users/delete', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.status === 200) {
+                // Logout and redirect to home
+                await logout();
+                navigate('/');
+            } else {
+                throw new Error('Error al eliminar la cuenta');
+            }
+        } catch (err) {
+            console.error('Error deleting account:', err);
+            setError(err.response?.data?.message || "No se pudo eliminar la cuenta. Por favor, inténtelo de nuevo más tarde.");
+        } finally {
+            setIsLoading(false);
+            setShowDeleteModal(false);
+        }
+    };
+
+    const openDeleteModal = () => {
+        setShowDeleteModal(true);
+        setDeleteConfirmation('');
+        setError(null);
+    };
+
+    const closeDeleteModal = () => {
+        setShowDeleteModal(false);
+        setDeleteConfirmation('');
     };
 
     if (isLoading && !userData.username) {
@@ -441,10 +491,48 @@ function Perfil() {
                             <button type="button" className="btn-cancel" onClick={handleCancel}>Cancelar</button>
                         </>
                     ) : (
-                        <button type="button" className="btn-edit" onClick={handleEdit}>Editar perfil</button>
+                        <>
+                            <button type="button" className="btn-edit" onClick={handleEdit}>Editar perfil</button>
+                            <button type="button" className="btn-delete" onClick={openDeleteModal}>
+                                <FaTrashAlt /> Eliminar cuenta
+                            </button>
+                        </>
                     )}
                 </div>
             </form>
+
+            {/* Delete Account Modal */}
+            {showDeleteModal && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h3><FaExclamationTriangle /> Eliminar cuenta</h3>
+                        </div>
+                        <div className="modal-body">
+                            <p>Esta acción eliminará permanentemente tu cuenta y todos los datos asociados. Esta acción no se puede deshacer.</p>
+                            <p>Para confirmar, escribe tu nombre de usuario: <strong>{userData.username}</strong></p>
+                            <input
+                                type="text"
+                                value={deleteConfirmation}
+                                onChange={(e) => setDeleteConfirmation(e.target.value)}
+                                className="delete-confirmation-input"
+                                placeholder="Introduce tu nombre de usuario"
+                            />
+                        </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn-cancel" onClick={closeDeleteModal}>Cancelar</button>
+                            <button
+                                type="button"
+                                className="btn-delete-confirm"
+                                onClick={handleDeleteAccount}
+                                disabled={deleteConfirmation !== userData.username}
+                            >
+                                Eliminar cuenta
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

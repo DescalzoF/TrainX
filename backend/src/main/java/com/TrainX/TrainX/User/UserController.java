@@ -1,6 +1,6 @@
 package com.TrainX.TrainX.User;
 
-import com.TrainX.TrainX.Profile.ProfileService;
+import com.TrainX.TrainX.caminoFitness.CaminoFitnessEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -116,13 +116,19 @@ public class UserController {
         return userData.map(user -> new ResponseEntity<>(user, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
-    @GetMapping("/me")
-    public ResponseEntity<?> authenticatedUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        UserEntity currentUser = (UserEntity) authentication.getPrincipal();
-
-        return ResponseEntity.ok(currentUser);
+    @GetMapping("/currentUser")
+    public ResponseEntity<?> getCurrentUser() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName();
+            UserEntity currentUser = userService.getUserByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            return ResponseEntity.ok(currentUser);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageResponse("Error retrieving user profile: " + e.getMessage()));
+        }
     }
 
     @GetMapping("/")
@@ -133,5 +139,36 @@ public class UserController {
     }
 
 
-    // The login and register endpoints have been moved to AuthController
+    @PatchMapping("/select-camino/{caminoFitnessId}")
+    @PreAuthorize("authentication.principal.id == #userId")
+    public ResponseEntity<UserEntity> selectCaminoFitness(
+            @RequestParam Long userId,
+            @PathVariable Long caminoFitnessId) {
+        try {
+            UserEntity updatedUser = userService.selectCaminoFitness(userId, caminoFitnessId);
+            return ResponseEntity.ok(updatedUser);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+    @GetMapping("/selected-camino")
+    public ResponseEntity<?> getCurrentUserSelectedCamino() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName();
+            UserEntity currentUser = userService.getUserByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            Optional<CaminoFitnessEntity> selectedCamino = Optional.ofNullable(currentUser.getSelectedCaminoFitness());
+
+            if (selectedCamino.isPresent()) {
+                return ResponseEntity.ok(selectedCamino.get());
+            } else {
+                return ResponseEntity.noContent().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageResponse("Error retrieving selected camino: " + e.getMessage()));
+        }
+    }
 }

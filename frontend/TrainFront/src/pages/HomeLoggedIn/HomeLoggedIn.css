@@ -6,237 +6,219 @@
 
 .hero-section {
     background-size: cover;
-    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7));
+    background: linear-gradient(135deg, rgba(0, 97, 255, 0.8), rgba(75, 0, 130, 0.8));
     color: white;
     padding: 130px 20px;
     text-align: center;
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Add animated background elements */
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: -10%;
+    left: -10%;
+    right: -10%;
+    bottom: -10%;
+    background: radial-gradient(circle at center, rgba(74, 144, 226, 0.3) 0%, transparent 70%);
+    animation: pulse 8s infinite alternate;
+    z-index: 0;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 0.5;
+    }
+    100% {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
 }
 
 .hero-content {
     max-width: 800px;
+    position: relative;
+    z-index: 1;
 }
 
 .hero-content h1 {
-    font-size: 3rem;
+    font-size: 3.5rem;
     margin-bottom: 20px;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    transform: translateY(0);
+    animation: fadeInUp 1s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .hero-content p {
-    font-size: 1.2rem;
-    margin-bottom: 30px;
+    font-size: 1.3rem;
+    margin-bottom: 35px;
+    max-width: 650px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+    animation: fadeIn 1.2s ease-out 0.3s both;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 .hero-buttons {
     display: flex;
-    gap: 15px;
+    gap: 20px;
     justify-content: center;
+    animation: fadeIn 1.4s ease-out 0.6s both;
 }
 
 .primary-button {
-    padding: 12px 24px;
+    padding: 14px 28px;
     background-color: #4a90e2;
     color: white;
     border: none;
-    border-radius: 4px;
-    font-size: 1rem;
-    font-weight: 500;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: all 0.3s;
+    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.5);
 }
 
 .primary-button:hover {
     background-color: #3a7bc8;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 16px rgba(74, 144, 226, 0.6);
 }
 
 .secondary-button {
-    padding: 12px 24px;
+    padding: 14px 28px;
     background-color: transparent;
     color: white;
-    border: 1px solid white;
-    border-radius: 4px;
-    font-size: 1rem;
-    font-weight: 500;
+    border: 2px solid white;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.3s;
 }
 
 .secondary-button:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
 }
 
 .features-section {
-    padding: 80px 20px;
+    padding: 90px 20px;
     text-align: center;
-    background-color: #f8f9fa;
+    background-color: #f0f7ff; /* Changed from grey to light blue */
+    background-image: linear-gradient(135deg, #f0f7ff 0%, #f9f9ff 100%);
+    /* Add padding to prevent card clipping */
+    padding-bottom: 160px;
 }
 
 .features-section h2 {
     font-size: 2.5rem;
-    margin-bottom: 50px;
+    margin-bottom: 60px;
     color: #333;
+    position: relative;
+    display: inline-block;
 }
 
-/* New caminos grid layout to match the image */
+.features-section h2::after {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(to right, #4a90e2, #3a7bc8);
+    border-radius: 2px;
+}
+
+/* Caminos grid styling - modified for single row */
 .caminos-grid {
     display: flex;
-    flex-wrap: wrap;
     justify-content: center;
-    gap: 20px;
+    gap: 15px; /* Reduced gap to fit all cards */
     max-width: 1200px;
     margin: 0 auto;
 }
 
 .camino-card {
-    width: 200px;
-    height: 240px;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: transform 0.3s, box-shadow 0.3s;
-}
-
-.camino-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-}
-
-.camino-card-icon {
-    height: 120px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 20px;
-}
-
-.icon-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-}
-
-.camino-card:nth-child(1) .camino-card-icon {
-    color: #333;
-}
-
-.camino-card:nth-child(2) .camino-card-icon {
-    color: #333;
-}
-
-.camino-card:nth-child(3) .camino-card-icon {
-    color: #333;
-}
-
-.camino-card:nth-child(4) .camino-card-icon {
-    color: #333;
-}
-
-.camino-card:nth-child(5) .camino-card-icon {
-    color: #333;
-}
-
-.camino-card h3 {
-    font-size: 1.3rem;
-    color: #333;
-    margin-top: 0;
-}
-
-.cta-section {
-    background-color: #0D1117;
-    color: white;
-    padding: 80px 20px;
-    text-align: center;
-}
-
-.cta-section h3 {
-    font-size: 1.8rem;
-    margin-bottom: 20px;
-}
-
-.cta-section p {
-    font-size: 1.2rem;
-    margin-bottom: 30px;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-@media (max-width: 768px) {
-    .hero-content h1 {
-        font-size: 2.2rem;
-    }
-
-    .hero-buttons {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .caminos-grid {
-        justify-content: center;
-    }
-
-    .camino-card {
-        width: 150px;
-        height: 200px;
-    }
-}
-.camino-card {
-    width: 220px;
+    width: 180px; /* Reduced width to fit all cards in one row */
     height: 260px;
     background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 97, 255, 0.5); /* Less pronounced shadow with gradient */
-    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 97, 255, 0.3);
+    padding: 25px 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: transform 0.3s, box-shadow 0.3s;
-    position: relative; /* Added for positioning the description */
-    margin-bottom: 60px; /* Added space for the description */
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    margin-bottom: 70px;
+    overflow: visible;
 }
 
 .camino-card:hover {
-    transform: translateY(-40px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    transform: translateY(-40px) scale(1.03);
+    box-shadow: 0 15px 30px rgba(0, 97, 255, 0.4);
 }
 
-.camino-description {
-    display: none; /* Initially hidden */
-    position: absolute; /* Positioned absolutely within the card */
-    bottom: -90px; /* Adjusted to appear below the card */
+.camino-card::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
     left: 50%;
-    transform: translateX(-50%);
-    background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent background */
-    color: white; /* White text color */
-    padding: 10px; /* Padding for the description */
-    border-radius: 4px; /* Rounded corners */
-    text-align: center; /* Centered text */
-    z-index: 1; /* Ensure it appears above other elements */
-    width: 190px; /* Adjust width to fit below the card */
+    transform: translateX(-50%) scaleX(0);
+    width: 80%;
+    height: 4px;
+    background: linear-gradient(to right, #0061ff, #3a7bc8);
+    border-radius: 2px;
+    transition: transform 0.3s ease-out 0.1s;
 }
 
-.camino-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+.camino-card:hover::after {
+    transform: translateX(-50%) scaleX(1);
 }
 
 .camino-card-icon {
-    height: 120px;
+    height: 100px; /* Slightly reduced height */
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 20px;
+    margin-bottom: 20px; /* Slightly reduced margin */
+    color: #000000;
+    transition: transform 0.3s ease;
+}
+
+.camino-card:hover .camino-card-icon {
+    transform: scale(1.1);
 }
 
 .icon-container {
@@ -246,79 +228,21 @@
     gap: 8px;
 }
 
-.camino-card:nth-child(1) .camino-card-icon {
-    color: #333;
-}
-
-.camino-card:nth-child(2) .camino-card-icon {
-    color: #333;
-}
-
-.camino-card:nth-child(3) .camino-card-icon {
-    color: #333;
-}
-
-.camino-card:nth-child(4) .camino-card-icon {
-    color: #333;
-}
-
-.camino-card:nth-child(5) .camino-card-icon {
-    color: #333;
+.icon-container.horizontal {
+    flex-direction: row;
+    gap: 10px;
 }
 
 .camino-card h3 {
-    font-size: 1.3rem;
+    font-size: 1.4rem; /* Slightly reduced font size */
     color: #333;
     margin-top: 0;
+    margin-bottom: 10px;
+    transition: color 0.3s;
 }
 
-.cta-section {
-    background-color: #0D1117;
-    color: white;
-    padding: 80px 20px;
-    text-align: center;
-}
-
-.cta-section h3 {
-    font-size: 1.8rem;
-    margin-bottom: 20px;
-}
-
-.cta-section p {
-    font-size: 1.2rem;
-    margin-bottom: 30px;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-@media (max-width: 768px) {
-    .hero-content h1 {
-        font-size: 2.2rem;
-    }
-
-    .hero-buttons {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .caminos-grid {
-        justify-content: center;
-    }
-
-    .camino-card {
-        width: 150px;
-        height: 200px;
-    }
-}
-.camino-card {
-    position: relative;
-    margin-bottom: 60px;
-}
-
-.camino-card:hover {
-    transform: translateY(-40px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+.camino-card:hover h3 {
+    color: #0061ff; /* Updated hover color as requested */
 }
 
 .camino-description {
@@ -326,28 +250,101 @@
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: rgba(0, 31, 63, 0.9);
     color: white;
-    padding: 10px;
-    border-radius: 4px;
+    padding: 15px;
+    border-radius: 8px;
     text-align: center;
-    z-index: 1;
-    width: 190px;
+    z-index: 2;
+    width: 180px; /* Adjusted to match card width */
+    font-size: 1rem;
+    line-height: 1.5;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 .camino-card:hover .camino-description {
     display: block;
+    opacity: 1;
+    animation: fadeInDescription 0.4s ease forwards;
 }
 
-/* New classes for individual card description positioning */
-.camino-card:nth-child(1) .camino-description { bottom: -155px; }
-.camino-card:nth-child(2) .camino-description { bottom: -95px; }
-.camino-card:nth-child(3) .camino-description { bottom: -95px; }
-.camino-card:nth-child(4) .camino-description { bottom: -125px; }
-.camino-card:nth-child(5) .camino-description { bottom: -95px; }
+@keyframes fadeInDescription {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
 
+/* Individual card description positioning */
+.camino-card:nth-child(1) .camino-description { bottom: -160px; }
+.camino-card:nth-child(2) .camino-description { bottom: -105px; }
+.camino-card:nth-child(3) .camino-description { bottom: -105px; }
+.camino-card:nth-child(4) .camino-description { bottom: -135px; }
+.camino-card:nth-child(5) .camino-description { bottom: -105px; }
 
-.icon-container.horizontal {
-    flex-direction: row; /* Align icons horizontally */
-    gap: 3px; /* Space between icons */
+.cta-section {
+    background-color: #0D1117;
+    color: white;
+    padding: 90px 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(0, 97, 255, 0.1), transparent);
+    z-index: 0;
+}
+
+.cta-section h3 {
+    font-size: 2.2rem;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 1;
+}
+
+.cta-section p {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+    z-index: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 960px) {
+    .caminos-grid {
+        flex-wrap: wrap;
+    }
+
+    .camino-card {
+        width: 180px;
+    }
+
+    .hero-content h1 {
+        font-size: 2.3rem;
+    }
+
+    .hero-content p {
+        font-size: 1.1rem;
+    }
+
+    .hero-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
 }
