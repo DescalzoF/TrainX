@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './Perfil.css';
-import { FaEye, FaEyeSlash, FaTrashAlt, FaExclamationTriangle } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaTrashAlt, FaExclamationTriangle, FaUser, FaUserEdit, FaSave,
+    FaTimes, FaCoins, FaTrophy, FaWeight, FaRulerVertical, FaPhone, FaTransgender,
+    FaMapMarkerAlt, FaEnvelope, FaLock, FaGlobe } from 'react-icons/fa';
 import { useAuth } from '../../contexts/AuthContext';
 
 function Perfil() {
@@ -32,6 +34,7 @@ function Perfil() {
     const [showPassword, setShowPassword] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [deleteConfirmation, setDeleteConfirmation] = useState('');
+    const [fadeIn, setFadeIn] = useState(false);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -46,7 +49,8 @@ function Perfil() {
                 setIsLoading(true);
                 setError(null);
 
-                const response = await axios.get('http://localhost:8080/api/users/me/currentUser', {
+                // Use the profile endpoint instead of user endpoint
+                const response = await axios.get('http://localhost:8080/api/profile/me', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -67,7 +71,7 @@ function Perfil() {
                     age: data.age || '',
                     sex: data.sex || 'male',
                     userPhoto: data.userPhoto || null,
-                    isPublic: data.isPublic || true,
+                    isPublic: data.isPublic !== undefined ? data.isPublic : true,
                     role: data.role || 'USER',
                     coins: data.coins || 0,
                     xpFitness: data.xpFitness || 0
@@ -86,10 +90,16 @@ function Perfil() {
                         setPreviewImage(`http://localhost:8080/images/${data.userPhoto}`);
                     }
                 }
+
+                // Add a small delay before showing content with fade-in effect
+                setTimeout(() => {
+                    setFadeIn(true);
+                    setIsLoading(false);
+                }, 300);
+
             } catch (err) {
                 console.error('Error fetching user data:', err);
                 setError("No se pudo cargar los datos del usuario. Por favor, inténtelo de nuevo más tarde.");
-            } finally {
                 setIsLoading(false);
             }
         };
@@ -116,18 +126,21 @@ function Perfil() {
 
         const reader = new FileReader();
         reader.onload = () => {
-            setPreviewImage(reader.result);
+            const base64String = reader.result;
+            setPreviewImage(base64String);
             setUserData(prevData => ({
                 ...prevData,
-                userPhoto: reader.result
+                userPhoto: base64String  // Store the base64 string directly
             }));
         };
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(file);  // This converts to base64
     };
 
-    const handleEdit = () => {
+    const handleEdit = (e) => {
+        if (e) e.preventDefault();
+        console.log("handleEdit called", new Date().toISOString());
         setIsEditing(true);
-        setSuccessMessage('');
+        setSuccessMessage(''); // Clear any existing messages
         setError(null);
     };
 
@@ -139,7 +152,11 @@ function Perfil() {
 
         // Reset preview image to original
         if (originalData.userPhoto && originalData.userPhoto !== 'default.jpg') {
-            setPreviewImage(originalData.userPhoto);
+            if (originalData.userPhoto.startsWith('data:')) {
+                setPreviewImage(originalData.userPhoto);
+            } else {
+                setPreviewImage(`http://localhost:8080/images/${originalData.userPhoto}`);
+            }
         } else {
             setPreviewImage(null);
         }
@@ -147,6 +164,13 @@ function Perfil() {
 
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
+    };
+
+    const togglePublicProfile = () => {
+        setUserData(prevData => ({
+            ...prevData,
+            isPublic: !prevData.isPublic
+        }));
     };
 
     const handleSubmit = async (e) => {
@@ -158,19 +182,15 @@ function Perfil() {
             setIsLoading(true);
             const token = localStorage.getItem('token');
 
-            // Preserve fields that shouldn't be changed directly
-            const updatedFields = {
-                ...userData,
-                // Ensure these fields are not lost during update
-                coins: originalData.coins,
-                xpFitness: originalData.xpFitness,
-                role: originalData.role
-            };
+            // Create a copy of the data to send
+            const updatedFields = { ...userData };
 
             // Remove password if it's empty
             if (!updatedFields.password) {
                 delete updatedFields.password;
             }
+
+            console.log("Sending updated data:", updatedFields);
 
             // Use the profile update endpoint
             const response = await axios.put('http://localhost:8080/api/profile/update', updatedFields, {
@@ -180,26 +200,27 @@ function Perfil() {
                 }
             });
 
-            if (response.status !== 200) {
+            if (response.status === 200) {
+                // Update original data with new values but reset password field
+                const updatedData = { ...response.data, password: '' };
+                setOriginalData(updatedData);
+                setUserData(updatedData);
+
+                // Save profile picture to localStorage if needed
+                if (userData.userPhoto && userData.userPhoto !== originalData.userPhoto) {
+                    localStorage.setItem('profilePicture', previewImage);
+                    // Notify other components that profile picture has been updated
+                    window.dispatchEvent(new Event('profilePictureUpdated'));
+                }
+
+                setIsEditing(false);
+                setSuccessMessage('¡Perfil actualizado con éxito!');
+
+                // Scroll to top to show success message
+                window.scrollTo(0, 0);
+            } else {
                 throw new Error('Failed to update profile');
             }
-
-            // Update original data with new values
-            setOriginalData({...userData, password: ''});
-            setUserData({...userData, password: ''});
-
-            // Save profile picture to localStorage if needed
-            if (userData.userPhoto && userData.userPhoto !== originalData.userPhoto) {
-                localStorage.setItem('profilePicture', previewImage);
-                // Notify other components that profile picture has been updated
-                window.dispatchEvent(new Event('profilePictureUpdated'));
-            }
-
-            setIsEditing(false);
-            setSuccessMessage('Perfil actualizado con éxito');
-
-            // Scroll to top to show success message
-            window.scrollTo(0, 0);
         } catch (err) {
             console.error('Error updating profile:', err);
             setError(err.response?.data?.message || "No se pudo actualizar el perfil. Por favor, inténtelo de nuevo más tarde.");
@@ -218,14 +239,15 @@ function Perfil() {
             setIsLoading(true);
             const token = localStorage.getItem('token');
 
-            const response = await axios.delete('http://localhost:8080/api/users/delete', {
+            // Use the profile delete endpoint
+            const response = await axios.delete('http://localhost:8080/api/profile/delete', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             });
 
             if (response.status === 200) {
-                // Logout and redirect to home
+                // Logout and redirect to home instead of login
                 await logout();
                 navigate('/');
             } else {
@@ -251,248 +273,325 @@ function Perfil() {
         setDeleteConfirmation('');
     };
 
+    const calculateBMI = () => {
+        if (userData.weight && userData.height) {
+            const heightInMeters = userData.height / 100;
+            const bmi = (userData.weight / (heightInMeters * heightInMeters)).toFixed(1);
+            return bmi;
+        }
+        return "N/A";
+    };
+
+    const getBMICategory = (bmi) => {
+        if (bmi === "N/A") return { text: "No disponible", color: "#777" };
+
+        const numBMI = parseFloat(bmi);
+        if (numBMI < 18.5) return { text: "Bajo peso", color: "#f0ad4e" };
+        if (numBMI < 25) return { text: "Peso normal", color: "#5cb85c" };
+        if (numBMI < 30) return { text: "Sobrepeso", color: "#f0ad4e" };
+        return { text: "Obesidad", color: "#d9534f" };
+    };
+
+    const bmi = calculateBMI();
+    const bmiCategory = getBMICategory(bmi);
+
     if (isLoading && !userData.username) {
-        return <div className="loading">Cargando datos de usuario...</div>;
+        return (
+            <div className="loading">
+                <div className="loading-spinner"></div>
+                <p>Cargando datos de usuario...</p>
+            </div>
+        );
     }
 
     return (
-        <div className="perfil-container">
-            <h1>Mi Perfil</h1>
+        <div className={`perfil-container ${fadeIn ? 'fade-in' : ''}`}>
+            <div className="perfil-header">
+                <h1><FaUser className="header-icon" /> Mi Perfil</h1>
+                <div className="user-stats">
+                    <div className="stat-item">
+                        <FaCoins className="stat-icon coins" />
+                        <span>{userData.coins || 0} monedas</span>
+                    </div>
+                    {}
+                </div>
+            </div>
 
-            {error && <div className="error-message">{error}</div>}
+            {error && <div className="error-message"><FaExclamationTriangle /> {error}</div>}
             {successMessage && <div className="success-message">{successMessage}</div>}
 
             <form onSubmit={handleSubmit} className="perfil-form">
-                <div className="profile-picture-section">
-                    <div className="profile-picture-container">
-                        {previewImage ? (
-                            <img
-                                src={previewImage}
-                                alt="Profile"
-                                className="profile-picture-preview"
+                <div className="profile-sections-container">
+                    <div className="profile-left-section">
+                        <div className="profile-picture-section">
+                            <div className="profile-picture-container">
+                                {previewImage ? (
+                                    <img
+                                        src={previewImage}
+                                        alt="Profile"
+                                        className="profile-picture-preview"
+                                    />
+                                ) : (
+                                    <div className="profile-picture-placeholder">
+                                        <FaUser size={50} color="#ddd" />
+                                        <span>No hay foto de perfil</span>
+                                    </div>
+                                )}
+                            </div>
+                            {isEditing && (
+                                <div className="profile-picture-upload">
+                                    <label htmlFor="profile-picture" className="upload-button">
+                                        Subir foto
+                                    </label>
+                                    <input
+                                        type="file"
+                                        id="profile-picture"
+                                        accept="image/*"
+                                        onChange={handleFileChange}
+                                        style={{ display: 'none' }}
+                                    />
+                                    <p className="upload-info">Formato: JPG, PNG. Máximo: 5MB</p>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* BMI Card */}
+                        <div className="bmi-card">
+                            <div className="bmi-info">
+                                <div className="bmi-data-row">
+                                    <FaWeight /> <span>{userData.weight} kg</span>
+                                </div>
+                                <div className="bmi-data-row" style={{fontWeight: 'bold'}}>
+                                    BMI: {bmi} ({bmiCategory.text})
+                                </div>
+                                <div className="bmi-data-row">
+                                    <FaRulerVertical /> <span>{userData.height} cm</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="profile-right-section">
+                        <div className="form-section-title">
+                            <h2>Información Personal</h2>
+                        </div>
+
+                        <div className="form-row">
+                            <div className="form-group half">
+                                <label htmlFor="username"><FaUser className="field-icon" /> Nombre</label>
+                                <input
+                                    type="text"
+                                    id="username"
+                                    name="username"
+                                    value={userData.username}
+                                    disabled={true} // Always disabled, can't change username
+                                    className=""
+                                />
+                            </div>
+
+                            <div className="form-group half">
+                                <label htmlFor="surname"><FaUser className="field-icon" /> Apellido</label>
+                                <input
+                                    type="text"
+                                    id="surname"
+                                    name="surname"
+                                    value={userData.surname}
+                                    disabled={true} // Always disabled, can't change surname
+                                    className=""
+                                />
+                            </div>
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="email"><FaEnvelope className="field-icon" /> Email</label>
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                value={userData.email}
+                                disabled  // Email should not be editable
                             />
-                        ) : (
-                            <div className="profile-picture-placeholder">
-                                <span>No hay foto de perfil</span>
+                        </div>
+
+                        {isEditing && (
+                            <div className="form-group password-input-group">
+                                <label htmlFor="password"><FaLock className="field-icon" /> Contraseña</label>
+                                <div className="password-input-wrapper">
+                                    <input
+                                        type={showPassword ? "text" : "password"}
+                                        id="password"
+                                        name="password"
+                                        value={userData.password}
+                                        onChange={handleChange}
+                                        placeholder="Introduce nueva contraseña"
+                                        className="editable"
+                                    />
+                                    <button
+                                        type="button"
+                                        className="toggle-password-visibility"
+                                        onClick={togglePasswordVisibility}
+                                    >
+                                        {showPassword ? <FaEyeSlash /> : <FaEye />}
+                                    </button>
+                                </div>
+                                <p className="field-info">Dejar en blanco para mantener la actual</p>
                             </div>
                         )}
-                    </div>
-                    {isEditing && (
-                        <div className="profile-picture-upload">
-                            <label htmlFor="profile-picture" className="upload-button">
-                                Subir foto
-                            </label>
-                            <input
-                                type="file"
-                                id="profile-picture"
-                                accept="image/*"
-                                onChange={handleFileChange}
-                                style={{ display: 'none' }}
-                            />
-                            <p className="upload-info">Formato: JPG, PNG. Tamaño máximo: 5MB</p>
+
+                        <div className="form-section-title">
+                            <h2>Datos Físicos</h2>
                         </div>
-                    )}
-                </div>
 
-                <div className="form-row">
-                    <div className="form-group half">
-                        <label htmlFor="username">Nombre</label>
-                        <input
-                            type="text"
-                            id="username"
-                            name="username"
-                            value={userData.username}
-                            onChange={handleChange}
-                            disabled={!isEditing}
-                        />
-                    </div>
+                        <div className="form-row">
+                            <div className="form-group half">
+                                <label htmlFor="weight"><FaWeight className="field-icon" /> Peso (kg)</label>
+                                <input
+                                    type="number"
+                                    id="weight"
+                                    name="weight"
+                                    value={userData.weight}
+                                    onChange={handleChange}
+                                    min="30"
+                                    max="300"
+                                    step="0.1"
+                                    disabled={!isEditing}
+                                    className={isEditing ? "editable" : ""}
+                                />
+                            </div>
 
-                    <div className="form-group half">
-                        <label htmlFor="surname">Apellido</label>
-                        <input
-                            type="text"
-                            id="surname"
-                            name="surname"
-                            value={userData.surname}
-                            onChange={handleChange}
-                            disabled={!isEditing}
-                        />
-                    </div>
-                </div>
-
-                <div className="form-group">
-                    <label htmlFor="email">Email</label>
-                    <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        value={userData.email}
-                        onChange={handleChange}
-                        disabled  // Email should not be editable
-                    />
-                </div>
-
-                {isEditing && (
-                    <div className="form-group password-input-group">
-                        <label htmlFor="password">Contraseña</label>
-                        <div className="password-input-wrapper">
-                            <input
-                                type={showPassword ? "text" : "password"}
-                                id="password"
-                                name="password"
-                                value={userData.password}
-                                onChange={handleChange}
-                                placeholder="Introduce nueva contraseña"
-                            />
-                            <button
-                                type="button"
-                                className="toggle-password-visibility"
-                                onClick={togglePasswordVisibility}
-                            >
-                                {showPassword ? <FaEyeSlash /> : <FaEye />}
-                            </button>
+                            <div className="form-group half">
+                                <label htmlFor="height"><FaRulerVertical className="field-icon" /> Altura (cm)</label>
+                                <input
+                                    type="number"
+                                    id="height"
+                                    name="height"
+                                    value={userData.height}
+                                    min="100"
+                                    max="250"
+                                    step="1"
+                                    onChange={handleChange}
+                                    disabled={!isEditing}
+                                    className={isEditing ? "editable" : ""}
+                                />
+                            </div>
                         </div>
-                        <p className="field-info">Dejar en blanco para mantener la actual</p>
-                    </div>
-                )}
 
-                <div className="form-row">
-                    <div className="form-group half">
-                        <label htmlFor="weight">Peso (kg)</label>
-                        <input
-                            type="number"
-                            id="weight"
-                            name="weight"
-                            value={userData.weight}
-                            onChange={handleChange}
-                            min="30"
-                            max="300"
-                            step="0.1"
-                            disabled={!isEditing}
-                        />
-                    </div>
+                        <div className="form-row">
+                            <div className="form-group half">
+                                <label htmlFor="age"><FaUser className="field-icon" /> Edad</label>
+                                <input
+                                    type="text"
+                                    id="age"
+                                    name="age"
+                                    value={userData.age}
+                                    onChange={handleChange}
+                                    disabled={!isEditing}
+                                    className={isEditing ? "editable" : ""}
+                                />
+                            </div>
 
-                    <div className="form-group half">
-                        <label htmlFor="height">Altura (cm)</label>
-                        <input
-                            type="number"
-                            id="height"
-                            name="height"
-                            value={userData.height}
-                            onChange={handleChange}
-                            min="100"
-                            max="250"
-                            step="1"
-                            disabled={!isEditing}
-                        />
-                    </div>
-                </div>
+                            <div className="form-group half">
+                                <label htmlFor="sex"><FaTransgender className="field-icon" /> Sexo</label>
+                                <select
+                                    id="sex"
+                                    name="sex"
+                                    value={userData.sex}
+                                    onChange={handleChange}
+                                    disabled={!isEditing}
+                                    className={isEditing ? "editable" : ""}
+                                >
+                                    <option value="male">Hombre</option>
+                                    <option value="female">Mujer</option>
+                                    <option value="other">Otro</option>
+                                </select>
+                            </div>
+                        </div>
 
-                <div className="form-row">
-                    <div className="form-group half">
-                        <label htmlFor="age">Edad</label>
-                        <input
-                            type="text"
-                            id="age"
-                            name="age"
-                            value={userData.age}
-                            onChange={handleChange}
-                            disabled={!isEditing}
-                        />
-                    </div>
+                        <div className="form-section-title">
+                            <h2>Contacto</h2>
+                        </div>
 
-                    <div className="form-group half">
-                        <label htmlFor="sex">Sexo</label>
-                        <select
-                            id="sex"
-                            name="sex"
-                            value={userData.sex}
-                            onChange={handleChange}
-                            disabled={!isEditing}
-                        >
-                            <option value="male">Hombre</option>
-                            <option value="female">Mujer</option>
-                            <option value="other">Otro</option>
-                        </select>
-                    </div>
-                </div>
+                        <div className="form-row">
+                            <div className="form-group half">
+                                <label htmlFor="address"><FaMapMarkerAlt className="field-icon" /> Domicilio</label>
+                                <input
+                                    type="text"
+                                    id="address"
+                                    name="address"
+                                    value={userData.address}
+                                    onChange={handleChange}
+                                    disabled={!isEditing}
+                                    className={isEditing ? "editable" : ""}
+                                />
+                            </div>
 
-                <div className="form-row">
-                    <div className="form-group half">
-                        <label htmlFor="address">Domicilio</label>
-                        <input
-                            type="text"
-                            id="address"
-                            name="address"
-                            value={userData.address}
-                            onChange={handleChange}
-                            disabled={!isEditing}
-                        />
-                    </div>
+                            <div className="form-group half">
+                                <label htmlFor="phoneNumber"><FaPhone className="field-icon" /> Número de teléfono</label>
+                                <input
+                                    type="tel"
+                                    id="phoneNumber"
+                                    name="phoneNumber"
+                                    value={userData.phoneNumber}
+                                    onChange={handleChange}
+                                    disabled={!isEditing}
+                                    className={isEditing ? "editable" : ""}
+                                />
+                            </div>
+                        </div>
 
-                    <div className="form-group half">
-                        <label htmlFor="phoneNumber">Número de teléfono</label>
-                        <input
-                            type="tel"
-                            id="phoneNumber"
-                            name="phoneNumber"
-                            value={userData.phoneNumber}
-                            onChange={handleChange}
-                            disabled={!isEditing}
-                        />
-                    </div>
-                </div>
+                        <div className="form-section-title">
+                            <h2>Preferencias</h2>
+                        </div>
 
-                <div className="form-row">
-                    <div className="form-group half">
-                        <label htmlFor="isPublic">Perfil público</label>
-                        <select
-                            id="isPublic"
-                            name="isPublic"
-                            value={userData.isPublic.toString()}
-                            onChange={(e) => setUserData({...userData, isPublic: e.target.value === 'true'})}
-                            disabled={!isEditing}
-                        >
-                            <option value="true">Sí</option>
-                            <option value="false">No</option>
-                        </select>
-                    </div>
-                </div>
-
-                {/* Read-only fields to display */}
-                <div className="form-row">
-                    <div className="form-group half">
-                        <label htmlFor="coins">Monedas</label>
-                        <input
-                            type="number"
-                            id="coins"
-                            name="coins"
-                            value={userData.coins || 0}
-                            disabled={true}
-                        />
-                    </div>
-
-                    <div className="form-group half">
-                        <label htmlFor="xpFitness">XP Fitness</label>
-                        <input
-                            type="number"
-                            id="xpFitness"
-                            name="xpFitness"
-                            value={userData.xpFitness || 0}
-                            disabled={true}
-                        />
+                        <div className="form-row">
+                            <div className="form-group half">
+                                <label htmlFor="isPublic" className="switch-label">
+                                    <FaGlobe className="field-icon" /> Perfil público
+                                    {isEditing ? (
+                                        <div className="toggle-switch">
+                                            <input
+                                                type="checkbox"
+                                                id="isPublic"
+                                                checked={userData.isPublic}
+                                                onChange={togglePublicProfile}
+                                                disabled={!isEditing}
+                                                className="toggle-input"
+                                            />
+                                            <span className="toggle-slider"></span>
+                                            <span className="toggle-label">{userData.isPublic ? 'Sí' : 'No'}</span>
+                                        </div>
+                                    ) : (
+                                        <span className="static-value">{userData.isPublic ? 'Sí' : 'No'}</span>
+                                    )}
+                                </label>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <div className="form-actions">
                     {isEditing ? (
                         <>
-                            <button type="submit" className="btn-submit">Guardar cambios</button>
-                            <button type="button" className="btn-cancel" onClick={handleCancel}>Cancelar</button>
+                            <button type="submit" className="btn-submit">
+                                <FaSave /> Guardar cambios
+                            </button>
+                            <button type="button" className="btn-cancel" onClick={handleCancel}>
+                                <FaTimes /> Cancelar
+                            </button>
                         </>
                     ) : (
                         <>
-                            <button type="button" className="btn-edit" onClick={handleEdit}>Editar perfil</button>
+                            <button
+                                type="button"
+                                className="btn-edit"
+                                onClick={(e) => {
+                                    e.preventDefault(); // Prevent any form submission
+                                    handleEdit();
+                                    console.log("Edit button clicked", new Date().toISOString());
+                                }}
+                            >
+                                <FaUserEdit /> Editar perfil
+                            </button>
                             <button type="button" className="btn-delete" onClick={openDeleteModal}>
                                 <FaTrashAlt /> Eliminar cuenta
                             </button>

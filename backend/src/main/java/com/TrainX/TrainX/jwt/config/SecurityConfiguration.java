@@ -37,7 +37,10 @@ public class SecurityConfiguration {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/profile/**").authenticated()
+                        .requestMatchers("/api/profile/**").authenticated()  // Ensure this is present
+                        .requestMatchers("/api/profile/me").authenticated()
+                        .requestMatchers("/api/profile/update").authenticated()
+                        .requestMatchers("/api/profile/delete").authenticated()
                         .requestMatchers("/api/users/me/**").authenticated()
                         .requestMatchers("/api/caminoFitness", "/api/caminoFitness/**").authenticated()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
