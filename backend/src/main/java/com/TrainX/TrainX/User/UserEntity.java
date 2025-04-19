@@ -60,7 +60,7 @@ public class UserEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role = Role.USER;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 500000)
     private String userPhoto;
 
 

@@ -12,7 +12,7 @@ public class CaminoFitnessEntity {
     @Column(nullable = false)
     private String nameCF;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 2000)
     private String descriptionCF;
 
     public CaminoFitnessEntity() {}

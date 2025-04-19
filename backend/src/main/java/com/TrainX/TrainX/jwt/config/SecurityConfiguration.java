@@ -2,6 +2,7 @@ package com.TrainX.TrainX.jwt.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -39,6 +40,10 @@ public class SecurityConfiguration {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/profile/**").authenticated()  // Ensure this is present
                         .requestMatchers("/api/profile/me").authenticated()
+                        .requestMatchers("/api/caminoFitness/**").permitAll()
+                        .requestMatchers("/api/caminoFitness/**").hasRole("ADMIN")
+                        .requestMatchers("/api/caminoFitness/**").hasRole("ADMIN")
+                        .requestMatchers("/api/caminoFitness/**").hasRole("ADMIN")
                         .requestMatchers("/api/profile/update").authenticated()
                         .requestMatchers("/api/profile/delete").authenticated()
                         .requestMatchers("/api/users/me/**").authenticated()
@@ -50,7 +55,6 @@ public class SecurityConfiguration {
                 )
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
         return http.build();
     }
 
