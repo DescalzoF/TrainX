@@ -17,7 +17,7 @@ public class UserService {
     @Autowired
     public UserService(UserRepository userRepository, CaminoFitnessService caminoFitnessService) {
         this.userRepository = userRepository;
-        this.caminoFitnessService = caminoFitnessService;   
+        this.caminoFitnessService = caminoFitnessService;
     }
 
     public List<UserEntity> listUsers() {

@@ -102,7 +102,7 @@ public class UserEntity implements UserDetails {
 
     }
     @ManyToOne
-    @JoinColumn(name = "selected_camino_fitness_id")
+    @JoinColumn(name = "selected_camino_fitness_i d")
     private CaminoFitnessEntity selectedCaminoFitness;
 
     @ManyToOne
