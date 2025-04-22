@@ -1,167 +1,96 @@
-.exercises-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-    font-family: 'Arial', sans-serif;
-}
+/* src/pages/exercises/ExercisesView.css */
 
-.exercises-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-    border-bottom: 2px solid #e0e0e0;
-    padding-bottom: 20px;
-}
-
-.selected-camino {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
-
-.camino-icon-container {
-    width: 60px;
-    height: 60px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.camino-icon {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-}
-
-.camino-info h1 {
-    font-size: 28px;
-    margin: 0 0 10px 0;
-    color: #333;
-}
-
-.camino-info p {
-    font-size: 16px;
-    color: #666;
-    margin: 0;
-}
-
-.change-camino-button {
-    background-color: #ff5722;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
-}
-
-.change-camino-button:hover {
-    background-color: #e64a19;
-}
-
-.exercises-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: 20px;
-}
-
-.exercise-card {
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    transition: transform 0.3s ease;
-}
-
-.exercise-card:hover {
-    transform: translateY(-5px);
-}
-
-.exercise-card h3 {
-    margin-top: 0;
-    color: #333;
-    font-size: 20px;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 10px;
-}
-
-.exercise-details {
-    margin-bottom: 15px;
-}
-
-.muscle-group, .sets-reps {
-    margin: 5px 0;
-    color: #555;
-}
-
-.exercise-description p {
-    color: #666;
-    line-height: 1.6;
-}
-
-.warning-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
-.warning-content {
-    background-color: white;
+/* Estilo principal de la vista */
+.exercises-view {
     padding: 30px;
-    border-radius: 8px;
-    width: 90%;
-    max-width: 500px;
-    text-align: center;
+    margin-top: 80px; /* Para evitar que se superponga con la navbar */
+    background-color: #f7f7f7;
+    min-height: 100vh;
 }
 
-.warning-content h2 {
-    color: #ff5722;
-    margin-top: 0;
+/* Título de la vista */
+.exercises-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
 }
 
-.warning-buttons {
-    display: flex;
-    justify-content: center;
+/* Contenedor para la lista de ejercicios */
+.exercise-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 20px;
     margin-top: 20px;
 }
 
-.cancel-button {
-    background-color: #9e9e9e;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
+/* Estilo de las tarjetas de ejercicio */
+.exercise-card {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
 }
 
-.confirm-button {
-    background-color: #ff5722;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
+.exercise-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.loading, .error, .no-exercises {
-    text-align: center;
-    padding: 40px;
-    font-size: 18px;
+/* Encabezado de cada tarjeta */
+.exercise-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.exercise-card-header h3 {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Estilo de la caja de verificación */
+.exercise-checkbox label {
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.exercise-checkbox input {
+    margin-right: 10px;
+}
+
+/* Descripción del ejercicio */
+.exercise-description {
+    font-size: 1rem;
     color: #666;
+    margin: 10px 0;
 }
 
-.error {
-    color: #d32f2f;
+/* Detalles de las series y repeticiones */
+.exercise-card p {
+    font-size: 0.9rem;
+    color: #444;
+}
+
+/* Estilo del enlace de video */
+.exercise-video a {
+    color: #1e90ff;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.95rem;
+}
+
+.exercise-video a:hover {
+    text-decoration: underline;
+}
+
+/* Loading y errores */
+.loading, .error {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #d9534f;
+    padding: 20px;
 }

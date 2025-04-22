@@ -1,6 +1,7 @@
 package com.TrainX.TrainX.User;
 
 import com.TrainX.TrainX.caminoFitness.CaminoFitnessEntity;
+import com.TrainX.TrainX.level.LevelEntity;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -103,6 +104,12 @@ public class UserEntity implements UserDetails {
     @ManyToOne
     @JoinColumn(name = "selected_camino_fitness_id")
     private CaminoFitnessEntity selectedCaminoFitness;
+
+    @ManyToOne
+    @JoinColumn(name = "id_current_level")
+    private LevelEntity currentLevel;
+
+
 
     public CaminoFitnessEntity getSelectedCaminoFitness() {
         return selectedCaminoFitness;
@@ -266,4 +273,5 @@ public class UserEntity implements UserDetails {
     public Role getRole() {
         return this.role;
     }
+
 }

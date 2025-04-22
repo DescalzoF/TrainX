@@ -52,6 +52,7 @@
     border-radius: 4px;
     font-size: 16px;
     transition: border-color 0.3s;
+    color: #000; /* Esto hace que el texto sea negro */
 }
 
 .form-group input:focus {
