@@ -1,5 +1,7 @@
 package com.TrainX.TrainX.caminoFitness;
 
+import com.TrainX.TrainX.User.UserEntity;
+import com.TrainX.TrainX.User.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,6 +31,7 @@ public class CaminoFitnessService {
     public CaminoFitnessEntity createCaminoFitness(CaminoFitnessEntity caminoFitness) {
         return caminoFitnessRepository.save(caminoFitness);
     }
+    // Crear o asignar un Camino Fitness para un Usuario
 
     @PreAuthorize("hasRole('ADMIN')")
     public CaminoFitnessEntity updateCaminoFitness(Long id, CaminoFitnessEntity updatedCF) {

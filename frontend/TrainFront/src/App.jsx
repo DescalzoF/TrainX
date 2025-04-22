@@ -11,6 +11,7 @@ import CaminoFitness from './pages/CaminoFitness/CaminoFitness.jsx';
 import CaminoFitnessAdmin from './pages/CaminoFitness/CaminoFitnessAdmin.jsx';
 import ForgotPassword from './pages/auth/ForgotPassword/ForgotPassword.jsx';
 import ResetPassword from './pages/auth/ResetPassword/ResetPassword.jsx';
+import ExercisesView from '/Users/pedrodelaguila/faculty/lab1/TrainX/frontend/TrainFront/src/pages/exercises/ExercisesView.jsx'; // Importa el componente ExercisesView
 import './App.css';
 
 const ProtectedRoute = ({ children }) => {
@@ -48,7 +49,7 @@ const AdminRoute = ({ children }) => {
 const NavbarWrapper = () => {
     const location = useLocation();
     const { isLoggedIn, currentUser, logout } = useAuth();
-    const hideNavbarPaths = ['/login', '/signup', '/reset-password','/forgot-password'];
+    const hideNavbarPaths = ['/login', '/signup', '/reset-password', '/forgot-password'];
     const shouldShowNavbar = !hideNavbarPaths.includes(location.pathname);
 
     return shouldShowNavbar ? (
@@ -116,9 +117,16 @@ function AppContent() {
                             </AdminRoute>
                         }
                     />
+                    <Route
+                        path="/camino/:caminoId/level/:level"
+                        element={
+                            <ProtectedRoute>
+                                <ExercisesView />
+                            </ProtectedRoute>
+                        }
+                    />
                     <Route path="/forgot-password"
-                           element={
-                               <ForgotPassword />} />
+                           element={<ForgotPassword />} />
                     <Route
                         path="/reset-password"
                         element={<ResetPassword />} />
