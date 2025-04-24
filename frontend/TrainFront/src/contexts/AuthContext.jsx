@@ -1,6 +1,6 @@
 import { createContext, useState, useEffect, useContext } from 'react';
 import axios from 'axios';
-import { jwtDecode } from 'jwt-decode'; // Importamos la librería para decodificar el JWT
+import { jwtDecode } from 'jwt-decode';
 
 const AuthContext = createContext(null);
 
@@ -11,13 +11,14 @@ export function AuthProvider({ children }) {
 
     useEffect(() => {
         const token = localStorage.getItem('token');
-        const storedUsername = localStorage.getItem('username'); // Recuperamos el username de localStorage
+        const storedUsername = localStorage.getItem('username');
+        const storedUserId = localStorage.getItem('userId'); // Recuperar userId del localStorage
 
-        if (token && storedUsername) {
-            // Decodificamos el token para verificar su expiración
+        if (token && storedUsername && storedUserId) {
+            // Decodificar el token para verificar su expiración
             const decodedToken = jwtDecode(token);
 
-            // Verificamos si el token ha expirado
+            // Verificar si el token ha expirado
             const isTokenExpired = decodedToken.exp * 1000 < Date.now();
 
             if (isTokenExpired) {
@@ -26,8 +27,11 @@ export function AuthProvider({ children }) {
                 // Si el token no ha expirado, lo usamos para autenticar la sesión
                 axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-                // Restauramos el username desde localStorage
-                setCurrentUser({ username: storedUsername });
+                // Restaurar el username y userId desde localStorage
+                setCurrentUser({
+                    username: storedUsername,
+                    id: storedUserId // Asignar el ID recuperado
+                });
                 setIsLoggedIn(true);
             }
         }
@@ -42,37 +46,48 @@ export function AuthProvider({ children }) {
         // Save token and user info in localStorage
         localStorage.setItem('token', userData.token);
 
-        // Decodificamos el token para obtener el username
+        // Decodificar el token para obtener el username y userId
         const decodedToken = jwtDecode(userData.token);
-        const username = decodedToken.username || decodedToken.sub; // Si no existe username, usar sub
+        const username = decodedToken.username || decodedToken.sub;
+        const userId = decodedToken.id // Obtener el ID del usuario
 
-        // Guardamos el username en localStorage
+        // Guardar el username y userId en localStorage
         localStorage.setItem('username', username);
+        localStorage.setItem('userId', userId); // Guardar el ID en localStorage
 
-        setCurrentUser({ username });
+        setCurrentUser({
+            username,
+            id: userId // Incluir el ID en el estado del usuario
+        });
         setIsLoggedIn(true);
     };
 
     const logout = async () => {
         try {
             const token = localStorage.getItem('token');
-            await axios.post('http://localhost:8080/api/users/logout', {}, {
+            await axios.post('http://localhost:8080/api/auth/logout', {}, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                 },
             });
         } catch (error) {
-            console.error('Error during logout:', error);
+            console.error('Error during logout:', error.response ? error.response.data : error);
         } finally {
-            // Eliminar el token y el username de localStorage
+            // Eliminar el token, username y userId de localStorage
             delete axios.defaults.headers.common['Authorization'];
             localStorage.removeItem('token');
             localStorage.removeItem('username');
+            localStorage.removeItem('userId'); // Eliminar también el userId
             localStorage.removeItem('profilePicture');
 
             setCurrentUser(null);
             setIsLoggedIn(false);
         }
+    };
+
+    // Función para obtener el ID del usuario actual
+    const getCurrentUserId = () => {
+        return currentUser?.id || localStorage.getItem('userId');
     };
 
     const value = {
@@ -81,11 +96,14 @@ export function AuthProvider({ children }) {
         isLoading,
         login,
         logout,
+        getCurrentUserId, // Exportar la nueva función
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-export function useAuth() {
+const useAuth = () => {
     return useContext(AuthContext);
-}
+};
+
+export { useAuth };

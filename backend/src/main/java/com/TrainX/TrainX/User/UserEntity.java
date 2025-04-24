@@ -1,7 +1,6 @@
 package com.TrainX.TrainX.User;
 
 import com.TrainX.TrainX.caminoFitness.CaminoFitnessEntity;
-import com.TrainX.TrainX.level.LevelEntity;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -16,7 +15,7 @@ import java.util.List;
 public class UserEntity implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(nullable = false)
     private String username;
@@ -64,6 +63,10 @@ public class UserEntity implements UserDetails {
     @Column(nullable = false, length = 500000)
     private String userPhoto;
 
+    @ManyToOne
+    @JoinColumn(name = "camino_fitness_id", referencedColumnName = "idCF")
+    private CaminoFitnessEntity caminoFitnessActual;
+
 
 
     public UserEntity() {}
@@ -99,28 +102,12 @@ public class UserEntity implements UserDetails {
         this.address = address;
         this.coins = 0L; // Default value
         this.isPublic = isPublic;
+        this.caminoFitnessActual = null;
 
-    }
-    @ManyToOne
-    @JoinColumn(name = "selected_camino_fitness_id")
-    private CaminoFitnessEntity selectedCaminoFitness;
-
-    @ManyToOne
-    @JoinColumn(name = "id_current_level")
-    private LevelEntity currentLevel;
-
-
-
-    public CaminoFitnessEntity getSelectedCaminoFitness() {
-        return selectedCaminoFitness;
-    }
-
-    public void setSelectedCaminoFitness(CaminoFitnessEntity selectedCaminoFitness) {
-        this.selectedCaminoFitness = selectedCaminoFitness;
     }
 
     // Getters
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
@@ -202,7 +189,7 @@ public class UserEntity implements UserDetails {
     }
 
     // Setters
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -272,6 +259,14 @@ public class UserEntity implements UserDetails {
 
     public Role getRole() {
         return this.role;
+    }
+
+    public CaminoFitnessEntity getCaminoFitnessActual() {
+        return caminoFitnessActual;
+    }
+
+    public void setCaminoFitnessActual(CaminoFitnessEntity caminoFitnessActual) {
+        this.caminoFitnessActual = caminoFitnessActual;
     }
 
 }

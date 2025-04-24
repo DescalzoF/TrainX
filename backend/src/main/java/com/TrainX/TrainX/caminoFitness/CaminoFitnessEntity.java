@@ -1,10 +1,6 @@
 package com.TrainX.TrainX.caminoFitness;
-
-import com.TrainX.TrainX.User.UserEntity;
-import com.TrainX.TrainX.level.LevelEntity;
 import jakarta.persistence.*;
 
-import java.util.List;
 
 @Entity
 @Table(name="caminoFitness")
@@ -18,15 +14,6 @@ public class CaminoFitnessEntity {
 
     @Column(nullable = false, length = 2000)
     private String descriptionCF;
-
-    // Relación con la entidad LevelEntity (un CaminoFitness tiene varios niveles)
-    @OneToMany(mappedBy = "caminoFitnessEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<LevelEntity> levels;
-
-    // Relación con la entidad User (cada CaminoFitness pertenece a un Usuario)
-    @ManyToOne
-    @JoinColumn(name = "user_id") // Asumiendo que tienes una columna "user_id" en tu tabla
-    private UserEntity user;
 
     public CaminoFitnessEntity() {}
 
@@ -46,10 +33,6 @@ public class CaminoFitnessEntity {
         return descriptionCF;
     }
 
-    public UserEntity getUser() {
-        return user;
-    }
-
     public void setNameCF(String nameCF) {
         this.nameCF = nameCF;
     }
@@ -58,8 +41,4 @@ public class CaminoFitnessEntity {
         this.descriptionCF = descriptionCF;
     }
 
-
-    public void setUser(UserEntity user) {
-        this.user = user;
-    }
 }

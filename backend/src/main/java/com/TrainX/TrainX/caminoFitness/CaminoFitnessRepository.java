@@ -11,7 +11,7 @@ import java.util.Optional;
 public interface CaminoFitnessRepository extends JpaRepository<CaminoFitnessEntity, Long> {
     // Aquí puedes agregar métodos personalizados si es necesario
     // Por ejemplo, para buscar por nombre o descripción
-    List<CaminoFitnessEntity> findByNameCFAndUser(String nameCF, UserEntity user);
     CaminoFitnessEntity findByDescriptionCF(String descriptionCF);
-    CaminoFitnessEntity findByNameCF(String nameCF);
+    Optional<CaminoFitnessEntity>findByNameCF(String nameCF);
+
 }

@@ -11,7 +11,7 @@ import CaminoFitness from './pages/CaminoFitness/CaminoFitness.jsx';
 import CaminoFitnessAdmin from './pages/CaminoFitness/CaminoFitnessAdmin.jsx';
 import ForgotPassword from './pages/auth/ForgotPassword/ForgotPassword.jsx';
 import ResetPassword from './pages/auth/ResetPassword/ResetPassword.jsx';
-import ExercisesView from '/Users/pedrodelaguila/faculty/lab1/TrainX/frontend/TrainFront/src/pages/exercises/ExercisesView.jsx'; // Importa el componente ExercisesView
+import ExercisesView from './pages/exercises/ExercisesView.jsx';  // Actualizamos la ruta de ExercisesView
 import './App.css';
 
 const ProtectedRoute = ({ children }) => {
@@ -118,7 +118,7 @@ function AppContent() {
                         }
                     />
                     <Route
-                        path="/camino/:caminoId/level/:level"
+                        path="/camino/:caminoName"
                         element={
                             <ProtectedRoute>
                                 <ExercisesView />

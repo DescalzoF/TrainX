@@ -7,8 +7,11 @@ import iconoHibrido from "../../assets/icono-hibrido.jpg";
 import iconoHipertrofia from "../../assets/icono-hipertrofia.png";
 import iconoVarios from "../../assets/icono-varios.png";
 import ConfirmationModal from "../../components/confirmationmodal/ConfirmationModal.jsx";
+import axios from 'axios';
+import { useAuth } from '../../contexts/AuthContext';
 
 function CaminoFitness() {
+    const { getCurrentUserId } = useAuth();
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [selectedCamino, setSelectedCamino] = useState(null);
     const [selectedCaminoId, setSelectedCaminoId] = useState(null);
@@ -28,14 +31,12 @@ function CaminoFitness() {
     useEffect(() => {
         const fetchCaminoOptions = async () => {
             try {
-                const response = await fetch('http://localhost:8080/api/caminoFitness');
-                if (!response.ok) throw new Error('Network response was not ok');
-                const data = await response.json();
-                setCaminoOptions(data);
-                setLoading(false);
+                const response = await axios.get('http://localhost:8080/api/caminoFitness');
+                setCaminoOptions(response.data);
             } catch (error) {
                 console.error("Failed to fetch camino options:", error);
                 setError(error.message);
+            } finally {
                 setLoading(false);
             }
         };
@@ -71,11 +72,10 @@ function CaminoFitness() {
     }
 
     if (showExercises) {
-        // Redirigir a ExercisesView con el nivel "Principiante"
         return (
             <ExercisesView
                 selectedCaminoId={selectedCaminoId}
-                selectedLevel="Principiante" // Se pasa el nivel como "Principiante"
+                selectedLevel="Principiante"
                 onChangeCamino={handleChangeCamino}
             />
         );
@@ -116,6 +116,8 @@ function CaminoFitness() {
                 <ConfirmationModal
                     onConfirm={handleConfirm}
                     caminoSeleccionado={selectedCamino}
+                    userId={getCurrentUserId()}
+                    selectedCaminoId={selectedCaminoId}
                 />
             )}
 

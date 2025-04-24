@@ -24,7 +24,9 @@ public class CaminoFitnessService {
     }
 
     public Optional<CaminoFitnessEntity> getCaminoFitnessById(Long id) {
-        return caminoFitnessRepository.findById(id);
+        System.out.println("Buscando camino fitness con ID: " + id);
+        Optional<CaminoFitnessEntity> camino = caminoFitnessRepository.findById(id);
+        return camino;
     }
 
     @PreAuthorize("hasRole('ADMIN')")

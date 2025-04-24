@@ -10,10 +10,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/users/me") // Added a base path
+@RequestMapping("/api/users") // Added a base path
 public class UserController {
     private final UserService userService;
 
@@ -131,44 +132,18 @@ public class UserController {
         }
     }
 
-    @GetMapping("/")
-    public ResponseEntity<List<UserEntity>> allUsers() {
-        List <UserEntity> users = userService.listUsers();
+    @PutMapping("/{id}/camino")
+    public ResponseEntity<?> userAndCaminoFitness(
+            @PathVariable Long id,
+            @RequestBody Map<String, Long> body) {  // Cambiar a Long para el ID del CaminoFitness
 
-        return ResponseEntity.ok(users);
+        Long caminoFitnessId = body.get("caminoFitnessId");  // Obtener el ID del CaminoFitness
+
+        // Llamar al servicio pasando el ID del CaminoFitness
+        userService.assignCaminoFitness(id, caminoFitnessId);
+
+        return ResponseEntity.ok("Camino fitness asignado correctamente");
     }
 
 
-    @PatchMapping("/select-camino/{caminoFitnessId}")
-    @PreAuthorize("authentication.principal.id == #userId")
-    public ResponseEntity<UserEntity> selectCaminoFitness(
-            @RequestParam Long userId,
-            @PathVariable Long caminoFitnessId) {
-        try {
-            UserEntity updatedUser = userService.selectCaminoFitness(userId, caminoFitnessId);
-            return ResponseEntity.ok(updatedUser);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-    }
-    @GetMapping("/selected-camino")
-    public ResponseEntity<?> getCurrentUserSelectedCamino() {
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String username = authentication.getName();
-            UserEntity currentUser = userService.getUserByUsername(username)
-                    .orElseThrow(() -> new RuntimeException("User not found"));
-
-            Optional<CaminoFitnessEntity> selectedCamino = Optional.ofNullable(currentUser.getSelectedCaminoFitness());
-
-            if (selectedCamino.isPresent()) {
-                return ResponseEntity.ok(selectedCamino.get());
-            } else {
-                return ResponseEntity.noContent().build();
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new MessageResponse("Error retrieving selected camino: " + e.getMessage()));
-        }
-    }
 }
