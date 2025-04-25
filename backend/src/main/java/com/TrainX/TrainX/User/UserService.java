@@ -85,6 +85,8 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
+    // Note: This is no longer needed as we're using Spring Security's authentication
+    // but we'll keep it for backward compatibility
     public UserEntity authenticateUser(String username, String password) {
         Optional<UserEntity> userOptional = userRepository.findByUsername(username);
         if (userOptional.isPresent()) {
