@@ -39,7 +39,7 @@ function ConfirmationModal({ onConfirm, caminoSeleccionado, userId, selectedCami
                 // Confirmamos al padre
                 onConfirm(true);
                 // Redirigimos
-                navigate(`/camino/:caminoName`);
+                navigate(`/camino/:caminoId/level/:level`);
             } else {
                 console.error('Código inesperado:', response.status, response.data);
                 setError(`Error al asignar el camino (${response.status})`);

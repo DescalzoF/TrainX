@@ -1,6 +1,7 @@
 package com.TrainX.TrainX.User;
 
 import com.TrainX.TrainX.caminoFitness.CaminoFitnessEntity;
+import com.TrainX.TrainX.level.LevelEntity;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -45,7 +46,11 @@ public class UserEntity implements UserDetails {
     private Long coins;
 
     @Column(nullable = false)
-    private Long xpFitness;
+    private Long xpFitness = 0L;
+
+    @ManyToOne
+    @JoinColumn(name = "id_level")
+    private LevelEntity level;
 
     @Column(nullable = false)
     private String email;
@@ -98,11 +103,13 @@ public class UserEntity implements UserDetails {
         this.weight = weight;
         this.userPhoto = userPhoto;
         this.sex = sex;
-        this.xpFitness = xpFitness;
+        this.xpFitness = xpFitness != null ? xpFitness : 0L;
         this.address = address;
-        this.coins = 0L; // Default value
+        this.coins = coins != null ? coins : 0L;
         this.isPublic = isPublic;
+        this.role = role;
         this.caminoFitnessActual = null;
+        // Level will be set after user creation
 
     }
 
@@ -268,5 +275,11 @@ public class UserEntity implements UserDetails {
     public void setCaminoFitnessActual(CaminoFitnessEntity caminoFitnessActual) {
         this.caminoFitnessActual = caminoFitnessActual;
     }
+    public LevelEntity getLevel() {
+        return level;
+    }
 
+    public void setLevel(LevelEntity level) {
+        this.level = level;
+    }
 }

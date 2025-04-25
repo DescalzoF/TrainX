@@ -144,6 +144,30 @@ public class UserController {
 
         return ResponseEntity.ok("Camino fitness asignado correctamente");
     }
+    // Update user XP (add or subtract)
+    @PostMapping("/{userId}/xp")
+    public ResponseEntity<UserEntity> updateUserXP(
+            @PathVariable Long userId,
+            @RequestParam Long xpChange) {
+        UserEntity updatedUser = userService.updateUserXP(userId, xpChange);
+        return ResponseEntity.ok(updatedUser);
+    }
+
+    // Get user with level information
+    @GetMapping("/{userId}/level")
+    public ResponseEntity<UserLevelDTO> getUserLevelInfo(@PathVariable Long userId) {
+        UserEntity user = userService.getUserWithLevel(userId);
+
+        UserLevelDTO levelInfo = new UserLevelDTO(
+                user.getId(),
+                user.getXpFitness(),
+                user.getLevel().getNameLevel(),
+                user.getLevel().getXpMin(),
+                user.getLevel().getXpMax()
+        );
+
+        return ResponseEntity.ok(levelInfo);
+    }
 
 
 }

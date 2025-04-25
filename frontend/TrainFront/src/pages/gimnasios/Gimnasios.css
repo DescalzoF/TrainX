@@ -1,0 +1,489 @@
+
+/* Import Leaflet CSS */
+@import url('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+
+:root {
+    --primary-blue: #0061fe;
+    --primary-blue-dark: #004fc4;
+    --accent-color: #ffcb37;
+    --text-dark: #1e1919;
+    --text-light: #637282;
+    --white: #fff;
+    --gray-light: #f7f9fa;
+    --gray-medium: #e6e8eb;
+    --box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    --navbar-height: 70px; /* Adjust based on your actual navbar height */
+}
+
+.gimnasios-container {
+    padding: 20px;
+    padding-top: 30px; /* Additional padding to account for navbar */
+    max-width: 1200px;
+    margin: 0 auto;
+    margin-top: var(--navbar-height); /* Push content below navbar */
+    font-family: 'Montserrat', sans-serif;
+    color: var(--text-dark);
+}
+
+.gimnasios-header {
+    text-align: center;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--gray-medium);
+    position: relative;
+}
+
+.gimnasios-header::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 3px;
+    background: linear-gradient(to right, var(--primary-blue), var(--accent-color));
+    border-radius: 3px;
+}
+
+.gimnasios-header h1 {
+    font-size: 2.2rem;
+    color: var(--primary-blue);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.gimnasios-header p {
+    font-size: 1.1rem;
+    color: var(--text-light);
+}
+
+.connection-note {
+    background-color: #fff3cd;
+    border-left: 4px solid var(--accent-color);
+    padding: 8px 15px;
+    margin-top: 10px;
+    font-size: 0.9rem;
+    display: inline-block;
+    border-radius: 4px;
+}
+
+.search-section {
+    margin-bottom: 25px;
+}
+
+.search-form {
+    background-color: var(--white);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: var(--box-shadow);
+    border: 1px solid var(--gray-medium);
+}
+
+.search-input-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.search-input {
+    flex: 1;
+    padding: 14px 18px;
+    border: 1px solid var(--gray-medium);
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: 'Montserrat', sans-serif;
+    transition: border-color 0.2s;
+}
+
+.search-input:focus {
+    border-color: var(--primary-blue);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 97, 254, 0.2);
+}
+
+.search-button,
+.location-button {
+    padding: 0 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.search-button {
+    background-color: var(--primary-blue);
+    color: white;
+}
+
+.search-button:hover {
+    background-color: var(--primary-blue-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.location-button {
+    background-color: var(--accent-color);
+    color: var(--text-dark);
+}
+
+.location-button:hover {
+    background-color: #f0bc2e;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.radius-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 5px;
+}
+
+.radius-selector label {
+    font-size: 0.95rem;
+    color: var(--text-light);
+    font-weight: 500;
+}
+
+.radius-selector input {
+    width: 100%;
+    accent-color: var(--primary-blue);
+    height: 6px;
+}
+
+.gimnasios-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 25px;
+}
+
+.map-container {
+    position: relative;
+    height: 550px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--box-shadow);
+    border: 1px solid var(--gray-medium);
+}
+
+.map {
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
+    font-weight: 600;
+    color: var(--primary-blue);
+    font-size: 1.2rem;
+}
+
+.error-message {
+    background-color: #ffeaea;
+    border-left: 4px solid #ff5252;
+    color: #b71c1c;
+    padding: 10px 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    font-size: 0.95rem;
+}
+
+.gym-list {
+    background-color: var(--white);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: var(--box-shadow);
+    border: 1px solid var(--gray-medium);
+    max-height: 550px;
+    overflow-y: auto;
+}
+
+.gym-list h2 {
+    font-size: 1.4rem;
+    color: var(--text-dark);
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--gray-medium);
+}
+
+.loading-gyms {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100px;
+    color: var(--text-light);
+    font-style: italic;
+}
+
+.gym-items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.gym-item {
+    display: flex;
+    padding: 15px;
+    border-bottom: 1px solid var(--gray-medium);
+    transition: background-color 0.2s;
+}
+
+.gym-item:last-child {
+    border-bottom: none;
+}
+
+.gym-item:hover {
+    background-color: var(--gray-light);
+}
+
+.gym-rank {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 30px;
+    height: 30px;
+    background-color: var(--primary-blue);
+    color: white;
+    border-radius: 50%;
+    font-weight: bold;
+    margin-right: 15px;
+    flex-shrink: 0;
+}
+
+.gym-info {
+    flex: 1;
+}
+
+.gym-info h3 {
+    font-size: 1.1rem;
+    margin: 0 0 5px 0;
+    color: var(--text-dark);
+}
+
+.gym-rating {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--accent-color);
+    margin-bottom: 5px;
+}
+
+.gym-reviews {
+    color: var(--text-light);
+    font-size: 0.85rem;
+    margin-left: 5px;
+}
+
+.gym-address {
+    color: var(--text-light);
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+}
+
+.gym-link {
+    color: var(--primary-blue);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: inline-block;
+    transition: all 0.2s;
+}
+
+.gym-link:hover {
+    color: var(--primary-blue-dark);
+    text-decoration: underline;
+}
+
+.no-gyms {
+    color: var(--text-light);
+    text-align: center;
+    padding: 30px 0;
+    font-style: italic;
+}
+
+/* Responsive styles */
+@media (max-width: 992px) {
+    .gimnasios-content {
+        grid-template-columns: 1fr;
+    }
+
+    .map-container {
+        height: 400px;
+    }
+
+    .gym-list {
+        max-height: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .search-input-container {
+        flex-direction: column;
+    }
+
+    .search-button,
+    .location-button {
+        width: 100%;
+        justify-content: center;
+        padding: 12px;
+    }
+
+    .gimnasios-header h1 {
+        font-size: 1.8rem;
+    }
+}
+
+/* Leaflet popup customization */
+.info-window {
+    font-family: 'Montserrat', sans-serif;
+    padding: 5px;
+}
+
+.info-window h3 {
+    margin: 0 0 5px 0;
+    color: var(--primary-blue);
+    font-size: 1.1rem;
+}
+
+.info-window p {
+    margin: 5px 0;
+    font-size: 0.9rem;
+}
+
+.info-window a {
+    color: var(--primary-blue);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.85rem;
+}
+
+.info-window a:hover {
+    text-decoration: underline;
+}
+
+/* Custom leaflet marker colors */
+.leaflet-marker-icon {
+    filter: hue-rotate(210deg);
+}
+/* Add these styles to your Gimnasios.css file */
+
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    text-align: center;
+    padding: 20px;
+}
+
+.wavy-text-container {
+    margin: 0 auto;
+    padding: 10px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.loading-gyms {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+/* Make sure the map container has position relative for the overlay to work properly */
+.map-container {
+    position: relative;
+    width: 100%;
+    height: 400px;
+    margin-bottom: 20px;
+}
+
+.map {
+    height: 100%;
+    width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Improve the error message styling */
+.error-message {
+    background-color: #fff3cd;
+    color: #856404;
+    padding: 12px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    border-left: 4px solid #ffc107;
+    font-size: 14px;
+}
+
+/* Make buttons look disabled when they are */
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Improve gym list item styling */
+.gym-item {
+    transition: transform 0.2s ease;
+    border-radius: 8px;
+}
+
+.gym-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+/* Add this to your Gimnasios.css file for the wave animation */
+
+@keyframes wave {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.wavy-text-container {
+    display: flex;
+    justify-content: center;
+    padding: 10px 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.wavy-letter {
+    display: inline-block;
+    animation-fill-mode: forwards;
+}

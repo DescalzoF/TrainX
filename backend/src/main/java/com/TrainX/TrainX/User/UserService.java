@@ -2,9 +2,11 @@ package com.TrainX.TrainX.User;
 
 import com.TrainX.TrainX.caminoFitness.CaminoFitnessEntity;
 import com.TrainX.TrainX.caminoFitness.CaminoFitnessService;
-import jakarta.transaction.Transactional;
+import com.TrainX.TrainX.level.LevelEntity;
+import com.TrainX.TrainX.level.LevelService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,6 +16,9 @@ import java.util.stream.Collectors;
 public class UserService {
     private final UserRepository userRepository;
     private final CaminoFitnessService caminoFitnessService;
+
+    @Autowired
+    private LevelService levelService;
 
     @Autowired
     public UserService(UserRepository userRepository, CaminoFitnessService caminoFitnessService) {
@@ -68,13 +73,6 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public UserEntity addFitnessXP(Long id, Long points) {
-        UserEntity user = getUserById(id);
-        Long currentXP = user.getXpFitness() != null ? user.getXpFitness() : 0L;
-        user.setXpFitness(currentXP + points);
-        return userRepository.save(user);
-    }
-
     public List<UserEntity> getUsersByFitnessXPGreaterThan(Long xpValue) {
         return listUsers().stream()
                 .filter(user -> user.getXpFitness() != null && user.getXpFitness() > xpValue)
@@ -85,8 +83,6 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
-    // Note: This is no longer needed as we're using Spring Security's authentication
-    // but we'll keep it for backward compatibility
     public UserEntity authenticateUser(String username, String password) {
         Optional<UserEntity> userOptional = userRepository.findByUsername(username);
         if (userOptional.isPresent()) {
@@ -116,6 +112,44 @@ public class UserService {
         }
     }
 
+    // Add/remove XP and update level
+    public UserEntity updateUserXP(Long userId, Long xpChange) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
+        // Update XP (ensure it doesn't go below 0)
+        Long newXP = Math.max(0, user.getXpFitness() + xpChange);
+        user.setXpFitness(newXP);
 
+        // Update level based on new XP
+        LevelEntity newLevel = levelService.getLevelByXP(newXP);
+        if (newLevel != null) {
+            user.setLevel(newLevel);
+        }
+
+        return userRepository.save(user);
+    }
+
+    // Get user with level information
+    public UserEntity getUserWithLevel(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    public UserEntity addFitnessXP(Long id, Long points) {
+        return updateUserXP(id, points);
+    }
+
+    // Add to UserService.java
+    public UserEntity initializeUserLevel(UserEntity user) {
+        if (user.getLevel() == null) {
+            // Set initial level based on XP (which might be 0)
+            LevelEntity initialLevel = levelService.getLevelByXP(user.getXpFitness());
+            if (initialLevel != null) {
+                user.setLevel(initialLevel);
+                return userRepository.save(user);
+            }
+        }
+        return user;
+    }
 }
