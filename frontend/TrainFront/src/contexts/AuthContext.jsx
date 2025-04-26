@@ -46,7 +46,7 @@ export function AuthProvider({ children }) {
 
     const fetchUserProfile = async () => {
         try {
-            const response = await axios.get('http://localhost:8080/api/users/me');
+            const response = await axios.get('http://localhost:8080/api/users/currentUser');
             const userData = response.data;
             if (userData.caminoFitnessId) {
                 setSelectedCaminoFitnessId(userData.caminoFitnessId);
