@@ -2,6 +2,7 @@ package com.TrainX.TrainX.User;
 
 import com.TrainX.TrainX.caminoFitness.CaminoFitnessEntity;
 import com.TrainX.TrainX.level.LevelEntity;
+import com.TrainX.TrainX.xpFitness.XpFitnessEntity;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -10,15 +11,15 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
-
 @Entity
-@Table(name="users")
+@Table(name = "users")
 public class UserEntity implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String username;
 
     @Column(nullable = false)
@@ -45,14 +46,11 @@ public class UserEntity implements UserDetails {
     @Column(nullable = false)
     private Long coins;
 
-    @Column(nullable = false)
-    private Long xpFitness = 0L;
-
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_level")
     private LevelEntity level;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
     @Column(nullable = false)
@@ -61,39 +59,41 @@ public class UserEntity implements UserDetails {
     @Column(nullable = false)
     private Boolean isPublic;
 
-    @Column (nullable = false)
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Role role = Role.USER;
 
     @Column(nullable = false, length = 500000)
     private String userPhoto;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "camino_fitness_id", referencedColumnName = "idCF")
     private CaminoFitnessEntity caminoFitnessActual;
 
+    // One-to-One relation with XP Fitness (inverse side)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private XpFitnessEntity xpFitnessEntity;
 
+    // Constructors
+    public UserEntity() {
+        // Default constructor for JPA
+    }
 
-    public UserEntity() {}
-
-    public UserEntity(
-            String name,
-            String email,
-            String surname,
-            String password,
-            String age,
-            String phoneNumber,
-            Long height,
-            Long weight,
-            Long xpFitness,
-            String userPhoto,
-            String sex,
-            String address,
-            Boolean isPublic,
-            Long coins,
-            Role role
-    ) {
-        this.username = name;
+    public UserEntity(String username,
+                      String email,
+                      String surname,
+                      String password,
+                      String age,
+                      String phoneNumber,
+                      Long height,
+                      Long weight,
+                      String userPhoto,
+                      String sex,
+                      String address,
+                      Boolean isPublic,
+                      Long coins,
+                      Role role) {
+        this.username = username;
         this.email = email;
         this.surname = surname;
         this.password = password;
@@ -103,17 +103,30 @@ public class UserEntity implements UserDetails {
         this.weight = weight;
         this.userPhoto = userPhoto;
         this.sex = sex;
-        this.xpFitness = xpFitness != null ? xpFitness : 0L;
         this.address = address;
         this.coins = coins != null ? coins : 0L;
         this.isPublic = isPublic;
-        this.role = role;
-        this.caminoFitnessActual = null;
-        // Level will be set after user creation
-
+        this.role = role != null ? role : Role.USER;
     }
 
-    // Getters
+    // Getters y setters omitidos para brevedad (mantener todos los originales)
+
+    public void setXpFitnessEntity(XpFitnessEntity xpFitnessEntity) {
+        this.xpFitnessEntity = xpFitnessEntity;
+        if (xpFitnessEntity != null && xpFitnessEntity.getUser() != this) {
+            xpFitnessEntity.setUser(this);
+        }
+    }
+
+    // Optional: Método para inicializar XP antes de persistir
+    @PrePersist
+    private void ensureXpFitness() {
+        if (this.xpFitnessEntity == null) {
+            setXpFitnessEntity(new XpFitnessEntity(this));
+        }
+    }
+
+    // Standard getters and setters
     public Long getId() {
         return id;
     }
@@ -122,150 +135,121 @@ public class UserEntity implements UserDetails {
         return username;
     }
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return UserDetails.super.isAccountNonExpired();
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return UserDetails.super.isAccountNonLocked();
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return UserDetails.super.isCredentialsNonExpired();
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getSurname() {
         return surname;
     }
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public String getAge() {
-        return age;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public Long getHeight() {
-        return height;
-    }
-
-    public Long getWeight() {
-        return weight;
-    }
-
-    public String getUserPhoto() {
-        return userPhoto;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public Long getCoins() {
-        return coins;
-    }
-
-    public Long getXpFitness() {
-        return xpFitness;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getSex() {
-        return sex;
-    }
-
-    // Setters
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
     public void setSurname(String surname) {
         this.surname = surname;
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
     }
 
     public void setPassword(String password) {
         this.password = password;
     }
 
+    public String getAge() {
+        return age;
+    }
+
     public void setAge(String age) {
         this.age = age;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
 
+    public Long getHeight() {
+        return height;
+    }
+
     public void setHeight(Long height) {
         this.height = height;
+    }
+
+    public Long getWeight() {
+        return weight;
     }
 
     public void setWeight(Long weight) {
         this.weight = weight;
     }
 
-    public void setUserPhoto(String userPhoto) {
-        this.userPhoto = userPhoto;
+    public String getAddress() {
+        return address;
     }
 
     public void setAddress(String address) {
         this.address = address;
     }
 
+    public Long getCoins() {
+        return coins;
+    }
+
     public void setCoins(Long coins) {
         this.coins = coins;
     }
 
-    public void setXpFitness(Long xpFitness) {
-        this.xpFitness = xpFitness;
+    public LevelEntity getLevel() {
+        return level;
+    }
+
+    public void setLevel(LevelEntity level) {
+        this.level = level;
+    }
+
+    public String getEmail() {
+        return email;
     }
 
     public void setEmail(String email) {
         this.email = email;
     }
 
+    public String getSex() {
+        return sex;
+    }
+
     public void setSex(String sex) {
         this.sex = sex;
     }
 
-    public void setIsPublic(boolean b) {
-        this.isPublic = b;
+    public Boolean getIsPublic() {
+        return isPublic;
+    }
+
+    public void setIsPublic(Boolean isPublic) {
+        this.isPublic = isPublic;
+    }
+
+    public Role getRole() {
+        return role;
     }
 
     public void setRole(Role role) {
         this.role = role;
     }
 
-    public boolean getIsPublic() {
-        return this.isPublic;
+    public String getUserPhoto() {
+        return userPhoto;
     }
 
-    public Role getRole() {
-        return this.role;
+    public void setUserPhoto(String userPhoto) {
+        this.userPhoto = userPhoto;
     }
 
     public CaminoFitnessEntity getCaminoFitnessActual() {
@@ -275,11 +259,33 @@ public class UserEntity implements UserDetails {
     public void setCaminoFitnessActual(CaminoFitnessEntity caminoFitnessActual) {
         this.caminoFitnessActual = caminoFitnessActual;
     }
-    public LevelEntity getLevel() {
-        return level;
+
+    public XpFitnessEntity getXpFitnessEntity() {
+        return xpFitnessEntity;
     }
 
-    public void setLevel(LevelEntity level) {
-        this.level = level;
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }

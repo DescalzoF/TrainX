@@ -1,6 +1,7 @@
 package com.TrainX.TrainX.User;
 
 import com.TrainX.TrainX.caminoFitness.CaminoFitnessEntity;
+import com.TrainX.TrainX.xpFitness.XpFitnessService; // Importa el servicio de XP Fitness
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,13 +15,15 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/users") // Added a base path
+@RequestMapping("/api/users")
 public class UserController {
     private final UserService userService;
+    private final XpFitnessService xpFitnessService; // Servicio para manejar XP
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, XpFitnessService xpFitnessService) {
         this.userService = userService;
+        this.xpFitnessService = xpFitnessService;
     }
 
     // Get all users - Requires authentication
@@ -55,26 +58,6 @@ public class UserController {
         }
     }
 
-    // Search users by name - Fixed parameter name (public endpoint)
-    @GetMapping("/search/name/{name}")
-    public ResponseEntity<List<UserEntity>> searchUsersByName(@PathVariable String name) {
-        List<UserEntity> users = userService.searchUsersByName(name);
-        if (users.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<>(users, HttpStatus.OK);
-    }
-
-    // Search users by surname (public endpoint)
-    @GetMapping("/search/surname/{surname}")
-    public ResponseEntity<List<UserEntity>> searchUsersBySurname(@PathVariable String surname) {
-        List<UserEntity> users = userService.searchUsersBySurname(surname);
-        if (users.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<>(users, HttpStatus.OK);
-    }
-
     // Add coins to user - Requires ADMIN role
     @PatchMapping("/{id}/coins")
     @PreAuthorize("hasRole('ADMIN')")
@@ -85,28 +68,6 @@ public class UserController {
         } catch (RuntimeException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-    }
-
-    // Add fitness XP to user - Requires authentication
-    @PatchMapping("/{id}/xp")
-    @PreAuthorize("hasRole('ADMIN') or authentication.principal.id == #id")
-    public ResponseEntity<UserEntity> addFitnessXP(@PathVariable("id") Long id, @RequestParam Long points) {
-        try {
-            UserEntity updatedUser = userService.addFitnessXP(id, points);
-            return new ResponseEntity<>(updatedUser, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
-
-    // Get users with fitness XP greater than a specified value (public endpoint)
-    @GetMapping("/fitness/{xpValue}")
-    public ResponseEntity<List<UserEntity>> getUsersByFitnessXP(@PathVariable Long xpValue) {
-        List<UserEntity> users = userService.getUsersByFitnessXPGreaterThan(xpValue);
-        if (users.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
     // Get user by email - Requires authentication
@@ -135,58 +96,30 @@ public class UserController {
     @PutMapping("/{id}/camino")
     public ResponseEntity<?> userAndCaminoFitness(
             @PathVariable Long id,
-            @RequestBody Map<String, Long> body) {  // Cambiar a Long para el ID del CaminoFitness
+            @RequestBody Map<String, Long> body) {
 
-        Long caminoFitnessId = body.get("caminoFitnessId");  // Obtener el ID del CaminoFitness
+        Long caminoFitnessId = body.get("caminoFitnessId");
 
         // Llamar al servicio pasando el ID del CaminoFitness
         userService.assignCaminoFitness(id, caminoFitnessId);
 
         return ResponseEntity.ok("Camino fitness asignado correctamente");
     }
+
     @GetMapping("/{id}/camino")
     @PreAuthorize("hasRole('ADMIN') or authentication.principal.id == #id")
     public ResponseEntity<Map<String, Long>> getUserCamino(
             @PathVariable Long id) {
 
-        // 1) Obtengo el usuario (lanza excepción si no existe)
         UserEntity user = userService.getUserById(id);
 
-        // 2) Extraigo el caminoFitness (puede ser null)
         CaminoFitnessEntity cf = user.getCaminoFitnessActual();
 
-        // 3) Extraigo el ID, o null si cf es null
         Long caminoId = (cf != null) ? cf.getIdCF() : null;
 
-        // 4) Devuelvo JSON { "caminoFitnessId": caminoId }
         assert caminoId != null;
         return ResponseEntity.ok(Map.of("caminoFitnessId", caminoId));
     }
 
-    // Update user XP (add or subtract)
-    @PostMapping("/{userId}/xp")
-    public ResponseEntity<UserEntity> updateUserXP(
-            @PathVariable Long userId,
-            @RequestParam Long xpChange) {
-        UserEntity updatedUser = userService.updateUserXP(userId, xpChange);
-        return ResponseEntity.ok(updatedUser);
-    }
-
-    // Get user with level information
-    @GetMapping("/{userId}/level")
-    public ResponseEntity<UserLevelDTO> getUserLevelInfo(@PathVariable Long userId) {
-        UserEntity user = userService.getUserWithLevel(userId);
-
-        UserLevelDTO levelInfo = new UserLevelDTO(
-                user.getId(),
-                user.getXpFitness(),
-                user.getLevel().getNameLevel(),
-                user.getLevel().getXpMin(),
-                user.getLevel().getXpMax()
-        );
-
-        return ResponseEntity.ok(levelInfo);
-    }
-
-
+    // Eliminar métodos de XP que ahora están en XpFitnessService
 }
