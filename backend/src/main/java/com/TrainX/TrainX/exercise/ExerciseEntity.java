@@ -39,7 +39,7 @@ public class ExerciseEntity {
     private CaminoFitnessEntity caminoFitness;
 
     @ManyToOne
-    @JoinColumn(name = "id_level")
+    @JoinColumn(name = "id_level", nullable = false)
     private LevelEntity level;
 
     public ExerciseEntity() {}

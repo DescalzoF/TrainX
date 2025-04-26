@@ -8,7 +8,11 @@ import java.util.List;
 
 @Repository
 public interface ExerciseRepository extends JpaRepository<ExerciseEntity, Long> {
-    List<ExerciseEntity> findByCaminoFitnessIdCF(Long caminoFitnessId);
-    List<ExerciseEntity> findByCaminoFitnessAndLevel(CaminoFitnessEntity caminoFitness, LevelEntity level);
+    // Método para obtener ejercicios por CaminoFitness y nivel
+    List<ExerciseEntity> findByCaminoFitness_NameCFAndLevel_NameLevel(String nameCF, String nameLevel);
 
+    // Método para obtener ejercicios por camino fitness (con ID) y nivel
+    List<ExerciseEntity> findByCaminoFitness_IdCFAndLevel_NameLevel(Long idCF, String nameLevel);
+
+    public List<ExerciseEntity> findByCaminoFitness_IdCF(Long idCF);
 }

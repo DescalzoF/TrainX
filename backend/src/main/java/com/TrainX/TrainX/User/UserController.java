@@ -144,6 +144,25 @@ public class UserController {
 
         return ResponseEntity.ok("Camino fitness asignado correctamente");
     }
+    @GetMapping("/{id}/camino")
+    @PreAuthorize("hasRole('ADMIN') or authentication.principal.id == #id")
+    public ResponseEntity<Map<String, Long>> getUserCamino(
+            @PathVariable Long id) {
+
+        // 1) Obtengo el usuario (lanza excepción si no existe)
+        UserEntity user = userService.getUserById(id);
+
+        // 2) Extraigo el caminoFitness (puede ser null)
+        CaminoFitnessEntity cf = user.getCaminoFitnessActual();
+
+        // 3) Extraigo el ID, o null si cf es null
+        Long caminoId = (cf != null) ? cf.getIdCF() : null;
+
+        // 4) Devuelvo JSON { "caminoFitnessId": caminoId }
+        assert caminoId != null;
+        return ResponseEntity.ok(Map.of("caminoFitnessId", caminoId));
+    }
+
     // Update user XP (add or subtract)
     @PostMapping("/{userId}/xp")
     public ResponseEntity<UserEntity> updateUserXP(

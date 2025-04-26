@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Navbar from './components/navbar/Navbar.jsx';
 import Login from './pages/login/Login.jsx';

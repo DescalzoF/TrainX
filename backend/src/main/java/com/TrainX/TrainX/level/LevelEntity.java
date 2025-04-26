@@ -1,4 +1,3 @@
-
 package com.TrainX.TrainX.level;
 
 import com.TrainX.TrainX.caminoFitness.CaminoFitnessEntity;
@@ -17,9 +16,13 @@ public class LevelEntity {
     @Column(nullable = false)
     private String nameLevel; // Principiante, Intermedio, Avanzado, Pro
 
-    @ManyToOne
-    @JoinColumn(name = "id_camino_fitness", referencedColumnName = "idCF")
-    private CaminoFitnessEntity caminoFitnessEntity;
+    @ManyToMany
+    @JoinTable(
+            name = "camino_level",
+            joinColumns = @JoinColumn(name = "level_id"),
+            inverseJoinColumns = @JoinColumn(name = "camino_id")
+    )
+    private List<CaminoFitnessEntity> caminos;  // Relación muchos a muchos con CaminoFitnessEntity
 
     @OneToMany(mappedBy = "level", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ExerciseEntity> exercises;
@@ -34,17 +37,17 @@ public class LevelEntity {
     public LevelEntity() {}
 
     // Constructor con campos útiles
-    public LevelEntity(String nameLevel, CaminoFitnessEntity caminoFitnessEntity, Long xpMin, Long xpMax) {
+    public LevelEntity(String nameLevel, List<CaminoFitnessEntity> caminos, Long xpMin, Long xpMax) {
         this.nameLevel = nameLevel;
-        this.caminoFitnessEntity = caminoFitnessEntity;
+        this.caminos = caminos;
         this.xpMin = xpMin;
         this.xpMax = xpMax;
     }
 
     // Constructor completo (si es necesario)
-    public LevelEntity(String nameLevel, CaminoFitnessEntity caminoFitnessEntity, List<ExerciseEntity> exercises) {
+    public LevelEntity(String nameLevel, List<CaminoFitnessEntity> caminos, List<ExerciseEntity> exercises) {
         this.nameLevel = nameLevel;
-        this.caminoFitnessEntity = caminoFitnessEntity;
+        this.caminos = caminos;
         this.exercises = exercises;
     }
 
@@ -65,12 +68,12 @@ public class LevelEntity {
         this.nameLevel = nameLevel;
     }
 
-    public CaminoFitnessEntity getCaminoFitnessEntity() {
-        return caminoFitnessEntity;
+    public List<CaminoFitnessEntity> getCaminos() {
+        return caminos;
     }
 
-    public void setCaminoFitnessEntity(CaminoFitnessEntity caminoFitnessEntity) {
-        this.caminoFitnessEntity = caminoFitnessEntity;
+    public void setCaminos(List<CaminoFitnessEntity> caminos) {
+        this.caminos = caminos;
     }
 
     public List<ExerciseEntity> getExercises() {
@@ -80,7 +83,6 @@ public class LevelEntity {
     public void setExercises(List<ExerciseEntity> exercises) {
         this.exercises = exercises;
     }
-
 
     public Long getXpMin() {
         return xpMin;
@@ -98,4 +100,3 @@ public class LevelEntity {
         this.xpMax = xpMax;
     }
 }
-

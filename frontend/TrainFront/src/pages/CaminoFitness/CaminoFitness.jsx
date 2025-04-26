@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './CaminoFitness.css';
-import ExercisesView from '../../pages/exercises/ExercisesView';
 import iconoDeportista from "../../assets/icono-deportista.png";
 import iconoFuerza from "../../assets/icono-fuerza.png";
 import iconoHibrido from "../../assets/icono-hibrido.jpg";
@@ -12,13 +12,13 @@ import { useAuth } from '../../contexts/AuthContext';
 
 function CaminoFitness() {
     const { getCurrentUserId } = useAuth();
+    const navigate = useNavigate();
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [selectedCamino, setSelectedCamino] = useState(null);
     const [selectedCaminoId, setSelectedCaminoId] = useState(null);
     const [caminoOptions, setCaminoOptions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [showExercises, setShowExercises] = useState(false);
 
     const iconMapping = {
         "Deportista": iconoDeportista,
@@ -32,6 +32,7 @@ function CaminoFitness() {
         const fetchCaminoOptions = async () => {
             try {
                 const response = await axios.get('http://localhost:8080/api/caminoFitness');
+                console.log("Respuesta de la API:", response.data); // Verifica que los datos se obtienen correctamente
                 setCaminoOptions(response.data);
             } catch (error) {
                 console.error("Failed to fetch camino options:", error);
@@ -47,18 +48,19 @@ function CaminoFitness() {
     const handleCaminoSelect = (camino) => {
         setSelectedCamino(camino.nameCF);
         setSelectedCaminoId(camino.idCF);
+        console.log("Camino seleccionado:", camino); // Verifica que el camino seleccionado esté correcto
         setShowConfirmation(true);
     };
 
     const handleConfirm = (confirmed) => {
         setShowConfirmation(false);
         if (confirmed) {
-            setShowExercises(true);  // Redirige a la vista de ejercicios
+            // Usar React Router para navegar a la vista de ejercicios
+            navigate(`/exercises/${selectedCaminoId}/Principiante`);
         }
     };
 
     const handleChangeCamino = () => {
-        setShowExercises(false);
         setSelectedCamino(null);
         setSelectedCaminoId(null);
     };
@@ -68,16 +70,13 @@ function CaminoFitness() {
     }
 
     if (error) {
-        return <div className="camino-container"><div className="error">Error: {error}</div></div>;
-    }
-
-    if (showExercises) {
         return (
-            <ExercisesView
-                selectedCaminoId={selectedCaminoId}
-                selectedLevel="Principiante"
-                onChangeCamino={handleChangeCamino}
-            />
+            <div className="camino-container">
+                <div className="error">
+                    <p>Hubo un error al cargar las opciones. Intenta nuevamente.</p>
+                    <button onClick={() => window.location.reload()}>Reintentar</button>
+                </div>
+            </div>
         );
     }
 

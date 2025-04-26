@@ -32,6 +32,17 @@ public class ExerciseController {
         return ResponseEntity.ok(exercises);
     }
 
+    // Endpoint nuevo para obtener ejercicios por caminoFitnessId y levelName
+    @GetMapping("/camino/{caminoFitnessId}/level/{levelName}")
+    public ResponseEntity<List<ExerciseEntity>> getExercisesByCaminoAndLevel(
+            @PathVariable Long caminoFitnessId,
+            @PathVariable String levelName) {
+        List<ExerciseEntity> exercises = exerciseService.getExercisesByCaminoAndLevel(caminoFitnessId, levelName);
+        return exercises.isEmpty()
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.ok(exercises);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ExerciseEntity> getExerciseById(@PathVariable Long id) {
         Optional<ExerciseEntity> exercise = exerciseService.getExerciseById(id);
