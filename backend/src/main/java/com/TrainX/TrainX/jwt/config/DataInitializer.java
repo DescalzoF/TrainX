@@ -84,12 +84,97 @@ public class DataInitializer {
                 initFuerzaExercises(caminoFitnessRepository, levelRepository, exerciseRepository);
                 initEntrenamientoHibridoExercises(caminoFitnessRepository, levelRepository, exerciseRepository);
                 initHipertrofiaExercises(caminoFitnessRepository, levelRepository, exerciseRepository);
-                
+                initOtroExercises(caminoFitnessRepository, levelRepository, exerciseRepository);
+
 
                 System.out.println("Inicialización de niveles y ejercicios completada con éxito.");
             }
         };
     }
+    private void initOtroExercises(
+            CaminoFitnessRepository caminoFitnessRepository,
+            LevelRepository levelRepository,
+            ExerciseRepository exerciseRepository) {
+
+        CaminoFitnessEntity camino = caminoFitnessRepository
+                .findByNameCFIgnoreCase("Otro")
+                .orElseThrow(() -> new RuntimeException("No se encontró el camino Otro"));
+
+        // Crear los 4 niveles
+        LevelEntity principiante = createLevel(levelRepository, "Principiante", 1, camino);
+        LevelEntity intermedio   = createLevel(levelRepository, "Intermedio",   2, camino);
+        LevelEntity avanzado     = createLevel(levelRepository, "Avanzado",     3, camino);
+        LevelEntity pro          = createLevel(levelRepository, "Pro",          4, camino);
+
+        // NIVEL PRINCIPIANTE (6 placeholders, xpReward = 50)
+        List<ExerciseEntity> ejerciciosPrincipiante = new ArrayList<>();
+        for (int i = 0; i < 6; i++) {
+            ejerciciosPrincipiante.add(new ExerciseEntity(
+                    "",    // name vacío
+                    "",    // description vacío
+                    "",    // muscleGroup vacío
+                    0,     // sets por defecto
+                    0,     // reps por defecto
+                    camino,
+                    principiante,
+                    "",    // videoUrl vacío
+                    50     // xpReward Principiante
+            ));
+        }
+        exerciseRepository.saveAll(ejerciciosPrincipiante);
+
+        // NIVEL INTERMEDIO (6 placeholders, xpReward = 75)
+        List<ExerciseEntity> ejerciciosIntermedio = new ArrayList<>();
+        for (int i = 0; i < 6; i++) {
+            ejerciciosIntermedio.add(new ExerciseEntity(
+                    "",
+                    "",
+                    "",
+                    0,
+                    0,
+                    camino,
+                    intermedio,
+                    "",
+                    75     // xpReward Intermedio
+            ));
+        }
+        exerciseRepository.saveAll(ejerciciosIntermedio);
+
+        // NIVEL AVANZADO (6 placeholders, xpReward = 100)
+        List<ExerciseEntity> ejerciciosAvanzado = new ArrayList<>();
+        for (int i = 0; i < 6; i++) {
+            ejerciciosAvanzado.add(new ExerciseEntity(
+                    "",
+                    "",
+                    "",
+                    0,
+                    0,
+                    camino,
+                    avanzado,
+                    "",
+                    100    // xpReward Avanzado
+            ));
+        }
+        exerciseRepository.saveAll(ejerciciosAvanzado);
+
+        // NIVEL PRO (6 placeholders, xpReward = 125)
+        List<ExerciseEntity> ejerciciosPro = new ArrayList<>();
+        for (int i = 0; i < 6; i++) {
+            ejerciciosPro.add(new ExerciseEntity(
+                    "",
+                    "",
+                    "",
+                    0,
+                    0,
+                    camino,
+                    pro,
+                    "",
+                    125    // xpReward Pro
+            ));
+        }
+        exerciseRepository.saveAll(ejerciciosPro);
+    }
+
 
 
     private void initDeportistaExercises(

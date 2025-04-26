@@ -1,4 +1,3 @@
-
 import { createContext, useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
@@ -9,58 +8,74 @@ export function AuthProvider({ children }) {
     const [currentUser, setCurrentUser] = useState(null);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [selectedCaminoFitnessId, setSelectedCaminoFitnessId] = useState(null);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
         const storedUsername = localStorage.getItem('username');
-        const storedUserId = localStorage.getItem('userId'); // Recuperar userId del localStorage
+        const storedUserId = localStorage.getItem('userId');
+        const storedCaminoFitnessId = localStorage.getItem('caminoFitnessId');
 
         if (token && storedUsername && storedUserId) {
-            // Decodificar el token para verificar su expiración
             const decodedToken = jwtDecode(token);
-
-            // Verificar si el token ha expirado
             const isTokenExpired = decodedToken.exp * 1000 < Date.now();
 
             if (isTokenExpired) {
                 logout();
             } else {
-                // Si el token no ha expirado, lo usamos para autenticar la sesión
                 axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-                // Restaurar el username y userId desde localStorage
                 setCurrentUser({
                     username: storedUsername,
-                    id: storedUserId // Asignar el ID recuperado
+                    id: storedUserId
                 });
                 setIsLoggedIn(true);
+
+                // Restaurar el caminoFitnessId si existe
+                if (storedCaminoFitnessId) {
+                    setSelectedCaminoFitnessId(storedCaminoFitnessId);
+                } else {
+                    // Si no existe, lo vamos a buscar
+                    fetchUserProfile();
+                }
             }
         }
 
         setIsLoading(false);
     }, []);
 
-    const login = (userData) => {
-        // Set JWT token in axios default headers
-        axios.defaults.headers.common['Authorization'] = `Bearer ${userData.token}`;
+    const fetchUserProfile = async () => {
+        try {
+            const response = await axios.get('http://localhost:8080/api/users/me');
+            const userData = response.data;
+            if (userData.caminoFitnessId) {
+                setSelectedCaminoFitnessId(userData.caminoFitnessId);
+                localStorage.setItem('caminoFitnessId', userData.caminoFitnessId);
+            }
+        } catch (error) {
+            console.error('Error fetching user profile:', error);
+        }
+    };
 
-        // Save token and user info in localStorage
+    const login = (userData) => {
+        axios.defaults.headers.common['Authorization'] = `Bearer ${userData.token}`;
         localStorage.setItem('token', userData.token);
 
-        // Decodificar el token para obtener el username y userId
         const decodedToken = jwtDecode(userData.token);
         const username = decodedToken.username || decodedToken.sub;
-        const userId = decodedToken.id // Obtener el ID del usuario
+        const userId = decodedToken.id;
 
-        // Guardar el username y userId en localStorage
         localStorage.setItem('username', username);
-        localStorage.setItem('userId', userId); // Guardar el ID en localStorage
+        localStorage.setItem('userId', userId);
 
         setCurrentUser({
             username,
-            id: userId // Incluir el ID en el estado del usuario
+            id: userId
         });
         setIsLoggedIn(true);
+
+        // Después de loguearse, ir a buscar si ya tenía un camino asignado
+        fetchUserProfile();
     };
 
     const logout = async () => {
@@ -74,21 +89,30 @@ export function AuthProvider({ children }) {
         } catch (error) {
             console.error('Error during logout:', error.response ? error.response.data : error);
         } finally {
-            // Eliminar el token, username y userId de localStorage
             delete axios.defaults.headers.common['Authorization'];
             localStorage.removeItem('token');
             localStorage.removeItem('username');
-            localStorage.removeItem('userId'); // Eliminar también el userId
+            localStorage.removeItem('userId');
+            localStorage.removeItem('caminoFitnessId');
             localStorage.removeItem('profilePicture');
 
             setCurrentUser(null);
             setIsLoggedIn(false);
+            setSelectedCaminoFitnessId(null);
         }
     };
 
-    // Función para obtener el ID del usuario actual
     const getCurrentUserId = () => {
         return currentUser?.id || localStorage.getItem('userId');
+    };
+
+    const getCurrentCaminoFitnessId = () => {
+        return selectedCaminoFitnessId || localStorage.getItem('caminoFitnessId');
+    };
+
+    const setCurrentCaminoFitnessId = (id) => {
+        setSelectedCaminoFitnessId(id);
+        localStorage.setItem('caminoFitnessId', id);
     };
 
     const value = {
@@ -97,7 +121,9 @@ export function AuthProvider({ children }) {
         isLoading,
         login,
         logout,
-        getCurrentUserId, // Exportar la nueva función
+        getCurrentUserId,
+        getCurrentCaminoFitnessId,
+        setCurrentCaminoFitnessId,
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

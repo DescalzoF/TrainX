@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Login.css';
@@ -12,7 +11,7 @@ function Login() {
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
-    const { login } = useAuth();
+    const { login, getCurrentCaminoFitnessId } = useAuth(); // Obtengo la función y estado del contexto
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -28,14 +27,22 @@ function Login() {
             const data = response.data;
 
             if (response.status === 200) {
-                // The JWT token should be in the response
-                login({
+                // El JWT token debe estar en la respuesta
+                await login({
                     token: data.token,
                     username: data.username
                 });
 
-                // Redirect user to the homepage or dashboard
-                navigate('/dashboard');
+                // Esperamos un poco hasta que el estado se haya actualizado
+                const caminoFitnessId = getCurrentCaminoFitnessId(); // Utilizo el estado del contexto
+
+                if (!caminoFitnessId) {
+                    // Si el usuario no tiene un camino, lo mando a la página para elegir el camino
+                    navigate('/camino');
+                } else {
+                    // Si ya tiene un camino asignado, lo mando a la página de ejercicio
+                    navigate(`/camino/${caminoFitnessId}/level/principiante`);
+                }
             } else {
                 throw new Error(data.message || 'Login failed');
             }

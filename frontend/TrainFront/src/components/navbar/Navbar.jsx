@@ -1,3 +1,4 @@
+// Navbar.jsx - ensuring logo and path respect selectedCaminoId
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CgProfile } from "react-icons/cg";
@@ -61,7 +62,7 @@ function Navbar() {
         if (!isLoggedIn) {
             navigate('/');
         } else {
-            // Si está en '/camino' pero ya tiene un camino, redirige a la vista de ejercicios
+            // If path is '/camino', but user already has a camino, redirect to exercises
             if (path === '/camino') {
                 const caminoId = getCurrentCaminoFitnessId();
                 if (caminoId) {
@@ -76,12 +77,10 @@ function Navbar() {
         if (isLoggedIn) {
             const caminoId = getCurrentCaminoFitnessId();
             if (caminoId) {
-                // Si ya tiene un camino, redirige a la vista de ejercicios
                 return navigate(`/camino/${caminoId}/level/principiante`);
             }
         }
-        // Si no, redirige a la página de selección de camino
-        navigate('/camino');
+        navigate('/');
     };
 
     return (
