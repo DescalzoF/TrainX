@@ -130,4 +130,16 @@ public class UserService {
         userRepository.save(user);
         return user;
     }
+    @Transactional
+    public void assignLevel(Long userId, Long levelId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        LevelEntity level = levelService.getLevelById(levelId)
+                .orElseThrow(() -> new RuntimeException("Nivel no encontrado"));
+
+        user.setLevel(level);
+        userRepository.save(user);
+    }
+
 }
