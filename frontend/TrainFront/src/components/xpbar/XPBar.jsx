@@ -19,23 +19,51 @@ function XPBar() {
             if (isLoggedIn && currentUser) {
                 try {
                     setLoading(true);
-                    const response = await axios.get(`/api/users/${currentUser.id}/level`, {
+
+                    // First, get the user's XP fitness info
+                    const xpResponse = await axios.get(`/api/xpfitness/${currentUser.id}`, {
                         headers: {
                             Authorization: `Bearer ${localStorage.getItem('token')}`
                         }
                     });
 
-                    // Ensure we have valid data before updating state
-                    if (response.data) {
-                        setLevelInfo({
-                            ...response.data,
-                            // If levelName is null or undefined, default to "Principiante"
-                            levelName: response.data.levelName || 'Principiante'
+                    if (xpResponse.data) {
+                        const totalXp = xpResponse.data.totalXp;
+
+                        // Then, get the user's level information
+                        const levelResponse = await axios.get(`/api/users/${currentUser.id}/level`, {
+                            headers: {
+                                Authorization: `Bearer ${localStorage.getItem('token')}`
+                            }
                         });
+
+                        if (levelResponse.data) {
+                            const { levelName, levelMinXP, levelMaxXP } = levelResponse.data;
+
+                            // Calculate progress percentage based on current XP within level range
+                            const currentLevelXP = totalXp - levelMinXP;
+                            const levelXPRange = levelMaxXP - levelMinXP;
+                            const progressPercentage = Math.min(
+                                Math.max(
+                                    (currentLevelXP / levelXPRange) * 100,
+                                    0
+                                ),
+                                100
+                            );
+
+                            setLevelInfo({
+                                currentXP: totalXp,
+                                levelName: levelName || 'Principiante',
+                                levelMinXP: levelMinXP || 0,
+                                levelMaxXP: levelMaxXP || 100,
+                                progressPercentage
+                            });
+                        }
                     }
+
                     setLoading(false);
                 } catch (error) {
-                    console.error('Error fetching level information:', error);
+                    console.error('Error fetching XP or level information:', error);
                     setLoading(false);
                 }
             }
