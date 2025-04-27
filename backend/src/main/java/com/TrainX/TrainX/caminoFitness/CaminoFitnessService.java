@@ -25,11 +25,10 @@ public class CaminoFitnessService {
      */
     public List<CaminoFitnessEntity> getAllCaminoFitness() {
         List<CaminoFitnessEntity> caminos = caminoFitnessRepository.findAll();
-
-        for (CaminoFitnessEntity camino : caminos) {
-            camino.setLevels(null); // o setea a lista vacía
-        }
-
+        caminos.forEach(c -> {
+            c.setLevels(null);       // ya lo hacías
+            c.setTasks(null);        // añade esta línea
+        });
         return caminos;
     }
 
