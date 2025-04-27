@@ -40,15 +40,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
+        // 🔒 Excluir endpoints públicos del filtro JWT
+        String path = request.getServletPath();
+        if (path.startsWith("/api/auth/")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         final String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
+
         try {
             final String jwt = authHeader.substring(7);
             final String username = jwtService.extractUsername(jwt);
+            final Long userId = jwtService.extractClaim(jwt, claims -> claims.get("id", Long.class));
 
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -64,6 +73,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
+                    request.setAttribute("userId", userId);
                 }
             }
 
@@ -72,4 +82,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             handlerExceptionResolver.resolveException(request, response, null, exception);
         }
     }
+
 }

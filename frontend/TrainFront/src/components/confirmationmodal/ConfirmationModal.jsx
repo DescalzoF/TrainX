@@ -1,0 +1,79 @@
+import React, { useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import './ConfirmationModal.css';
+
+function ConfirmationModal({ onConfirm, caminoSeleccionado, userId, selectedCaminoId }) {
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const navigate = useNavigate();
+
+    const handleConfirm = async (confirm) => {
+        if (!confirm) {
+            onConfirm(false);
+            return;
+        }
+
+        if (!userId || !selectedCaminoId) {
+            setError('No se pudo determinar tu usuario o camino.');
+            return;
+        }
+
+        setLoading(true);
+        setError(null);
+
+        try {
+            console.log("Asignando camino...");
+            await axios.put(
+                `http://localhost:8080/api/users/${userId}/camino`,
+                { caminoFitnessId: selectedCaminoId },
+                { headers: { 'Content-Type': 'application/json' } }
+            );
+
+            console.log("Asignando nivel...");
+            await axios.put(
+                `http://localhost:8080/api/users/${userId}/level`,
+                { levelId: 1 }, // ID 1 = Principiante (ajustalo si es otro)
+                { headers: { 'Content-Type': 'application/json' } }
+            );
+
+            onConfirm(true);
+            navigate(`/camino/${selectedCaminoId}/level/principiante`);
+        } catch (err) {
+            console.error('Error en API:', err.response || err);
+            const msg = err.response?.data?.message || err.message || 'Error desconocido';
+            setError(`Error: ${msg}`);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="confirmation-overlay">
+            <div className="confirmation-box">
+                <h2 className="confirmation-title">
+                    ¿Estás seguro de elegir el camino <span>{caminoSeleccionado}</span>?
+                </h2>
+                <div className="confirmation-buttons">
+                    <button
+                        className="btn confirm"
+                        onClick={() => handleConfirm(true)}
+                        disabled={loading}
+                    >
+                        {loading ? 'Cargando...' : 'Sí'}
+                    </button>
+                    <button
+                        className="btn cancel"
+                        onClick={() => handleConfirm(false)}
+                        disabled={loading}
+                    >
+                        No
+                    </button>
+                </div>
+                {error && <p className="error-message">{error}</p>}
+            </div>
+        </div>
+    );
+}
+
+export default ConfirmationModal;

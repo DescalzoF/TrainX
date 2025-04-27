@@ -1,4 +1,4 @@
-// Navbar.jsx - ensuring proper JWT usage
+// Navbar.jsx - ensuring logo and path respect selectedCaminoId
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CgProfile } from "react-icons/cg";
@@ -11,7 +11,7 @@ import { useAuth } from '../../contexts/AuthContext.jsx';
 
 function Navbar() {
     const navigate = useNavigate();
-    const { isLoggedIn, currentUser, logout } = useAuth();
+    const { isLoggedIn, currentUser, logout, getCurrentCaminoFitnessId } = useAuth();
     const [scrolled, setScrolled] = useState(false);
     const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
     const [profilePicture, setProfilePicture] = useState(null);
@@ -19,29 +19,17 @@ function Navbar() {
 
     useEffect(() => {
         const handleScroll = () => {
-            if (window.scrollY > 50) {
-                setScrolled(true);
-            } else {
-                setScrolled(false);
-            }
+            setScrolled(window.scrollY > 50);
         };
-
-        // Load profile picture from localStorage if available
-        const savedProfilePicture = localStorage.getItem('profilePicture');
-        if (savedProfilePicture) {
-            setProfilePicture(savedProfilePicture);
-        }
-
         window.addEventListener('scroll', handleScroll);
 
-        // Listen for profile picture updates
+        const savedProfilePicture = localStorage.getItem('profilePicture');
+        if (savedProfilePicture) setProfilePicture(savedProfilePicture);
+
         const handleProfileUpdate = () => {
             const updatedPicture = localStorage.getItem('profilePicture');
-            if (updatedPicture) {
-                setProfilePicture(updatedPicture);
-            }
+            if (updatedPicture) setProfilePicture(updatedPicture);
         };
-
         window.addEventListener('profilePictureUpdated', handleProfileUpdate);
 
         return () => {
@@ -50,45 +38,54 @@ function Navbar() {
         };
     }, []);
 
-    // Handle clicks outside the dropdown to close it
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
                 setProfileDropdownOpen(false);
             }
         };
-
         document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
+        return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
     const handleLogout = async () => {
-        try {
-            await logout();
-            navigate('/');
-        } catch (err) {
-            console.error("Error logging out:", err);
-        }
+        await logout();
+        navigate('/');
     };
 
     const toggleProfileDropdown = () => {
-        setProfileDropdownOpen(!profileDropdownOpen);
+        setProfileDropdownOpen(prev => !prev);
     };
 
     const handleNavClick = (e, path) => {
+        e.preventDefault();
         if (!isLoggedIn) {
-            e.preventDefault();
             navigate('/');
         } else {
+            // If path is '/camino', but user already has a camino, redirect to exercises
+            if (path === '/camino') {
+                const caminoId = getCurrentCaminoFitnessId();
+                if (caminoId) {
+                    return navigate(`/camino/${caminoId}/level/principiante`);
+                }
+            }
             navigate(path);
         }
     };
 
+    const handleLogoClick = () => {
+        if (isLoggedIn) {
+            const caminoId = getCurrentCaminoFitnessId();
+            if (caminoId) {
+                return navigate(`/camino/${caminoId}/level/principiante`);
+            }
+        }
+        navigate('/');
+    };
+
     return (
         <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
-            <div className="navbar-logo" onClick={() => navigate('/')}>
+            <div className="navbar-logo" onClick={handleLogoClick} style={{ cursor: 'pointer' }}>
                 <img src={logoImage} alt="TrainX Logo" className="logo-image" />
                 <span className="navbar-brand">TrainX</span>
             </div>
@@ -129,14 +126,14 @@ function Navbar() {
                             </button>
                             {profileDropdownOpen && (
                                 <div className="profile-dropdown-content">
-                                    <a href="#" onClick={(e) => handleNavClick(e, '/perfil')} style={{ display: 'flex', alignItems: 'center' }}>
-                                        Perfil <CgProfile size={20} style={{ marginLeft: '55px' }} />
+                                    <a href="#" onClick={(e) => handleNavClick(e, '/perfil')}>
+                                        Perfil <CgProfile size={20} style={{ marginLeft: '8px' }} />
                                     </a>
-                                    <a href="#" onClick={(e) => handleNavClick(e, '/tienda')} style={{ display: 'flex', alignItems: 'center' }}>
-                                        Monedas <FaCoins size={20} style={{ marginLeft: '20px' }} />
+                                    <a href="#" onClick={(e) => handleNavClick(e, '/tienda')}>
+                                        Monedas <FaCoins size={20} style={{ marginLeft: '8px' }} />
                                     </a>
-                                    <a href="#" onClick={handleLogout} style={{ display: 'flex', alignItems: 'center' }}>
-                                        Logout <IoIosLogOut size={20} style={{ marginLeft: '40px' }}/>
+                                    <a href="#" onClick={handleLogout}>
+                                        Logout <IoIosLogOut size={20} style={{ marginLeft: '8px' }}/>
                                     </a>
                                 </div>
                             )}

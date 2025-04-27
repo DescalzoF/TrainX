@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import './HomeLoggedIn.css';
 import { FaPlus, FaWeightHanging } from "react-icons/fa";
-import { MdOutlineSportsBaseball, MdOutlineSportsRugby, MdOutlineSportsSoccer } from "react-icons/md";
+import { MdOutlineSportsRugby, MdOutlineSportsSoccer } from "react-icons/md";
 import { GiMuscleUp } from "react-icons/gi";
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -34,13 +34,12 @@ function HomeLoggedIn() {
                     <div className="camino-card" onClick={handleCaminoClick}>
                         <div className="camino-card-icon">
                             <div className="icon-container horizontal">
-                                <MdOutlineSportsBaseball size={50} />
                                 <MdOutlineSportsSoccer size={50} />
                                 <MdOutlineSportsRugby size={50} />
                             </div>
                         </div>
                         <h3>Deportista</h3>
-                        <p className="camino-description">Descripción...</p>
+                        <p className="camino-description">Creado para acceder tu mejor performance en el deporte que te guste!</p>
                     </div>
 
                     <div className="camino-card" onClick={handleCaminoClick}>
@@ -48,7 +47,7 @@ function HomeLoggedIn() {
                             <FaWeightHanging size={50} />
                         </div>
                         <h3>Fuerza</h3>
-                        <p className="camino-description">Descripción...</p>
+                        <p className="camino-description">Diseñado para maximizar tu fuerza!</p>
                     </div>
 
                     <div className="camino-card" onClick={handleCaminoClick}>
@@ -59,7 +58,7 @@ function HomeLoggedIn() {
                             </div>
                         </div>
                         <h3>Hibrido</h3>
-                        <p className="camino-description">Descripción...</p>
+                        <p className="camino-description">El camino para mejorar en todos aspectos!</p>
                     </div>
 
                     <div className="camino-card" onClick={handleCaminoClick}>
@@ -67,7 +66,7 @@ function HomeLoggedIn() {
                             <GiMuscleUp size={50} />
                         </div>
                         <h3>Hipertrofia</h3>
-                        <p className="camino-description">Descripción...</p>
+                        <p className="camino-description">Diseñado para maximizar tu crecimiento muscular!</p>
                     </div>
 
                     <div className="camino-card" onClick={handleCaminoClick}>
@@ -75,7 +74,7 @@ function HomeLoggedIn() {
                             <FaPlus size={50} />
                         </div>
                         <h3>Otro Camino</h3>
-                        <p className="camino-description">Descripción...</p>
+                        <p className="camino-description">Elegi que queres hacer con tu Camino Fitness!</p>
                     </div>
 
                 </div>

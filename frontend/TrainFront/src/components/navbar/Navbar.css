@@ -13,10 +13,9 @@
 }
 
 .navbar.scrolled {
-    background-color: #1f1f1f;
+    background-color: #0D1117;
     padding: 10px 30px;
 }
-
 
 .navbar-logo {
     display: flex;
@@ -27,11 +26,13 @@
 
 .logo-image {
     height: 60px;
+    width: auto;
     transition: all 0.3s ease;
 }
 
 .navbar.scrolled .logo-image {
     height: 50px;
+    width: auto;
 }
 
 .navbar-brand {

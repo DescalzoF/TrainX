@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
@@ -33,10 +34,14 @@ public class JwtService {
         return claimsResolver.apply(claims);
     }
 
-    public String generateToken(UserDetails user) {
-        return generateToken(new HashMap<>(), user);
+    // ✅ Método nuevo que agrega el ID del usuario
+    public String generateToken(UserEntity userEntity) {
+        Map<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put("id", userEntity.getId()); // agrega el ID del usuario al token
+        return buildToken(extraClaims, userEntity, jwtExpiration);
     }
 
+    // Este sigue siendo útil si ya tenés los claims armados
     public String generateToken(Map<String, Object> extraClaims, UserDetails user) {
         return buildToken(extraClaims, user, jwtExpiration);
     }

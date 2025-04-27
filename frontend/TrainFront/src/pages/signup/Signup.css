@@ -176,3 +176,8 @@ input:checked + .slider {
 input:checked + .slider:before {
     transform: translateX(26px);
 }
+.form-group select,
+.form-group select option {
+    color: #000; /* texto negro */
+    background-color: white; /* fondo blanco por si acaso */
+}

@@ -4,98 +4,122 @@ import com.TrainX.TrainX.User.UserEntity;
 import com.TrainX.TrainX.User.UserRepository;
 import com.TrainX.TrainX.jwt.dtos.LoginRequest;
 import com.TrainX.TrainX.jwt.dtos.RegisterUserDto;
-import lombok.AllArgsConstructor;
+import com.TrainX.TrainX.jwt.exceptions.EmailAlreadyUsedException;
+import com.TrainX.TrainX.jwt.exceptions.UsernameAlreadyExistsException;
+import com.TrainX.TrainX.jwt.exceptions.UserNotFoundException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-@AllArgsConstructor
 @Service
 public class AuthenticationService {
     private final UserRepository userRepository;
-
     private final PasswordEncoder passwordEncoder;
-
     private final AuthenticationManager authenticationManager;
 
-    // This method is used to register a new user
-    public UserEntity createUser(RegisterUserDto input) {
-        UserEntity user = new UserEntity();
-        user.setUsername(input.getUsername());
-        user.setSurname(input.getSurname());
-        user.setPassword(passwordEncoder.encode(input.getPassword())); // Encrypt the password
-        user.setEmail(input.getEmail());
-        user.setAge(input.getAge());
-        user.setPhoneNumber(input.getPhoneNumber());
-        user.setAddress(input.getAddress());
-        user.setHeight(input.getHeight());
-        user.setWeight(input.getWeight());
-        user.setSex(input.getSex());
-        user.setIsPublic(input.getIsPublic());
-
-        // Initialize coins and xpFitness for new users if not set
-        if (user.getCoins() == null) {
-            user.setCoins(0L);
-        }
-        if (user.getXpFitness() == null) {
-            user.setXpFitness(0L);
-        }
-        if(user.getUserPhoto() == null) {
-            user.setUserPhoto("default.jpg");
-        }
-        UserEntity savedUser = userRepository.save(user);
-        System.out.println("Usuario guardado: " + savedUser.getUsername());
-        return savedUser;
+    public AuthenticationService(UserRepository userRepository,
+                                 PasswordEncoder passwordEncoder,
+                                 AuthenticationManager authenticationManager) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
     }
-    public UserEntity login(LoginRequest input) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        input.getUsername(),
-                        input.getPassword()
-                )
+
+    /**
+     * Registra un nuevo usuario después de validar unicidad de username y email.
+     */
+    @Transactional
+    public UserEntity createUser(RegisterUserDto input) {
+        if (userRepository.existsByUsername(input.getUsername())) {
+            throw new UsernameAlreadyExistsException(input.getUsername());
+        }
+        if (userRepository.existsByEmail(input.getEmail())) {
+            throw new EmailAlreadyUsedException(input.getEmail());
+        }
+
+        UserEntity user = new UserEntity(
+                input.getUsername(),
+                input.getEmail(),
+                input.getSurname(),
+                passwordEncoder.encode(input.getPassword()),
+                input.getAge(),
+                input.getPhoneNumber(),
+                input.getHeight(),
+                input.getWeight(),
+                "default.jpg",
+                input.getSex(),
+                input.getAddress(),
+                input.getIsPublic(),
+                0L,
+                null
         );
 
-        return userRepository.findByUsername(input.getUsername())
-                .orElseThrow( ()-> new RuntimeException("Usuario no encontrado"));
+        return userRepository.save(user);
     }
 
+    /**
+     * Autentica las credenciales del usuario y lanza UserNotFoundException en caso de fallo.
+     */
+    public UserEntity login(LoginRequest input) {
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            input.getUsername(),
+                            input.getPassword()
+                    )
+            );
+        } catch (AuthenticationException ex) {
+            throw new UserNotFoundException(input.getUsername());
+        }
+
+        return userRepository.findByUsername(input.getUsername())
+                .orElseThrow(() -> new UserNotFoundException(input.getUsername()));
+    }
+
+    /**
+     * Recupera un usuario por su ID o lanza 404.
+     */
     public UserEntity getUserById(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new UserNotFoundException(id));
     }
 
-    public Optional<UserEntity> getUserByUsername(String username) {
-        return userRepository.findByUsername(username);
-    }
-
+    /**
+     * Verifica existencia de username.
+     */
     public boolean existsByUsername(String username) {
         return userRepository.existsByUsername(username);
     }
 
+    /**
+     * Verifica existencia de email.
+     */
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
     }
 
     /**
-     * Actualiza la contraseña de un usuario
-     * @param username El nombre de usuario
-     * @param newPassword La nueva contraseña
-     * @return El usuario actualizado
+     * Actualiza la contraseña de un usuario existente.
      */
+    @Transactional
     public UserEntity updateUserPassword(String username, String newPassword) {
         UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new UserNotFoundException(username));
 
-        // Encriptar la nueva contraseña
-        String encodedPassword = passwordEncoder.encode(newPassword);
-
-        // Actualizar la contraseña del usuario
-        user.setPassword(encodedPassword);
-
-        // Guardar el usuario actualizado
+        user.setPassword(passwordEncoder.encode(newPassword));
         return userRepository.save(user);
     }
+
+    /**
+     * Busca un usuario por username.
+     */
+    public Optional<UserEntity> getUserByUsername(String username) {
+        return userRepository.findByUsername(username);
+    }
 }
+

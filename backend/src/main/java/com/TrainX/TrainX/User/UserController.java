@@ -1,6 +1,7 @@
 package com.TrainX.TrainX.User;
 
-import com.TrainX.TrainX.Profile.ProfileService;
+import com.TrainX.TrainX.caminoFitness.CaminoFitnessEntity;
+import com.TrainX.TrainX.xpFitness.XpFitnessService; // Importa el servicio de XP Fitness
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,16 +11,19 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/users/me") // Added a base path
+@RequestMapping("/api/users")
 public class UserController {
     private final UserService userService;
+    private final XpFitnessService xpFitnessService; // Servicio para manejar XP
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, XpFitnessService xpFitnessService) {
         this.userService = userService;
+        this.xpFitnessService = xpFitnessService;
     }
 
     // Get all users - Requires authentication
@@ -54,26 +58,6 @@ public class UserController {
         }
     }
 
-    // Search users by name - Fixed parameter name (public endpoint)
-    @GetMapping("/search/name/{name}")
-    public ResponseEntity<List<UserEntity>> searchUsersByName(@PathVariable String name) {
-        List<UserEntity> users = userService.searchUsersByName(name);
-        if (users.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<>(users, HttpStatus.OK);
-    }
-
-    // Search users by surname (public endpoint)
-    @GetMapping("/search/surname/{surname}")
-    public ResponseEntity<List<UserEntity>> searchUsersBySurname(@PathVariable String surname) {
-        List<UserEntity> users = userService.searchUsersBySurname(surname);
-        if (users.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<>(users, HttpStatus.OK);
-    }
-
     // Add coins to user - Requires ADMIN role
     @PatchMapping("/{id}/coins")
     @PreAuthorize("hasRole('ADMIN')")
@@ -86,28 +70,6 @@ public class UserController {
         }
     }
 
-    // Add fitness XP to user - Requires authentication
-    @PatchMapping("/{id}/xp")
-    @PreAuthorize("hasRole('ADMIN') or authentication.principal.id == #id")
-    public ResponseEntity<UserEntity> addFitnessXP(@PathVariable("id") Long id, @RequestParam Long points) {
-        try {
-            UserEntity updatedUser = userService.addFitnessXP(id, points);
-            return new ResponseEntity<>(updatedUser, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
-
-    // Get users with fitness XP greater than a specified value (public endpoint)
-    @GetMapping("/fitness/{xpValue}")
-    public ResponseEntity<List<UserEntity>> getUsersByFitnessXP(@PathVariable Long xpValue) {
-        List<UserEntity> users = userService.getUsersByFitnessXPGreaterThan(xpValue);
-        if (users.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<>(users, HttpStatus.OK);
-    }
-
     // Get user by email - Requires authentication
     @GetMapping("/email/{email}")
     @PreAuthorize("hasRole('ADMIN')")
@@ -116,22 +78,66 @@ public class UserController {
         return userData.map(user -> new ResponseEntity<>(user, HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
-    @GetMapping("/me")
-    public ResponseEntity<?> authenticatedUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        UserEntity currentUser = (UserEntity) authentication.getPrincipal();
-
-        return ResponseEntity.ok(currentUser);
+    @GetMapping("/currentUser")
+    public ResponseEntity<?> getCurrentUser() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName();
+            UserEntity currentUser = userService.getUserByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            return ResponseEntity.ok(currentUser);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageResponse("Error retrieving user profile: " + e.getMessage()));
+        }
     }
 
-    @GetMapping("/")
-    public ResponseEntity<List<UserEntity>> allUsers() {
-        List <UserEntity> users = userService.listUsers();
+    @PutMapping("/{id}/camino")
+    public ResponseEntity<?> userAndCaminoFitness(
+            @PathVariable Long id,
+            @RequestBody Map<String, Long> body) {
 
-        return ResponseEntity.ok(users);
+        Long caminoFitnessId = body.get("caminoFitnessId");
+
+        // Llamar al servicio pasando el ID del CaminoFitness
+        userService.assignCaminoFitness(id, caminoFitnessId);
+
+        return ResponseEntity.ok("Camino fitness asignado correctamente");
     }
 
+    @GetMapping("/{id}/camino")
+    @PreAuthorize("hasRole('ADMIN') or authentication.principal.id == #id")
+    public ResponseEntity<Map<String, Long>> getUserCamino(
+            @PathVariable Long id) {
 
-    // The login and register endpoints have been moved to AuthController
+        UserEntity user = userService.getUserById(id);
+
+        CaminoFitnessEntity cf = user.getCaminoFitnessActual();
+
+        Long caminoId = (cf != null) ? cf.getIdCF() : null;
+
+        assert caminoId != null;
+        return ResponseEntity.ok(Map.of("caminoFitnessId", caminoId));
+    }
+
+    @PutMapping("/{userId}/level")
+    public ResponseEntity<String> assignLevelToUser(
+            @PathVariable Long userId,
+            @RequestBody Map<String, Long> request) {
+        try {
+            Long levelId = request.get("levelId");
+            if (levelId == null) {
+                return ResponseEntity.badRequest().body("Falta el levelId en el cuerpo de la solicitud.");
+            }
+
+            userService.assignLevel(userId, levelId);
+            return ResponseEntity.ok("Nivel asignado correctamente.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al asignar nivel.");
+        }
+    }
+
 }
