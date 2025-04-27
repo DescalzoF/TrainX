@@ -90,7 +90,7 @@ public class UserController {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String username = authentication.getName();
-            UserEntity currentUser = (UserEntity)this.userService.getUserByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
+            UserEntity currentUser = userService.getUserByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
             Map<String, Object> response = Map.of("id", currentUser.getId(), "username", currentUser.getUsername(), "email", currentUser.getEmail(), "caminoFitnessId", currentUser.getCaminoFitnessActual() != null ? currentUser.getCaminoFitnessActual().getIdCF() : null);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -142,6 +142,24 @@ public class UserController {
 
         assert caminoId != null;
         return ResponseEntity.ok(Map.of("caminoFitnessId", caminoId));
+    }
+
+    @GetMapping("/current-camino")
+    public ResponseEntity<?> getCurrentUserCamino() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName();
+            UserEntity currentUser = userService.getUserByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            CaminoFitnessEntity cf = currentUser.getCaminoFitnessActual();
+            Long caminoId = (cf != null) ? cf.getIdCF() : null;
+
+            return ResponseEntity.ok(Map.of("caminoFitnessId", caminoId));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageResponse("Error retrieving user's camino: " + e.getMessage()));
+        }
     }
 
 }

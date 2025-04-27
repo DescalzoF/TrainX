@@ -24,18 +24,29 @@ function ConfirmationModal({ onConfirm, caminoSeleccionado, userId, selectedCami
 
         try {
             console.log("Asignando camino y nivel...");
+            const token = localStorage.getItem('token');
+            const authHeader = { headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }};
 
             // Realizamos la solicitud PUT para asignar tanto el camino como el nivel en un solo endpoint
             await axios.put(
                 `http://localhost:8080/api/users/${userId}/camino-y-nivel`, // Nuevo endpoint unificado
                 { caminoFitnessId: selectedCaminoId },
-                { headers: { 'Content-Type': 'application/json' } }
+                authHeader
             );
+            localStorage.setItem('caminoFitnessId', selectedCaminoId);
 
             onConfirm(true);
             navigate(`/camino/${selectedCaminoId}/level/principiante`);
         } catch (err) {
-            console.error('Error en API:', err.response || err);
+            // More detailed error logging
+            console.error('Error en API:', err);
+            if (err.response) {
+                console.error('Response status:', err.response.status);
+                console.error('Response data:', err.response.data);
+            }
             const msg = err.response?.data?.message || err.message || 'Error desconocido';
             setError(`Error: ${msg}`);
         } finally {
