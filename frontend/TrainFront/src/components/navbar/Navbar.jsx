@@ -11,7 +11,7 @@ import { useAuth } from '../../contexts/AuthContext.jsx';
 
 function Navbar() {
     const navigate = useNavigate();
-    const { isLoggedIn, currentUser, logout, getCurrentCaminoFitnessId } = useAuth();
+    const { isLoggedIn, currentUser, logout, getCurrentCaminoFitnessId, hasChosenCaminoFitness } = useAuth();
     const [scrolled, setScrolled] = useState(false);
     const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
     const [profilePicture, setProfilePicture] = useState(null);
@@ -50,7 +50,8 @@ function Navbar() {
 
     const handleLogout = async () => {
         await logout();
-        navigate('/');
+        // Explicitly navigate to home page with replace to prevent back navigation
+        navigate('/', { replace: true });
     };
 
     const toggleProfileDropdown = () => {
@@ -62,11 +63,11 @@ function Navbar() {
         if (!isLoggedIn) {
             navigate('/');
         } else {
-            // If path is '/camino', but user already has a camino, redirect to exercises
             if (path === '/camino') {
-                const caminoId = getCurrentCaminoFitnessId();
-                if (caminoId) {
-                    return navigate(`/camino/${caminoId}/level/principiante`);
+                if (hasChosenCaminoFitness()) {
+                    const caminoId = getCurrentCaminoFitnessId();
+                    navigate(`/camino/${caminoId}/level/principiante`);
+                    return;
                 }
             }
             navigate(path);
@@ -75,9 +76,10 @@ function Navbar() {
 
     const handleLogoClick = () => {
         if (isLoggedIn) {
-            const caminoId = getCurrentCaminoFitnessId();
-            if (caminoId) {
-                return navigate(`/camino/${caminoId}/level/principiante`);
+            if (hasChosenCaminoFitness()) {
+                const caminoId = getCurrentCaminoFitnessId();
+                navigate(`/camino/${caminoId}/level/principiante`);
+                return;
             }
         }
         navigate('/');

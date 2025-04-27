@@ -95,6 +95,9 @@ function Login() {
                     <div className="forgot-password-link">
                         <p onClick={() => navigate('/forgot-password')}>¿Olvidaste tu contraseña?</p>
                     </div>
+                    <div className="create-account-link">
+                        <p onClick={() => navigate('/signup')}>Crear una cuenta</p>
+                    </div>
                 </form>
             </div>
         </div>
