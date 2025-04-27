@@ -1,6 +1,7 @@
 package com.TrainX.TrainX.caminoFitness;
 
 import com.TrainX.TrainX.level.LevelEntity;
+import com.TrainX.TrainX.task.TaskEntity;
 import jakarta.persistence.*;
 import java.util.HashSet;
 import java.util.Objects;
@@ -24,12 +25,30 @@ public class CaminoFitnessEntity {
     @ManyToMany(mappedBy = "caminos", fetch = FetchType.LAZY)
     private Set<LevelEntity> levels = new HashSet<>();
 
+    /**
+     * Relación One-to-Many con TaskEntity.
+     * Un camino puede tener muchas tareas semanales.
+     */
+    @OneToMany(mappedBy = "camino", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<TaskEntity> tasks = new HashSet<>();
+
     public CaminoFitnessEntity() {
     }
 
     public CaminoFitnessEntity(String nameCF, String descriptionCF) {
         this.nameCF = nameCF;
         this.descriptionCF = descriptionCF;
+    }
+
+    // Métodos de ayuda para mantener la bidireccionalidad
+    public void addTask(TaskEntity task) {
+        tasks.add(task);
+        task.setCamino(this);
+    }
+
+    public void removeTask(TaskEntity task) {
+        tasks.remove(task);
+        task.setCamino(null);
     }
 
     /**
@@ -75,5 +94,13 @@ public class CaminoFitnessEntity {
 
     public void setLevels(Set<LevelEntity> levels) {
         this.levels = levels;
+    }
+
+    public Set<TaskEntity> getTasks() {
+        return tasks;
+    }
+
+    public void setTasks(Set<TaskEntity> tasks) {
+        this.tasks = tasks;
     }
 }

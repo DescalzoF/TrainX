@@ -6,6 +6,8 @@ import com.TrainX.TrainX.exercise.ExerciseEntity;
 import com.TrainX.TrainX.exercise.ExerciseRepository;
 import com.TrainX.TrainX.level.LevelEntity;
 import com.TrainX.TrainX.level.LevelRepository;
+import com.TrainX.TrainX.task.TaskEntity;
+import com.TrainX.TrainX.task.TaskRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -90,6 +92,88 @@ public class DataInitializer {
                 System.out.println("Inicialización de niveles y ejercicios completada con éxito.");
             }
         };
+    }
+    @Bean
+    @Order(3)
+    public CommandLineRunner loadTasks(
+            CaminoFitnessRepository caminoFitnessRepository,
+            TaskRepository taskRepository) {
+        return args -> {
+            if (taskRepository.count() == 0) {
+                List<CaminoFitnessEntity> caminos = caminoFitnessRepository.findAll();
+                for (CaminoFitnessEntity camino : caminos) {
+                    taskRepository.saveAll(createTasksForCamino(camino));
+                }
+                System.out.println("Inicialización de tareas semanales completada con éxito.");
+            }
+        };
+    }
+
+    private List<TaskEntity> createTasksForCamino(CaminoFitnessEntity camino) {
+        List<TaskEntity> tasks = new ArrayList<>();
+        String name = camino.getNameCF();
+        switch (name) {
+            case "Deportista":
+                tasks.add(new TaskEntity("3 sesiones de cardio intensivo",
+                        "Completa al menos 3 sesiones de cardio de alta intensidad durante la semana.", camino, 60L));
+                tasks.add(new TaskEntity("Entrenamiento de agilidad",
+                        "Realiza ejercicios de agilidad en al menos 2 sesiones.", camino, 40L));
+                tasks.add(new TaskEntity("Evaluación de rendimiento",
+                        "Haz un test de velocidad y resistencia para medir tu progreso.", camino, 50L));
+                tasks.add(new TaskEntity("Recuperación activa",
+                        "Dedica una sesión a ejercicios de bajo impacto y movilidad.", camino, 30L));
+                tasks.add(new TaskEntity("Revisión de objetivos",
+                        "Anota tus metas semanales y revisa tu plan.", camino, 20L));
+                break;
+            case "Fuerza":
+                tasks.add(new TaskEntity("5 series de sentadillas",
+                        "Realiza 5 series de sentadillas con cargas apropiadas.", camino, 50L));
+                tasks.add(new TaskEntity("4 series de press de banca",
+                        "Completa 4 series de press de banca.", camino, 45L));
+                tasks.add(new TaskEntity("Dominadas asistidas",
+                        "Haz al menos 3 series de dominadas asistidas.", camino, 40L));
+                tasks.add(new TaskEntity("Peso muerto técnico",
+                        "Practica al menos 3 series de peso muerto enfocándote en la técnica.", camino, 50L));
+                tasks.add(new TaskEntity("Control post-entreno",
+                        "Registra tus cargas y repeticiones para cada ejercicio.", camino, 25L));
+                break;
+            case "Entrenamiento Híbrido":
+                tasks.add(new TaskEntity("Circuito de fuerza y cardio",
+                        "Completa 2 circuitos mixtos de fuerza y cardio.", camino, 55L));
+                tasks.add(new TaskEntity("Series de sprint",
+                        "Realiza 4 series de sprint de 30 segundos.", camino, 35L));
+                tasks.add(new TaskEntity("Entrenamiento cruzado",
+                        "Integra 2 ejercicios de cross-training en tu rutina.", camino, 45L));
+                tasks.add(new TaskEntity("Trabajo de core",
+                        "Dedica 3 sesiones a ejercicios de core.", camino, 30L));
+                tasks.add(new TaskEntity("Movilidad dinámica",
+                        "Realiza ejercicios de movilidad antes de cada sesión.", camino, 25L));
+                break;
+            case "Hipertrofia":
+                tasks.add(new TaskEntity("Rutina de volumen superior",
+                        "Realiza tu rutina de hipertrofia para la parte superior del cuerpo.", camino, 60L));
+                tasks.add(new TaskEntity("Rutina de volumen inferior",
+                        "Completa tu rutina de hipertrofia para la parte inferior.", camino, 60L));
+                tasks.add(new TaskEntity("Series al fallo",
+                        "Incorpora al menos 2 series al fallo muscular.", camino, 50L));
+                tasks.add(new TaskEntity("Control de macros",
+                        "Registra tu ingesta de proteínas y carbohidratos diarios.", camino, 40L));
+                tasks.add(new TaskEntity("Sesión de bomba muscular",
+                        "Realiza una sesión enfocada en el “pump” muscular.", camino, 30L));
+                break;
+            default: // "Otro"
+                tasks.add(new TaskEntity("Actividad libre",
+                        "Elige cualquier actividad física y complétala al menos 3 veces.", camino, 30L));
+                tasks.add(new TaskEntity("Registro de bienestar",
+                        "Anota cómo te sientes antes y después de cada sesión.", camino, 20L));
+                tasks.add(new TaskEntity("Meta personal semanal",
+                        "Define y cumple una meta personal relacionada con tu salud.", camino, 25L));
+                tasks.add(new TaskEntity("Chequeo postural",
+                        "Realiza ejercicios de corrección postural.", camino, 15L));
+                tasks.add(new TaskEntity("Plan de hidratación",
+                        "Mantén un registro de tu ingesta de agua diaria.", camino, 20L));
+        }
+        return tasks;
     }
     private void initOtroExercises(
             CaminoFitnessRepository caminoFitnessRepository,
