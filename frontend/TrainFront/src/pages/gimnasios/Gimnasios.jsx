@@ -1,201 +1,167 @@
-
-import { useState, useEffect, useRef } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import './Gimnasios.css';
-import { FaMapMarkerAlt, FaSearch, FaLocationArrow, FaStar } from 'react-icons/fa';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+import L from 'leaflet';
+import './Gimnasios.css';
+import { FaSearch, FaMapMarkerAlt, FaStar } from 'react-icons/fa';
 
-// Import the WavyText component
-import WavyText from './WavyText';
+// WavyText component for loading animation
+const WavyText = ({ text }) => {
+    return (
+        <div className="wavy-text-container">
+            {text.split('').map((letter, index) => (
+                <span
+                    key={index}
+                    className="wavy-letter"
+                    style={{
+                        animationName: 'wave',
+                        animationDuration: '1s',
+                        animationDelay: `${index * 0.1}s`,
+                        animationIterationCount: 'infinite',
+                    }}
+                >
+          {letter === ' ' ? '\u00A0' : letter}
+        </span>
+            ))}
+        </div>
+    );
+};
 
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-    iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-});
-
-function Gimnasios() {
-    const { currentUser } = useAuth();
-    const [userAddress, setUserAddress] = useState('');
-    const [gyms, setGyms] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState(null);
+const Gimnasios = () => {
+    // References
     const mapRef = useRef(null);
     const mapInstanceRef = useRef(null);
     const markersRef = useRef([]);
-    const [loadingTimeout, setLoadingTimeout] = useState(null);
-    // Set default to Buenos Aires, Argentina
-    const [searchQuery, setSearchQuery] = useState('');
-    const [searchRadius, setSearchRadius] = useState(5); // in kilometers
-    const [isBackendAvailable, setIsBackendAvailable] = useState(true);
-    const [mapLoaded, setMapLoaded] = useState(false);
-    const [wavyTextReplay, setWavyTextReplay] = useState(true);
 
-    // Default Buenos Aires coordinates
-    const defaultCoordinates = {
-        lat: -34.6037,
-        lng: -58.3816
-    };
+    // State variables
+    const [address, setAddress] = useState('');
+    const [searchRadius, setSearchRadius] = useState(5000); // 5km default radius
+    const [loading, setLoading] = useState(false);
+    const [loadingGyms, setLoadingGyms] = useState(false);
+    const [gyms, setGyms] = useState([]);
+    const [error, setError] = useState(null);
+    const [userLocation, setUserLocation] = useState(null);
+    const [defaultLocation] = useState({
+        lat: -34.6037, // Buenos Aires latitude
+        lng: -58.3816  // Buenos Aires longitude
+    });
 
-    // Sample gym data for Dorrego and Universidad Austral locations
-    const dorregoGyms = [
-        {
-            id: 'dorrego_gym_1',
-            name: 'FitClub Premium',
-            lat: -34.5852,
-            lng: -58.4461,
-            address: 'Dorrego 2780, Buenos Aires, Argentina',
-            rating: 4.8,
-            user_ratings_total: 124,
-        },
-        {
-            id: 'dorrego_gym_2',
-            name: 'Palermo Fitness Center',
-            lat: -34.5860,
-            lng: -58.4458,
-            address: 'Dorrego 2690, Buenos Aires, Argentina',
-            rating: 4.6,
-            user_ratings_total: 98,
-        },
-        {
-            id: 'dorrego_gym_3',
-            name: 'PowerLift Gym',
-            lat: -34.5847,
-            lng: -58.4470,
-            address: 'Av. Córdoba 5520, Buenos Aires, Argentina',
-            rating: 4.7,
-            user_ratings_total: 86,
-        },
-        {
-            id: 'dorrego_gym_4',
-            name: 'CrossFit Dorrego',
-            lat: -34.5841,
-            lng: -58.4455,
-            address: 'Dorrego 2600, Buenos Aires, Argentina',
-            rating: 4.5,
-            user_ratings_total: 76,
-        },
-        {
-            id: 'dorrego_gym_5',
-            name: 'Gimnasio Urbano',
-            lat: -34.5865,
-            lng: -58.4463,
-            address: 'Dorrego 2850, Buenos Aires, Argentina',
-            rating: 4.3,
-            user_ratings_total: 65,
-        }
-    ];
-
-    const australGyms = [
-        {
-            id: 'austral_gym_1',
-            name: 'Universidad Austral Sports Center',
-            lat: -34.4446,
-            lng: -58.8952,
-            address: 'Campus Universidad Austral, Pilar, Argentina',
-            rating: 4.9,
-            user_ratings_total: 145,
-        },
-        {
-            id: 'austral_gym_2',
-            name: 'Pilar Fitness Club',
-            lat: -34.4455,
-            lng: -58.8960,
-            address: 'Av. Juan Domingo Perón 1500, Pilar, Argentina',
-            rating: 4.7,
-            user_ratings_total: 112,
-        },
-        {
-            id: 'austral_gym_3',
-            name: 'BodyTech Pilar',
-            lat: -34.4465,
-            lng: -58.8945,
-            address: 'Universidad Austral, Pilar, Argentina',
-            rating: 4.6,
-            user_ratings_total: 95,
-        },
-        {
-            id: 'austral_gym_4',
-            name: 'FitZone Campus',
-            lat: -34.4438,
-            lng: -58.8970,
-            address: 'Campus Universitario, Pilar, Argentina',
-            rating: 4.4,
-            user_ratings_total: 78,
-        },
-        {
-            id: 'austral_gym_5',
-            name: 'Muscle Factory Pilar',
-            lat: -34.4475,
-            lng: -58.8980,
-            address: 'Ruta Panamericana km 49.5, Pilar, Argentina',
-            rating: 4.5,
-            user_ratings_total: 82,
-        }
-    ];
-
-    // Animation for wavy text refresh
     useEffect(() => {
-        if (isLoading) {
-            const interval = setInterval(() => {
-                setWavyTextReplay(false);
-                setTimeout(() => setWavyTextReplay(true), 100);
-            }, 3000);
-
-            return () => clearInterval(interval);
-        }
-    }, [isLoading]);
-
-    // Initialize map only once when component mounts
-    useEffect(() => {
-        if (!mapInstanceRef.current && mapRef.current) {
+        // Function to fetch user profile and get address
+        const fetchUserAddress = async () => {
             try {
-                // Set a timeout to handle map initialization failures
-                const mapInitTimeout = setTimeout(() => {
-                    if (!mapLoaded) {
-                        console.warn("Map initialization timeout - using fallback");
-                        setError("No se pudo cargar el mapa. Por favor, intenta nuevamente más tarde.");
-                        setIsLoading(false);
+                // Get token from localStorage or wherever you store it
+                const token = localStorage.getItem('token');
+
+                if (!token) {
+                    throw new Error('No authentication token found');
+                }
+
+                const response = await axios.get('http://localhost:8080/api/profile/me', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
                     }
-                }, 10000); // 10 seconds timeout for map initialization
-
-                // Initialize the map with Buenos Aires coordinates
-                mapInstanceRef.current = L.map(mapRef.current).setView([defaultCoordinates.lat, defaultCoordinates.lng], 13);
-
-                // Add Google Maps tiles with error handling
-                L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
-                    maxZoom: 20,
-                    subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-                    attribution: '&copy; Google Maps'
-                }).addTo(mapInstanceRef.current);
-
-                mapInstanceRef.current.on('load', () => {
-                    clearTimeout(mapInitTimeout);
-                    setMapLoaded(true);
                 });
 
-                // Also set map as loaded if it renders properly
-                setTimeout(() => {
-                    if (mapInstanceRef.current) {
-                        setMapLoaded(true);
-                        clearTimeout(mapInitTimeout);
-                    }
-                }, 2000);
-
-                return () => {
-                    clearTimeout(mapInitTimeout);
-                };
+                // Check if user has an address in their profile
+                if (response.data && response.data.address) {
+                    setAddress(response.data.address);
+                    // Use the stored address for search
+                    searchByAddress(response.data.address);
+                    return true;
+                }
+                return false;
             } catch (err) {
-                console.error("Error initializing map:", err);
-                setError("No se pudo cargar el mapa. Por favor, intenta nuevamente más tarde.");
-                setIsLoading(false);
+                console.error("Failed to fetch user profile:", err);
+                return false;
             }
+        };
+
+        // Function to try getting the user's current location
+        const tryUserLocation = () => {
+            setLoading(true);
+
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+
+                        setUserLocation({ lat, lng });
+
+                        // Update map view
+                        if (mapInstanceRef.current) {
+                            mapInstanceRef.current.setView([lat, lng], 13);
+                        }
+
+                        // Get address from coordinates
+                        reverseGeocode(lat, lng)
+                            .then(addressResult => {
+                                if (addressResult) {
+                                    setAddress(addressResult);
+                                }
+                                // Search for gyms near the location
+                                searchNearbyGyms(lat, lng);
+                                setLoading(false);
+                            })
+                            .catch(error => {
+                                console.error("Failed to get address:", error);
+                                searchNearbyGyms(lat, lng);
+                                setLoading(false);
+                            });
+                    },
+                    (error) => {
+                        console.error("Geolocation error:", error);
+                        // Fall back to Buenos Aires
+                        fallbackToBuenosAires();
+                        setLoading(false);
+                    }
+                );
+            } else {
+                // Geolocation not supported
+                fallbackToBuenosAires();
+                setLoading(false);
+            }
+        };
+
+        // Fallback function for Buenos Aires
+        const fallbackToBuenosAires = () => {
+            setAddress("Buenos Aires, Argentina");
+            if (mapInstanceRef.current) {
+                mapInstanceRef.current.setView([defaultLocation.lat, defaultLocation.lng], 13);
+            }
+            searchByAddress("Buenos Aires, Argentina");
+        };
+
+        // Initialize map if it doesn't exist
+        if (!mapInstanceRef.current && mapRef.current) {
+            // Create map instance
+            mapInstanceRef.current = L.map(mapRef.current).setView(
+                [defaultLocation.lat, defaultLocation.lng],
+                13
+            );
+
+            // Add tile layer (OpenStreetMap)
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                maxZoom: 19
+            }).addTo(mapInstanceRef.current);
+
+            // Start the cascade of location attempts:
+            // 1. Try user profile address
+            // 2. If no address, try current location
+            // 3. Fall back to Buenos Aires
+            fetchUserAddress()
+                .then(hasAddress => {
+                    if (!hasAddress) {
+                        tryUserLocation();
+                    }
+                })
+                .catch(() => {
+                    tryUserLocation();
+                });
         }
 
-        // Clean up on unmount
+        // Cleanup function to destroy map when component unmounts
         return () => {
             if (mapInstanceRef.current) {
                 mapInstanceRef.current.remove();
@@ -204,562 +170,388 @@ function Gimnasios() {
         };
     }, []);
 
-    // Set a global timeout for the loading state
     useEffect(() => {
-        if (isLoading) {
-            // Clear any previous timeout
-            if (loadingTimeout) {
-                clearTimeout(loadingTimeout);
+        // Clear old markers
+        clearMarkers();
+
+        // Add new markers
+        if (gyms.length > 0 && mapInstanceRef.current) {
+            gyms.forEach((gym, index) => {
+                const marker = L.marker([gym.geometry.location.lat, gym.geometry.location.lng])
+                    .addTo(mapInstanceRef.current);
+
+                // Add popup with gym info
+                const popupContent = `
+          <div class="info-window">
+            <h3>${gym.name}</h3>
+            <p><strong>Rating:</strong> ${gym.rating ? gym.rating + ' ★' : 'No rating'}</p>
+            <p><strong>Address:</strong> ${gym.vicinity}</p>
+            ${gym.place_id ? `<a href="https://www.google.com/maps/place/?q=place_id:${gym.place_id}" target="_blank">View on Google Maps</a>` : ''}
+          </div>
+        `;
+
+                marker.bindPopup(popupContent);
+                markersRef.current.push(marker);
+            });
+
+            // If gyms are available, adjust map view to show all markers
+            if (gyms.length > 0) {
+                const group = new L.featureGroup(markersRef.current);
+                mapInstanceRef.current.fitBounds(group.getBounds().pad(0.1));
             }
-
-            // Set a new timeout
-            const timeout = setTimeout(() => {
-                if (isLoading) {
-                    setIsLoading(false);
-                    setError('La búsqueda está tardando demasiado. Por favor, intenta nuevamente más tarde.');
-                }
-            }, 15000); // 15 seconds timeout
-
-            setLoadingTimeout(timeout);
         }
+    }, [gyms]);
 
-        return () => {
-            if (loadingTimeout) {
-                clearTimeout(loadingTimeout);
-            }
-        };
-    }, [isLoading]);
+    // Handler for address input change
+    const handleAddressChange = (e) => {
+        setAddress(e.target.value);
+    };
 
-    // Fetch user's address from the profile - UPDATED TO MATCH PERFIL.JSX
-    useEffect(() => {
-        const fetchUserAddress = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    setSearchQuery('Buenos Aires, Argentina');
-                    setIsBackendAvailable(false);
-                    return;
-                }
+    // Handler for radius slider change
+    const handleRadiusChange = (e) => {
+        setSearchRadius(Number(e.target.value));
+    };
 
-                try {
-                    // This matches the approach in Perfil.jsx
-                    const response = await axios.get('http://localhost:8080/api/profile/me', {
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
+    // Handler for search button click
+    const handleSearch = (e) => {
+        e.preventDefault();
+        if (address.trim()) {
+            searchByAddress(address);
+        }
+    };
 
-                    const userData = response.data;
-                    console.log("Fetched user data:", userData);
+    // Handler for location button click
+    const handleUseMyLocation = () => {
+        setLoading(true);
+        setError(null);
 
-                    if (userData.address && userData.address.trim() !== '') {
-                        // Always ensure address is in Buenos Aires, Argentina context
-                        let formattedAddress = userData.address;
-                        if (!formattedAddress.toLowerCase().includes('argentina')) {
-                            formattedAddress = `${formattedAddress}, Buenos Aires, Argentina`;
-                        } else if (!formattedAddress.toLowerCase().includes('buenos aires')) {
-                            // If Argentina is mentioned but not Buenos Aires, add Buenos Aires
-                            formattedAddress = formattedAddress.replace(/argentina/i, 'Buenos Aires, Argentina');
-                        }
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
 
-                        setUserAddress(formattedAddress);
-                        setSearchQuery(formattedAddress);
-                    } else {
-                        // Set default to Buenos Aires if no address
-                        setUserAddress('Buenos Aires, Argentina');
-                        setSearchQuery('Buenos Aires, Argentina');
+                    setUserLocation({ lat, lng });
+
+                    // Update map view
+                    if (mapInstanceRef.current) {
+                        mapInstanceRef.current.setView([lat, lng], 13);
                     }
-                } catch (err) {
-                    console.error('Error fetching user address:', err);
-                    setIsBackendAvailable(false);
-                    // Fallback to Buenos Aires
-                    setUserAddress('Buenos Aires, Argentina');
-                    setSearchQuery('Buenos Aires, Argentina');
+
+                    // Get address from coordinates
+                    reverseGeocode(lat, lng)
+                        .then(addressResult => {
+                            if (addressResult) {
+                                setAddress(addressResult);
+                            }
+                            // Search for gyms near the location
+                            searchNearbyGyms(lat, lng);
+                            setLoading(false);
+                        })
+                        .catch(error => {
+                            console.error("Failed to get address:", error);
+                            searchNearbyGyms(lat, lng);
+                            setLoading(false);
+                        });
+                },
+                (error) => {
+                    console.error("Geolocation error:", error);
+                    setError("Error accessing your location. Please check browser permissions.");
+                    setLoading(false);
                 }
-            } catch (error) {
-                console.error('Error in fetchUserAddress:', error);
-                setSearchQuery('Buenos Aires, Argentina');
+            );
+        } else {
+            setError("Geolocation is not supported by your browser.");
+            setLoading(false);
+        }
+    };
+
+    // Helper to clear map markers
+    const clearMarkers = () => {
+        if (mapInstanceRef.current) {
+            markersRef.current.forEach(marker => {
+                mapInstanceRef.current.removeLayer(marker);
+            });
+            markersRef.current = [];
+        }
+    };
+
+    // Function to get address from coordinates (reverse geocoding)
+    const reverseGeocode = async (lat, lng) => {
+        try {
+            // Using OpenStreetMap's Nominatim for reverse geocoding (free and no API key required)
+            const response = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`,
+                { headers: { 'Accept-Language': 'es' } } // Spanish results for Argentina
+            );
+
+            if (!response.ok) {
+                throw new Error('Reverse geocoding failed');
             }
-        };
 
-        fetchUserAddress();
-    }, [currentUser]);
+            const data = await response.json();
 
-    // Search for gyms when the address changes
-    useEffect(() => {
-        if (mapInstanceRef.current && searchQuery && mapLoaded) {
-            searchByAddress(searchQuery);
+            // Format the address
+            if (data && data.display_name) {
+                // Return a simplified version of the address
+                return data.display_name;
+            }
+            return null;
+        } catch (error) {
+            console.error("Reverse geocoding error:", error);
+            return null;
         }
-    }, [searchQuery, mapLoaded]);
+    };
 
-    // Geocode address and search for gyms
-    const searchByAddress = async (address) => {
-        if (!mapInstanceRef.current) {
-            setError("No se pudo cargar el mapa. Por favor, intenta nuevamente más tarde.");
-            return;
+    // Function to get coordinates from address (forward geocoding)
+    const geocodeAddress = async (address) => {
+        try {
+            // Add "Argentina" to the address if it doesn't already include it
+            const searchAddress = address.toLowerCase().includes("argentina")
+                ? address
+                : `${address}, Argentina`;
+
+            // Using OpenStreetMap's Nominatim for geocoding
+            const response = await fetch(
+                `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchAddress)}&limit=1`,
+                { headers: { 'Accept-Language': 'es' } }
+            );
+
+            if (!response.ok) {
+                throw new Error('Geocoding failed');
+            }
+
+            const data = await response.json();
+
+            if (data && data.length > 0) {
+                return {
+                    lat: parseFloat(data[0].lat),
+                    lng: parseFloat(data[0].lon)
+                };
+            } else {
+                throw new Error('Address not found');
+            }
+        } catch (error) {
+            console.error("Geocoding error:", error);
+            throw error;
         }
+    };
 
-        setIsLoading(true);
+    // Function to search gyms by address
+    const searchByAddress = async (addressInput) => {
+        setLoadingGyms(true);
         setError(null);
 
         try {
-            // Clear previous markers
-            clearMarkers();
+            // Get coordinates from address
+            const location = await geocodeAddress(addressInput);
 
-            // Make sure address contains Argentina and Buenos Aires
-            let searchAddress = address;
-            if (!searchAddress.toLowerCase().includes('argentina')) {
-                searchAddress = `${searchAddress}, Buenos Aires, Argentina`;
-            } else if (!searchAddress.toLowerCase().includes('buenos aires')) {
-                // If Argentina is mentioned but not Buenos Aires, add Buenos Aires
-                searchAddress = searchAddress.replace(/argentina/i, 'Buenos Aires, Argentina');
-            }
-
-            // Check if the search query includes specific test locations
-            if (searchAddress.toLowerCase().includes('dorrego 2765')) {
-                // Use Dorrego coordinates
-                const lat = -34.5855;
-                const lng = -58.4465;
-
-                // Center map on location
-                mapInstanceRef.current.setView([lat, lng], 15);
-
-                // Add user marker
-                const userMarker = L.circleMarker([lat, lng], {
-                    radius: 8,
-                    fillColor: "#4285F4",
-                    color: "#fff",
-                    weight: 2,
-                    opacity: 1,
-                    fillOpacity: 1
-                }).addTo(mapInstanceRef.current);
-
-                userMarker.bindPopup("<b>Dorrego 2765</b>").openPopup();
-                markersRef.current.push(userMarker);
-
-                // Use sample gyms
-                addSampleGyms(dorregoGyms);
-                return;
-            } else if (searchAddress.toLowerCase().includes('universidad austral') || searchAddress.toLowerCase().includes('pilar')) {
-                // Use Universidad Austral coordinates
-                const lat = -34.4450;
-                const lng = -58.8960;
-
-                // Center map on location
-                mapInstanceRef.current.setView([lat, lng], 15);
-
-                // Add user marker
-                const userMarker = L.circleMarker([lat, lng], {
-                    radius: 8,
-                    fillColor: "#4285F4",
-                    color: "#fff",
-                    weight: 2,
-                    opacity: 1,
-                    fillOpacity: 1
-                }).addTo(mapInstanceRef.current);
-
-                userMarker.bindPopup("<b>Universidad Austral, Pilar</b>").openPopup();
-                markersRef.current.push(userMarker);
-
-                // Use sample gyms
-                addSampleGyms(australGyms);
-                return;
-            }
-
-            // Use Google's Geocoding API through a proxy or direct if you have API key
-            const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(searchAddress)}&key=YOUR_GOOGLE_API_KEY`;
-
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
-
-            try {
-                const response = await fetch(geocodeUrl, { signal: controller.signal });
-                clearTimeout(timeoutId);
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const data = await response.json();
-
-                if (data.results && data.results.length > 0) {
-                    const location = data.results[0].geometry.location;
-                    const lat = location.lat;
-                    const lng = location.lng;
-
-                    // Center map on location
-                    mapInstanceRef.current.setView([lat, lng], 14);
-
-                    // Add user marker
-                    const userMarker = L.circleMarker([lat, lng], {
-                        radius: 8,
-                        fillColor: "#4285F4",
-                        color: "#fff",
-                        weight: 2,
-                        opacity: 1,
-                        fillOpacity: 1
-                    }).addTo(mapInstanceRef.current);
-
-                    userMarker.bindPopup("<b>Tu ubicación</b>").openPopup();
-                    markersRef.current.push(userMarker);
-
-                    // Search for gyms near this location using Google Places API
-                    await searchNearbyGyms({ lat, lng });
-                } else {
-                    // If not found, fallback to Buenos Aires
-                    setError('No pudimos encontrar esa dirección. Mostrando gimnasios en Buenos Aires.');
-                    mapInstanceRef.current.setView([defaultCoordinates.lat, defaultCoordinates.lng], 13);
-
-                    const userMarker = L.circleMarker([defaultCoordinates.lat, defaultCoordinates.lng], {
-                        radius: 8,
-                        fillColor: "#4285F4",
-                        color: "#fff",
-                        weight: 2,
-                        opacity: 1,
-                        fillOpacity: 1
-                    }).addTo(mapInstanceRef.current);
-
-                    userMarker.bindPopup("<b>Buenos Aires</b>").openPopup();
-                    markersRef.current.push(userMarker);
-
-                    await searchNearbyGyms(defaultCoordinates);
-                }
-            } catch (err) {
-                console.error('Error in geocoding:', err);
-                clearTimeout(timeoutId);
-                throw new Error('Geocoding failed');
-            }
-        } catch (err) {
-            console.error('Error searching by address:', err);
-            setError('Error al buscar la dirección. Mostrando Buenos Aires como alternativa.');
-
-            // Fallback to Buenos Aires
+            // Update map view
             if (mapInstanceRef.current) {
-                mapInstanceRef.current.setView([defaultCoordinates.lat, defaultCoordinates.lng], 13);
-
-                const userMarker = L.circleMarker([defaultCoordinates.lat, defaultCoordinates.lng], {
-                    radius: 8,
-                    fillColor: "#4285F4",
-                    color: "#fff",
-                    weight: 2,
-                    opacity: 1,
-                    fillOpacity: 1
-                }).addTo(mapInstanceRef.current);
-
-                userMarker.bindPopup("<b>Buenos Aires</b>").openPopup();
-                markersRef.current.push(userMarker);
-
-                try {
-                    await searchNearbyGyms(defaultCoordinates);
-                } catch (gymError) {
-                    console.error('Failed to search nearby gyms:', gymError);
-                    setIsLoading(false);
-                }
-            } else {
-                setIsLoading(false);
+                mapInstanceRef.current.setView([location.lat, location.lng], 13);
             }
+
+            // Search for gyms near the location
+            await searchNearbyGyms(location.lat, location.lng);
+        } catch (error) {
+            console.error("Error searching by address:", error);
+            setError(`No se pudo encontrar la dirección: ${error.message}`);
+            setGyms([]);
         } finally {
-            if (isLoading) {
-                setIsLoading(false);
-            }
+            setLoadingGyms(false);
         }
     };
 
-    // Function to add sample gyms to the map
-    const addSampleGyms = (gymsList) => {
-        // Add markers for each gym
-        if (mapInstanceRef.current) {
-            gymsList.forEach((gym) => {
-                const gymMarker = L.marker([gym.lat, gym.lng]).addTo(mapInstanceRef.current);
-
-                // Create popup content
-                const popupContent = `
-                    <div class="info-window">
-                        <h3>${gym.name}</h3>
-                        <p>Valoración: ${gym.rating.toFixed(1)} ⭐</p>
-                        <p>${gym.address}</p>
-                        <p><a href="https://www.google.com/maps/search/?api=1&query=${gym.lat},${gym.lng}&query_place_id=${gym.id}" target="_blank">Ver en Google Maps</a></p>
-                    </div>
-                `;
-
-                gymMarker.bindPopup(popupContent);
-                markersRef.current.push(gymMarker);
-            });
-        }
-
-        // Sort by rating (highest first)
-        const sortedGyms = [...gymsList].sort((a, b) => b.rating - a.rating);
-        setGyms(sortedGyms);
-        setIsLoading(false);
-    };
-
-    // Function to search for nearby gyms using Google Places API
-    const searchNearbyGyms = async (location) => {
-        const lat = location.lat;
-        const lng = location.lng;
-        const radiusInMeters = searchRadius * 1000;
-
+    // Function to search for nearby gyms using Overpass API (OpenStreetMap data)
+    const searchNearbyGyms = async (lat, lng) => {
         try {
-            // Google Places API request (proxy or direct with API key)
-            const placesUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=${radiusInMeters}&type=gym&keyword=gym%20fitness%20gimnasio&key=YOUR_GOOGLE_API_KEY`;
+            // Using Overpass API to find gyms - a free alternative to Google Places API
+            const radiusInMeters = searchRadius;
 
-            // Use AbortController for better timeout handling
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 seconds timeout
-
-            try {
-                const response = await fetch(placesUrl, { signal: controller.signal });
-                clearTimeout(timeoutId);
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const data = await response.json();
-
-                // Process the results
-                const gymResults = [];
-
-                if (data && data.results) {
-                    data.results.forEach(place => {
-                        // Create a gym object with available information
-                        const gym = {
-                            id: place.place_id,
-                            name: place.name || 'Gimnasio sin nombre',
-                            lat: place.geometry.location.lat,
-                            lng: place.geometry.location.lng,
-                            address: place.vicinity || 'Dirección no disponible',
-                            rating: place.rating || 4.0,
-                            user_ratings_total: place.user_ratings_total || 0,
-                        };
-
-                        gymResults.push(gym);
-                    });
-                }
-
-                // If no results found, show error
-                if (gymResults.length === 0) {
-                    setError('No se encontraron gimnasios en esta área. Intenta ampliar el radio de búsqueda.');
-                    return;
-                }
-
-                // Sort by rating (highest first)
-                const sortedGyms = gymResults.sort((a, b) => b.rating - a.rating);
-
-                // Add markers for each gym
-                if (mapInstanceRef.current) {
-                    sortedGyms.forEach((gym) => {
-                        const gymMarker = L.marker([gym.lat, gym.lng]).addTo(mapInstanceRef.current);
-
-                        // Create popup content
-                        const popupContent = `
-                            <div class="info-window">
-                                <h3>${gym.name}</h3>
-                                <p>Valoración: ${gym.rating.toFixed(1)} ⭐</p>
-                                <p>${gym.address}</p>
-                                <p><a href="https://www.google.com/maps/search/?api=1&query=${gym.lat},${gym.lng}&query_place_id=${gym.id}" target="_blank">Ver en Google Maps</a></p>
-                            </div>
-                        `;
-
-                        gymMarker.bindPopup(popupContent);
-                        markersRef.current.push(gymMarker);
-                    });
-                }
-
-                setGyms(sortedGyms);
-                setError(null);
-            } catch (err) {
-                clearTimeout(timeoutId);
-                throw new Error('Google Places API request failed');
-            }
-        } catch (err) {
-            console.error('Error fetching gyms:', err);
-            setError('No se pudieron cargar los gimnasios. Por favor, intenta nuevamente más tarde.');
-            setIsLoading(false);
-        }
-    };
-
-    // Clear all markers from the map
-    const clearMarkers = () => {
-        if (!mapInstanceRef.current) return;
-
-        markersRef.current.forEach(marker => {
-            try {
-                mapInstanceRef.current.removeLayer(marker);
-            } catch (err) {
-                console.error("Error removing marker:", err);
-            }
-        });
-        markersRef.current = [];
-    };
-
-    // Handle search form submission
-    const handleSearch = (e) => {
-        e.preventDefault();
-        if (searchQuery.trim() === '') {
-            setSearchQuery('Buenos Aires, Argentina');
-            return;
-        }
-
-        searchByAddress(searchQuery);
-    };
-
-    // Get user's current location
-    const getCurrentLocation = () => {
-        if (!navigator.geolocation) {
-            setError('Tu navegador no soporta geolocalización');
-            return;
-        }
-
-        setIsLoading(true);
-        setSearchQuery('Obteniendo ubicación...'); // Immediate feedback in the search bar
-
-        navigator.geolocation.getCurrentPosition(
-            async (position) => {
-                const { latitude, longitude } = position.coords;
-
-                // Immediately update map view
-                if (mapInstanceRef.current && mapLoaded) {
-                    mapInstanceRef.current.setView([latitude, longitude], 14);
-                    clearMarkers();
-
-                    const userMarker = L.circleMarker([latitude, longitude], {
-                        radius: 8,
-                        fillColor: "#4285F4",
-                        color: "#fff",
-                        weight: 2,
-                        opacity: 1,
-                        fillOpacity: 1
-                    }).addTo(mapInstanceRef.current);
-
-                    userMarker.bindPopup("<b>Tu ubicación actual</b>").openPopup();
-                    markersRef.current.push(userMarker);
-                }
-
-                try {
-                    // Set a placeholder address while geocoding happens
-                    setSearchQuery(`Ubicación actual (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`);
-
-                    // Start searching for gyms using the coordinates directly
-                    await searchNearbyGyms({ lat: latitude, lng: longitude });
-
-                    // Try to get the address name in the background
-                    const reverseGeocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=YOUR_GOOGLE_API_KEY`;
-                    const response = await fetch(reverseGeocodeUrl);
-                    const data = await response.json();
-
-                    if (data && data.results && data.results[0]) {
-                        let address = data.results[0].formatted_address;
-                        if (!address.toLowerCase().includes('argentina')) {
-                            address += ', Buenos Aires, Argentina';
-                        } else if (!address.toLowerCase().includes('buenos aires')) {
-                            address = address.replace(/argentina/i, 'Buenos Aires, Argentina');
-                        }
-                        setSearchQuery(address);
-                    }
-                } catch (err) {
-                    console.error('Error processing location:', err);
-                    // Keep the coordinates-based address if geocoding fails
-                } finally {
-                    setIsLoading(false);
-                }
-            },
-            (error) => {
-                console.error('Error getting location:', error);
-                setError('No se pudo obtener tu ubicación actual. Utilizando Buenos Aires como ubicación predeterminada.');
-                setIsLoading(false);
-
-                // Use Buenos Aires as fallback
-                setSearchQuery('Buenos Aires, Argentina');
-                searchByAddress('Buenos Aires, Argentina');
-            },
-            { timeout: 15000, maximumAge: 60000, enableHighAccuracy: true } // 15s timeout, more accurate positioning
+            // Overpass query to find gyms, fitness centers, and sport centers
+            const overpassQuery = `
+        [out:json];
+        (
+          node["leisure"="fitness_centre"](around:${radiusInMeters},${lat},${lng});
+          way["leisure"="fitness_centre"](around:${radiusInMeters},${lat},${lng});
+          node["leisure"="sports_centre"](around:${radiusInMeters},${lat},${lng});
+          way["leisure"="sports_centre"](around:${radiusInMeters},${lat},${lng});
+          node["amenity"="gym"](around:${radiusInMeters},${lat},${lng});
+          way["amenity"="gym"](around:${radiusInMeters},${lat},${lng});
         );
+        out body center;
+      `;
+
+            const response = await fetch(
+                `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(overpassQuery)}`
+            );
+
+            if (!response.ok) {
+                throw new Error('Overpass API request failed');
+            }
+
+            const data = await response.json();
+
+            // Process and format the results to match our expected structure
+            const processedGyms = data.elements.map((element, index) => {
+                // For way elements, use the center coordinates
+                const lat = element.center ? element.center.lat : element.lat;
+                const lng = element.center ? element.center.lon : element.lon;
+
+                return {
+                    place_id: element.id.toString(),
+                    name: element.tags.name || `Gimnasio ${index + 1}`,
+                    vicinity: element.tags["addr:street"]
+                        ? `${element.tags["addr:street"]} ${element.tags["addr:housenumber"] || ''}`
+                        : "Dirección no disponible",
+                    rating: element.tags.rating || null,
+                    geometry: {
+                        location: {
+                            lat: lat,
+                            lng: lng
+                        }
+                    }
+                };
+            });
+
+            // Sort by distance from search location (simple approximation)
+            processedGyms.sort((a, b) => {
+                const distA = calculateDistance(lat, lng, a.geometry.location.lat, a.geometry.location.lng);
+                const distB = calculateDistance(lat, lng, b.geometry.location.lat, b.geometry.location.lng);
+                return distA - distB;
+            });
+
+            setGyms(processedGyms);
+
+            if (processedGyms.length === 0) {
+                setError("No se encontraron gimnasios cercanos. Intente aumentar el radio de búsqueda.");
+            }
+        } catch (error) {
+            console.error("Error fetching gyms:", error);
+            setError("Error al buscar gimnasios. Por favor intente nuevamente más tarde.");
+            setGyms([]);
+        }
+    };
+
+    // Helper function to calculate distance between two points
+    const calculateDistance = (lat1, lon1, lat2, lon2) => {
+        const R = 6371; // Radius of the earth in km
+        const dLat = deg2rad(lat2 - lat1);
+        const dLon = deg2rad(lon2 - lon1);
+        const a =
+            Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+            Math.sin(dLon/2) * Math.sin(dLon/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        const d = R * c; // Distance in km
+        return d;
+    };
+
+    const deg2rad = (deg) => {
+        return deg * (Math.PI/180);
     };
 
     return (
-        <div className="gimnasios-container" style={{ marginTop: '120px' }}>
-            {/* Título con icono de mapa */}
-            <div className="gimnasios-title">
-                <h1><FaMapMarkerAlt /> Gimnasios Cerca</h1>
+        <div className="gimnasios-container">
+            <div className="gimnasios-header">
+                <h1>
+                    <FaMapMarkerAlt /> Encuentra tu gimnasio
+                </h1>
+                <p>Descubre los mejores gimnasios cerca de ti en Buenos Aires</p>
+                {error && (
+                    <div className="connection-note">
+                        Los datos de gimnasios se obtienen de OpenStreetMap
+                    </div>
+                )}
             </div>
 
-            {error && <div className="error-message">{error}</div>}
-
             <div className="search-section">
-                <form onSubmit={handleSearch} className="search-form">
+                <form className="search-form" onSubmit={handleSearch}>
                     <div className="search-input-container">
                         <input
                             type="text"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Buscar gimnasios en Buenos Aires, Argentina..."
                             className="search-input"
-                            disabled={isLoading}
+                            placeholder="Ingresa tu dirección en Buenos Aires"
+                            value={address}
+                            onChange={handleAddressChange}
+                            aria-label="Dirección"
+                            required
                         />
-                        <button type="submit" className="search-button" disabled={isLoading}>
+                        <button
+                            type="submit"
+                            className="search-button"
+                            disabled={loading || !address.trim()}
+                        >
                             <FaSearch /> Buscar
                         </button>
                         <button
                             type="button"
-                            onClick={getCurrentLocation}
                             className="location-button"
-                            disabled={isLoading}
+                            onClick={handleUseMyLocation}
+                            disabled={loading}
                         >
-                            <FaLocationArrow /> Usar Ubicación Actual
+                            <FaMapMarkerAlt /> Mi ubicación
                         </button>
                     </div>
+
                     <div className="radius-selector">
-                        <label htmlFor="radius">Radio de búsqueda: {searchRadius} km</label>
+                        <label htmlFor="radius">
+                            Radio de búsqueda: {(searchRadius / 1000).toFixed(1)} km
+                        </label>
                         <input
                             type="range"
                             id="radius"
-                            min="1"
-                            max="20"
+                            min="1000"
+                            max="10000"
+                            step="500"
                             value={searchRadius}
-                            onChange={(e) => setSearchRadius(Number(e.target.value))}
-                            disabled={isLoading}
+                            onChange={handleRadiusChange}
                         />
                     </div>
                 </form>
             </div>
 
+            {error && <div className="error-message">{error}</div>}
+
             <div className="gimnasios-content">
                 <div className="map-container">
-                    {/* Single loading overlay for the map */}
-                    {isLoading && (
+                    <div ref={mapRef} className="map"></div>
+                    {loading && (
                         <div className="loading-overlay">
-                            <WavyText text="Buscando gimnasios..." replay={wavyTextReplay} />
+                            <WavyText text="Obteniendo tu ubicación..." />
                         </div>
                     )}
-                    <div id="gym-map" className="map" ref={mapRef}></div>
                 </div>
 
                 <div className="gym-list">
-                    <h2>Gimnasios Mejor Valorados ({Math.min(gyms.length, 10)} de {gyms.length})</h2>
-                    {isLoading ? (
+                    <h2>Gimnasios cercanos</h2>
+
+                    {loadingGyms ? (
                         <div className="loading-gyms">
-                            {/* We've removed the duplicate wavy text here */}
+                            <WavyText text="Buscando gimnasios..." />
                         </div>
                     ) : gyms.length > 0 ? (
                         <ul className="gym-items">
-                            {gyms.slice(0, 10).map((gym, index) => (
-                                <li key={gym.id} className="gym-item">
+                            {gyms.map((gym, index) => (
+                                <li key={gym.place_id} className="gym-item">
                                     <div className="gym-rank">{index + 1}</div>
                                     <div className="gym-info">
                                         <h3>{gym.name}</h3>
-                                        <div className="gym-rating">
-                                            <FaStar /> <span>{gym.rating.toFixed(1)}</span>
-                                            <span className="gym-reviews">({gym.user_ratings_total} reseñas)</span>
-                                        </div>
-                                        <p className="gym-address">{gym.address}</p>
+                                        {gym.rating && (
+                                            <div className="gym-rating">
+                                                <FaStar />
+                                                {gym.rating}
+                                                <span className="gym-reviews">{gym.user_ratings_total || 'N/A'} reseñas</span>
+                                            </div>
+                                        )}
+                                        <div className="gym-address">{gym.vicinity}</div>
                                         <a
-                                            href={`https://www.google.com/maps/search/?api=1&query=${gym.lat},${gym.lng}&query_place_id=${gym.id}`}
+                                            href={`https://www.openstreetmap.org/?mlat=${gym.geometry.location.lat}&mlon=${gym.geometry.location.lng}#map=19/${gym.geometry.location.lat}/${gym.geometry.location.lng}`}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                             className="gym-link"
                                         >
-                                            Ver en Google Maps
+                                            Ver en el mapa
                                         </a>
                                     </div>
                                 </li>
@@ -767,13 +559,13 @@ function Gimnasios() {
                         </ul>
                     ) : (
                         <div className="no-gyms">
-                            No se encontraron gimnasios cercanos. Intenta ampliar el radio de búsqueda o cambiar la ubicación.
+                            No se encontraron gimnasios. Intente con otra ubicación o aumente el radio de búsqueda.
                         </div>
                     )}
                 </div>
             </div>
         </div>
     );
-}
+};
 
 export default Gimnasios;
