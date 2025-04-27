@@ -4,6 +4,7 @@ import com.TrainX.TrainX.User.UserEntity;
 import com.TrainX.TrainX.User.UserRepository;
 import com.TrainX.TrainX.jwt.exceptions.UserNotFoundException;
 import com.TrainX.TrainX.xpFitness.XpFitnessService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,13 +16,17 @@ public class ProfileService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final XpFitnessService xpFitnessService;
+    private final ProfileMapper profileMapper;
 
+    @Autowired
     public ProfileService(UserRepository userRepository,
                           PasswordEncoder passwordEncoder,
-                          XpFitnessService xpFitnessService) {
+                          XpFitnessService xpFitnessService,
+                          ProfileMapper profileMapper) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.xpFitnessService = xpFitnessService;
+        this.profileMapper = profileMapper;
     }
 
     public UserEntity getUserById(Long id) {
@@ -31,6 +36,14 @@ public class ProfileService {
 
     public Optional<UserEntity> getUserByUsername(String username) {
         return userRepository.findByUsername(username);
+    }
+
+    @Transactional
+    public UserEntity updateUserFromDTO(Long id, ProfileDTO profileDTO) {
+        UserEntity existingUser = getUserById(id);
+        profileMapper.updateUserFromDTO(existingUser, profileDTO);
+
+        return userRepository.save(existingUser);
     }
 
     @Transactional
@@ -68,7 +81,6 @@ public class ProfileService {
         }
 
         return userRepository.save(existingUser);
-
     }
 
     public void deleteUserAccount(Long userId) {

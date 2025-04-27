@@ -169,12 +169,7 @@
 }
 
 .map-container {
-    position: relative;
-    height: 600px; /* Increased from 550px */
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: var(--box-shadow);
-    border: 1px solid var(--gray-medium);
+    height: 600px; /* Match height of gym-list */
 }
 
 .map {
@@ -210,12 +205,7 @@
 }
 
 .gym-list {
-    background-color: var(--white);
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: var(--box-shadow);
-    border: 1px solid var(--gray-medium);
-    max-height: 600px; /* Increased from 550px */
+    max-height: 600px; /* Match height of map-container */
     overflow-y: auto;
 }
 
@@ -323,16 +313,12 @@
 }
 
 @media (max-width: 992px) {
-    .gimnasios-content {
-        grid-template-columns: 1fr;
-    }
-
     .map-container {
         height: 500px;
     }
 
     .gym-list {
-        max-height: none;
+        max-height: none; /* Remove max-height constraint */
     }
 }
 

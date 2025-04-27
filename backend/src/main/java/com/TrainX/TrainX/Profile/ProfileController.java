@@ -1,4 +1,3 @@
-// ProfileController.java updates
 package com.TrainX.TrainX.Profile;
 
 import com.TrainX.TrainX.User.MessageResponse;
@@ -14,36 +13,48 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/profile")
 public class ProfileController {
     private final ProfileService profileService;
+    private final ProfileMapper profileMapper;
 
     @Autowired
-    public ProfileController(ProfileService profileService) {
+    public ProfileController(ProfileService profileService, ProfileMapper profileMapper) {
         this.profileService = profileService;
+        this.profileMapper = profileMapper;
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserEntity> getCurrentUserProfile() {
+    public ResponseEntity<ProfileDTO> getCurrentUserProfile() {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String username = authentication.getName();
 
+            System.out.println("Getting profile for: " + username);
+
             UserEntity user = profileService.getUserByUsername(username)
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
-            return ResponseEntity.ok(user);
-        } catch (RuntimeException e) {
-            throw new RuntimeException("User not found: " + e.getMessage());
+            System.out.println("User found: " + user.getUsername());
+
+            // Convert to DTO before sending
+            ProfileDTO profileDTO = profileMapper.toProfileDTO(user);
+            return ResponseEntity.ok(profileDTO);
         } catch (Exception e) {
+            System.err.println("Error in /me endpoint: " + e.getMessage());
             throw new RuntimeException("Error retrieving user profile: " + e.getMessage());
         }
     }
 
     @PutMapping("/update")
-    public ResponseEntity<?> updateUser(@RequestBody UserEntity userDetails) {
+    public ResponseEntity<?> updateUser(@RequestBody ProfileDTO profileDTO) {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             UserEntity currentUser = (UserEntity) authentication.getPrincipal();
-            UserEntity updatedUser = profileService.updateUser(currentUser.getId(), userDetails);
-            return ResponseEntity.ok(updatedUser);
+
+            // Use the service to update the user
+            UserEntity updatedUser = profileService.updateUserFromDTO(currentUser.getId(), profileDTO);
+
+            // Convert back to DTO for response
+            ProfileDTO updatedProfileDTO = profileMapper.toProfileDTO(updatedUser);
+            return ResponseEntity.ok(updatedProfileDTO);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new MessageResponse("Error updating profile: " + e.getMessage()));

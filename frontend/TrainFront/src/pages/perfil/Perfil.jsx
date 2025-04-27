@@ -15,12 +15,12 @@ function Perfil() {
         email: '',
         surname: '',
         password: '',
-        weight: '',
-        height: '',
+        weight: 0,
+        height: 0,
         address: '',
         phoneNumber: '',
         age: '',
-        sex: '',
+        sex: 'male',
         userPhoto: null,
         isPublic: true,
         role: 'USER'
@@ -49,7 +49,7 @@ function Perfil() {
                 setIsLoading(true);
                 setError(null);
 
-                // Use the profile endpoint instead of user endpoint
+                const token = localStorage.getItem('token');
                 const response = await axios.get('http://localhost:8080/api/profile/me', {
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -59,6 +59,7 @@ function Perfil() {
                 const data = response.data;
                 console.log("Fetched user data:", data);
 
+                // Explicitly extract each field to ensure they're properly set
                 const formattedData = {
                     username: data.username || '',
                     surname: data.surname || '',
@@ -74,8 +75,11 @@ function Perfil() {
                     isPublic: data.isPublic !== undefined ? data.isPublic : true,
                     role: data.role || 'USER',
                     coins: data.coins || 0,
-                    xpFitness: data.xpFitness || 0
+                    xpFitness: data.xpFitnessEntity?.xpTotal || 0
                 };
+
+                // Debug log to verify the formatted data
+                console.log("Formatted data:", formattedData);
 
                 setUserData(formattedData);
                 setOriginalData(formattedData);
@@ -91,7 +95,7 @@ function Perfil() {
                     }
                 }
 
-                // Add a small delay before showing content with fade-in effect
+                // Add a small delay before showing content
                 setTimeout(() => {
                     setFadeIn(true);
                     setIsLoading(false);
@@ -296,6 +300,7 @@ function Perfil() {
     const bmiCategory = getBMICategory(bmi);
 
     if (isLoading && !userData.username) {
+
         return (
             <div className="loading">
                 <div className="loading-spinner"></div>
@@ -306,16 +311,6 @@ function Perfil() {
 
     return (
         <div className={`perfil-container ${fadeIn ? 'fade-in' : ''}`}>
-            <div className="perfil-header">
-                <h1><FaUser className="header-icon" /> Mi Perfil</h1>
-                <div className="user-stats">
-                    <div className="stat-item">
-                        <FaCoins className="stat-icon coins" />
-                        <span>{userData.coins || 0} monedas</span>
-                    </div>
-                    {}
-                </div>
-            </div>
 
             {error && <div className="error-message"><FaExclamationTriangle /> {error}</div>}
             {successMessage && <div className="success-message">{successMessage}</div>}
@@ -383,8 +378,8 @@ function Perfil() {
                                     type="text"
                                     id="username"
                                     name="username"
-                                    value={userData.username}
-                                    disabled={true} // Always disabled, can't change username
+                                    value={userData.username || ''}
+                                    disabled={true}
                                     className=""
                                 />
                             </div>
@@ -395,8 +390,8 @@ function Perfil() {
                                     type="text"
                                     id="surname"
                                     name="surname"
-                                    value={userData.surname}
-                                    disabled={true} // Always disabled, can't change surname
+                                    value={userData.surname || ''}
+                                    disabled={true}
                                     className=""
                                 />
                             </div>
@@ -408,8 +403,8 @@ function Perfil() {
                                 type="email"
                                 id="email"
                                 name="email"
-                                value={userData.email}
-                                disabled  // Email should not be editable
+                                value={userData.email || ''}
+                                disabled
                             />
                         </div>
 
@@ -449,7 +444,7 @@ function Perfil() {
                                     type="number"
                                     id="weight"
                                     name="weight"
-                                    value={userData.weight}
+                                    value={userData.weight || 0}
                                     onChange={handleChange}
                                     min="30"
                                     max="300"
@@ -465,7 +460,7 @@ function Perfil() {
                                     type="number"
                                     id="height"
                                     name="height"
-                                    value={userData.height}
+                                    value={userData.height || 0}
                                     min="100"
                                     max="250"
                                     step="1"
@@ -483,7 +478,9 @@ function Perfil() {
                                     type="text"
                                     id="age"
                                     name="age"
-                                    value={userData.age}
+                                    value={userData.age || ''}
+                                    min="10"
+                                    max="100"
                                     onChange={handleChange}
                                     disabled={!isEditing}
                                     className={isEditing ? "editable" : ""}
@@ -518,7 +515,7 @@ function Perfil() {
                                     type="text"
                                     id="address"
                                     name="address"
-                                    value={userData.address}
+                                    value={userData.address || ''}
                                     onChange={handleChange}
                                     disabled={!isEditing}
                                     className={isEditing ? "editable" : ""}
@@ -531,7 +528,7 @@ function Perfil() {
                                     type="tel"
                                     id="phoneNumber"
                                     name="phoneNumber"
-                                    value={userData.phoneNumber}
+                                    value={userData.phoneNumber || ''}
                                     onChange={handleChange}
                                     disabled={!isEditing}
                                     className={isEditing ? "editable" : ""}

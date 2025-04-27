@@ -64,9 +64,14 @@ const Gimnasios = () => {
 
                 // Check if user has an address in their profile
                 if (response.data && response.data.address) {
-                    setAddress(response.data.address);
+                    // Ensure the address includes "Buenos Aires, Argentina"
+                    const fullAddress = response.data.address.toLowerCase().includes("buenos aires")
+                        ? response.data.address
+                        : `${response.data.address}, Buenos Aires, Argentina`;
+
+                    setAddress(fullAddress);
                     // Use the stored address for search
-                    searchByAddress(response.data.address);
+                    searchByAddress(fullAddress);
                     return true;
                 }
                 return false;
@@ -97,7 +102,12 @@ const Gimnasios = () => {
                         reverseGeocode(lat, lng)
                             .then(addressResult => {
                                 if (addressResult) {
-                                    setAddress(addressResult);
+                                    // Ensure address includes Buenos Aires, Argentina
+                                    const fullAddress = addressResult.toLowerCase().includes("buenos aires")
+                                        ? addressResult
+                                        : `${addressResult}, Buenos Aires, Argentina`;
+
+                                    setAddress(fullAddress);
                                 }
                                 // Search for gyms near the location
                                 searchNearbyGyms(lat, lng);
@@ -242,7 +252,12 @@ const Gimnasios = () => {
                     reverseGeocode(lat, lng)
                         .then(addressResult => {
                             if (addressResult) {
-                                setAddress(addressResult);
+                                // Ensure the address includes "Buenos Aires, Argentina"
+                                const fullAddress = addressResult.toLowerCase().includes("buenos aires")
+                                    ? addressResult
+                                    : `${addressResult}, Buenos Aires, Argentina`;
+
+                                setAddress(fullAddress);
                             }
                             // Search for gyms near the location
                             searchNearbyGyms(lat, lng);

@@ -424,6 +424,10 @@
     gap: 20px;
 }
 
+.perfil-container {
+    padding-top: 100px; /* Add space between navbar and profile content */
+}
+
 .loading-spinner {
     width: 50px;
     height: 50px;
