@@ -121,5 +121,23 @@ public class UserController {
         return ResponseEntity.ok(Map.of("caminoFitnessId", caminoId));
     }
 
-    // Eliminar métodos de XP que ahora están en XpFitnessService
+    @PutMapping("/{userId}/level")
+    public ResponseEntity<String> assignLevelToUser(
+            @PathVariable Long userId,
+            @RequestBody Map<String, Long> request) {
+        try {
+            Long levelId = request.get("levelId");
+            if (levelId == null) {
+                return ResponseEntity.badRequest().body("Falta el levelId en el cuerpo de la solicitud.");
+            }
+
+            userService.assignLevel(userId, levelId);
+            return ResponseEntity.ok("Nivel asignado correctamente.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al asignar nivel.");
+        }
+    }
+
 }

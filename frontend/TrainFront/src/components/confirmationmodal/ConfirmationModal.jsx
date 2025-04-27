@@ -14,7 +14,6 @@ function ConfirmationModal({ onConfirm, caminoSeleccionado, userId, selectedCami
             return;
         }
 
-        // Validar props
         if (!userId || !selectedCaminoId) {
             setError('No se pudo determinar tu usuario o camino.');
             return;
@@ -24,30 +23,26 @@ function ConfirmationModal({ onConfirm, caminoSeleccionado, userId, selectedCami
         setError(null);
 
         try {
-            console.log("PUT http://localhost:8080/api/users/", userId, "/camino");
-            console.log("Body:", { caminoFitnessId: selectedCaminoId });
-
-            const response = await axios.put(
+            console.log("Asignando camino...");
+            await axios.put(
                 `http://localhost:8080/api/users/${userId}/camino`,
                 { caminoFitnessId: selectedCaminoId },
                 { headers: { 'Content-Type': 'application/json' } }
             );
 
-            console.log('Respuesta de la API:', response);
+            console.log("Asignando nivel...");
+            await axios.put(
+                `http://localhost:8080/api/users/${userId}/level`,
+                { levelId: 1 }, // ID 1 = Principiante (ajustalo si es otro)
+                { headers: { 'Content-Type': 'application/json' } }
+            );
 
-            if (response.status === 200) {
-                // Confirmamos al padre
-                onConfirm(true);
-                // Redirigimos
-                navigate(`/camino/${selectedCaminoId}/level/principiante`);
-            } else {
-                console.error('Código inesperado:', response.status, response.data);
-                setError(`Error al asignar el camino (${response.status})`);
-            }
+            onConfirm(true);
+            navigate(`/camino/${selectedCaminoId}/level/principiante`);
         } catch (err) {
             console.error('Error en API:', err.response || err);
             const msg = err.response?.data?.message || err.message || 'Error desconocido';
-            setError(`Error al asignar el camino fitness: ${msg}`);
+            setError(`Error: ${msg}`);
         } finally {
             setLoading(false);
         }
