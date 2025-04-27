@@ -1,7 +1,7 @@
 package com.TrainX.TrainX.User;
 
 import com.TrainX.TrainX.caminoFitness.CaminoFitnessEntity;
-import com.TrainX.TrainX.xpFitness.XpFitnessService; // Importa el servicio de XP Fitness
+import com.TrainX.TrainX.xpFitness.XpFitnessService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +18,7 @@ import java.util.Optional;
 @RequestMapping("/api/users")
 public class UserController {
     private final UserService userService;
-    private final XpFitnessService xpFitnessService; // Servicio para manejar XP
+    private final XpFitnessService xpFitnessService;
 
     @Autowired
     public UserController(UserService userService, XpFitnessService xpFitnessService) {
@@ -86,7 +86,17 @@ public class UserController {
             String username = authentication.getName();
             UserEntity currentUser = userService.getUserByUsername(username)
                     .orElseThrow(() -> new RuntimeException("User not found"));
-            return ResponseEntity.ok(currentUser);
+
+            // Include the CaminoFitness ID in the response if present
+            Map<String, Object> response = Map.of(
+                    "id", currentUser.getId(),
+                    "username", currentUser.getUsername(),
+                    "email", currentUser.getEmail(),
+                    "caminoFitnessId", currentUser.getCaminoFitnessActual() != null ?
+                            currentUser.getCaminoFitnessActual().getIdCF() : null
+            );
+
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new MessageResponse("Error retrieving user profile: " + e.getMessage()));
@@ -121,6 +131,24 @@ public class UserController {
         return ResponseEntity.ok(Map.of("caminoFitnessId", caminoId));
     }
 
+    @GetMapping("/current-camino")
+    public ResponseEntity<?> getCurrentUserCamino() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName();
+            UserEntity currentUser = userService.getUserByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            CaminoFitnessEntity cf = currentUser.getCaminoFitnessActual();
+            Long caminoId = (cf != null) ? cf.getIdCF() : null;
+
+            return ResponseEntity.ok(Map.of("caminoFitnessId", caminoId));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageResponse("Error retrieving user's camino: " + e.getMessage()));
+        }
+    }
+
     @PutMapping("/{userId}/level")
     public ResponseEntity<String> assignLevelToUser(
             @PathVariable Long userId,
@@ -139,5 +167,4 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al asignar nivel.");
         }
     }
-
 }

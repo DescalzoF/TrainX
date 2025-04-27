@@ -23,24 +23,38 @@ function ConfirmationModal({ onConfirm, caminoSeleccionado, userId, selectedCami
         setError(null);
 
         try {
+            const token = localStorage.getItem('token');
+            const authHeader = { headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }};
+
             console.log("Asignando camino...");
             await axios.put(
                 `http://localhost:8080/api/users/${userId}/camino`,
                 { caminoFitnessId: selectedCaminoId },
-                { headers: { 'Content-Type': 'application/json' } }
+                authHeader
             );
 
             console.log("Asignando nivel...");
             await axios.put(
                 `http://localhost:8080/api/users/${userId}/level`,
-                { levelId: 1 }, // ID 1 = Principiante (ajustalo si es otro)
-                { headers: { 'Content-Type': 'application/json' } }
+                { levelId: 1 }, // ID 1 = Principiante
+                authHeader
             );
+
+            // After successful assignments, update the local storage
+            localStorage.setItem('caminoFitnessId', selectedCaminoId);
 
             onConfirm(true);
             navigate(`/camino/${selectedCaminoId}/level/principiante`);
         } catch (err) {
-            console.error('Error en API:', err.response || err);
+            // More detailed error logging
+            console.error('Error en API:', err);
+            if (err.response) {
+                console.error('Response status:', err.response.status);
+                console.error('Response data:', err.response.data);
+            }
             const msg = err.response?.data?.message || err.message || 'Error desconocido';
             setError(`Error: ${msg}`);
         } finally {

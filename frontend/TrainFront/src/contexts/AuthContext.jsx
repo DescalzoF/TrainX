@@ -10,6 +10,10 @@ export function AuthProvider({ children }) {
     const [isLoading, setIsLoading] = useState(true);
     const [selectedCaminoFitnessId, setSelectedCaminoFitnessId] = useState(null);
 
+    const hasChosenCaminoFitness = () => {
+        return !!selectedCaminoFitnessId || !!localStorage.getItem('caminoFitnessId');
+    };
+
     useEffect(() => {
         const token = localStorage.getItem('token');
         const storedUsername = localStorage.getItem('username');
@@ -44,16 +48,31 @@ export function AuthProvider({ children }) {
         setIsLoading(false);
     }, []);
 
+    // In AuthContext.jsx, modify the fetchUserProfile function:
     const fetchUserProfile = async () => {
         try {
-            const response = await axios.get('http://localhost:8080/api/users/currentUser');
+            // Make sure token is in headers before making the request
+            const token = localStorage.getItem('token');
+            if (!token) {
+                console.log('No token found for profile fetch');
+                return;
+            }
+
+            // Set the header for this specific request
+            const response = await axios.get('http://localhost:8080/api/users/currentUser', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
             const userData = response.data;
             if (userData.caminoFitnessId) {
                 setSelectedCaminoFitnessId(userData.caminoFitnessId);
                 localStorage.setItem('caminoFitnessId', userData.caminoFitnessId);
             }
         } catch (error) {
-            console.error('Error fetching user profile:', error);
+            console.error('Error fetching user profile:', error.response?.data || error.message);
+            // Don't clear tokens on 401/403 as login() will handle this
         }
     };
 
@@ -124,6 +143,7 @@ export function AuthProvider({ children }) {
         getCurrentUserId,
         getCurrentCaminoFitnessId,
         setCurrentCaminoFitnessId,
+        hasChosenCaminoFitness,
     };
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

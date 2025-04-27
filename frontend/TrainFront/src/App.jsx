@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Navbar from './components/navbar/Navbar.jsx';
 import Login from './pages/login/Login.jsx';
@@ -50,21 +49,14 @@ const AdminRoute = ({ children }) => {
 
 const NavbarWrapper = () => {
     const location = useLocation();
-    const { isLoggedIn, currentUser, logout } = useAuth();
     const hideNavbarPaths = ['/login', '/signup', '/reset-password', '/forgot-password'];
     const shouldShowNavbar = !hideNavbarPaths.includes(location.pathname);
 
-    return shouldShowNavbar ? (
-        <Navbar
-            isLoggedIn={isLoggedIn}
-            username={currentUser?.username}
-            onLogout={logout}
-        />
-    ) : null;
+    return shouldShowNavbar ? <Navbar /> : null;
 };
 
 function AppContent() {
-    const { isLoggedIn, currentUser, isLoading } = useAuth();
+    const { isLoggedIn, currentUser, isLoading, hasChosenCaminoFitness, getCurrentCaminoFitnessId } = useAuth();
 
     if (isLoading) {
         return <div>Loading...</div>;
@@ -77,7 +69,17 @@ function AppContent() {
                 <Routes>
                     <Route
                         path="/"
-                        element={isLoggedIn ? <HomeLoggedIn username={currentUser?.username} /> : <HomeNotLoggedIn />}
+                        element={
+                            isLoggedIn ? (
+                                hasChosenCaminoFitness() ? (
+                                    <Navigate to={`/camino/${getCurrentCaminoFitnessId()}/level/principiante`} />
+                                ) : (
+                                    <HomeLoggedIn />
+                                )
+                            ) : (
+                                <HomeNotLoggedIn />
+                            )
+                        }
                     />
                     <Route
                         path="/login"
@@ -107,7 +109,7 @@ function AppContent() {
                         path="/camino"
                         element={
                             <ProtectedRoute>
-                                <CaminoFitness username={currentUser?.username} />
+                                <CaminoFitness />
                             </ProtectedRoute>
                         }
                     />
