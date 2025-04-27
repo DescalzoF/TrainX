@@ -85,4 +85,8 @@ public class CaminoFitnessService {
             throw new RuntimeException("Camino Fitness program not found with id: " + id);
         }
     }
+
+    public Optional<CaminoFitnessEntity> findById(Long caminoFitnessId) {
+        return caminoFitnessRepository.findById(caminoFitnessId);
+    }
 }

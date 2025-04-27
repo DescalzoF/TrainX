@@ -23,17 +23,12 @@ function ConfirmationModal({ onConfirm, caminoSeleccionado, userId, selectedCami
         setError(null);
 
         try {
-            console.log("Asignando camino...");
-            await axios.put(
-                `http://localhost:8080/api/users/${userId}/camino`,
-                { caminoFitnessId: selectedCaminoId },
-                { headers: { 'Content-Type': 'application/json' } }
-            );
+            console.log("Asignando camino y nivel...");
 
-            console.log("Asignando nivel...");
+            // Realizamos la solicitud PUT para asignar tanto el camino como el nivel en un solo endpoint
             await axios.put(
-                `http://localhost:8080/api/users/${userId}/level`,
-                { levelId: 1 }, // ID 1 = Principiante (ajustalo si es otro)
+                `http://localhost:8080/api/users/${userId}/camino-y-nivel`, // Nuevo endpoint unificado
+                { caminoFitnessId: selectedCaminoId },
                 { headers: { 'Content-Type': 'application/json' } }
             );
 
@@ -56,14 +51,14 @@ function ConfirmationModal({ onConfirm, caminoSeleccionado, userId, selectedCami
                 </h2>
                 <div className="confirmation-buttons">
                     <button
-                        className="btn confirm"
+                        className={`btn confirm ${loading ? 'loading' : ''}`}
                         onClick={() => handleConfirm(true)}
                         disabled={loading}
                     >
                         {loading ? 'Cargando...' : 'Sí'}
                     </button>
                     <button
-                        className="btn cancel"
+                        className={`btn cancel ${loading ? 'loading' : ''}`}
                         onClick={() => handleConfirm(false)}
                         disabled={loading}
                     >

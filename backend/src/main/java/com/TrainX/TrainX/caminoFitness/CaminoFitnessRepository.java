@@ -39,4 +39,6 @@ public interface CaminoFitnessRepository extends JpaRepository<CaminoFitnessEnti
      * @return lista de caminos que cumplen ambos criterios
      */
     List<CaminoFitnessEntity> findByLevels_IdLevelAndNameCFContainingIgnoreCase(Long levelId, String fragment);
+
+
 }
