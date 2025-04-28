@@ -13,6 +13,7 @@ import ForgotPassword from './pages/auth/ForgotPassword/ForgotPassword.jsx';
 import ResetPassword from './pages/auth/ResetPassword/ResetPassword.jsx';
 import ExercisesView from './pages/exercises/ExercisesView.jsx';
 import Gimnasios from './pages/gimnasios/Gimnasios.jsx'; // Import the new Gimnasios component
+import Session from './pages/Session/Session.jsx'; // Import the Session component
 import './App.css';
 
 const ProtectedRoute = ({ children }) => {
@@ -136,6 +137,16 @@ function AppContent() {
                         element={
                             <ProtectedRoute>
                                 <Gimnasios />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    {/* Add the new Session route for Forum */}
+                    <Route
+                        path="/session"
+                        element={
+                            <ProtectedRoute>
+                                <Session />
                             </ProtectedRoute>
                         }
                     />

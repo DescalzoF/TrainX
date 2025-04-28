@@ -64,6 +64,12 @@ function Navbar() {
         if (!isLoggedIn) {
             navigate('/');
         } else {
+            // Special case for Foro to redirect to Session
+            if (path === '/forum') {
+                navigate('/session');
+                return;
+            }
+
             if (path === '/camino') {
                 if (hasChosenCaminoFitness()) {
                     const caminoId = getCurrentCaminoFitnessId();

@@ -2,12 +2,14 @@ package com.TrainX.TrainX.User;
 
 import com.TrainX.TrainX.caminoFitness.CaminoFitnessEntity;
 import com.TrainX.TrainX.level.LevelEntity;
+import com.TrainX.TrainX.session.SessionEntity;
 import com.TrainX.TrainX.xpFitness.XpFitnessEntity;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -74,6 +76,9 @@ public class UserEntity implements UserDetails {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private XpFitnessEntity xpFitnessEntity;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SessionEntity> sessions = new ArrayList<>();
+
     // Constructors
     public UserEntity() {
         // Default constructor for JPA
@@ -109,6 +114,24 @@ public class UserEntity implements UserDetails {
         this.role = role != null ? role : Role.USER;
     }
 
+    public List<SessionEntity> getSessions() {
+        return sessions;
+    }
+
+    public void setSessions(List<SessionEntity> sessions) {
+        this.sessions = sessions;
+    }
+
+    public void addSession(SessionEntity session) {
+        sessions.add(session);
+        session.setUser(this);
+    }
+
+    public void removeSession(SessionEntity session) {
+        sessions.remove(session);
+        session.setUser(null);
+    }
+
     // Getters y setters omitidos para brevedad (mantener todos los originales)
 
     public void setXpFitnessEntity(XpFitnessEntity xpFitnessEntity) {
@@ -125,6 +148,7 @@ public class UserEntity implements UserDetails {
             setXpFitnessEntity(new XpFitnessEntity(this));
         }
     }
+
 
     // Standard getters and setters
     public Long getId() {

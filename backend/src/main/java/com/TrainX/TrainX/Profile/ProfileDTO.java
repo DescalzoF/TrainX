@@ -135,4 +135,11 @@ public class ProfileDTO implements Serializable {
     public void setCoins(Long coins) {
         this.coins = coins;
     }
+
+    private Long caminoFitnessId;
+
+    // Getter and setter for caminoFitnessId in ProfileDTO.java
+    public Long getCaminoFitnessId() {
+        return caminoFitnessId;
+    }
 }
