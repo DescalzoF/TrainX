@@ -14,6 +14,7 @@ const ExerciseView = () => {
     const [filteredExercises, setFilteredExercises] = useState([]);
     const [selectedSessionForAdd, setSelectedSessionForAdd] = useState(null);
     const [muscleGroups, setMuscleGroups] = useState([]);
+    const [completedExercises, setCompletedExercises] = useState({});
 
     useEffect(() => {
         // Fetch user data on component mount
@@ -298,7 +299,8 @@ const ExerciseView = () => {
                             exercise: exercise,
                             sets: sets,
                             reps: reps,
-                            weight: 0
+                            weight: 0,
+                            xpFitnessReward: calculateXpReward(exercise, userDetails)
                         }));
 
                         session.exercises = sessionExercises;
@@ -319,6 +321,27 @@ const ExerciseView = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    // Calculate XP reward based on exercise difficulty and user level
+    const calculateXpReward = (exercise, userDetails) => {
+        // This is a sample implementation - modify according to your business logic
+        const baseXp = 50; // Base XP for any exercise
+
+        // Additional XP based on difficulty
+        let difficultyMultiplier = 1;
+        if (exercise.difficulty) {
+            if (exercise.difficulty.toLowerCase() === 'intermedio') {
+                difficultyMultiplier = 1.5;
+            } else if (exercise.difficulty.toLowerCase() === 'avanzado') {
+                difficultyMultiplier = 2;
+            } else if (exercise.difficulty.toLowerCase() === 'profesional') {
+                difficultyMultiplier = 2.5;
+            }
+        }
+
+        // Return calculated XP (round to nearest 10)
+        return Math.round((baseXp * difficultyMultiplier) / 10) * 10;
     };
 
     // Function to update weight for an exercise
@@ -347,6 +370,42 @@ const ExerciseView = () => {
         } catch (err) {
             console.error('Error al actualizar el peso:', err);
             setError(err.response?.data?.message || 'Error al actualizar el peso');
+        }
+    };
+
+    // New function to complete an exercise and claim XP reward
+    const completeExercise = async (sessionExerciseId) => {
+        try {
+            // Only proceed if the exercise hasn't been completed yet
+            if (completedExercises[sessionExerciseId]) {
+                return;
+            }
+
+            const token = localStorage.getItem('jwtToken') || localStorage.getItem('token');
+
+            // Call the backend endpoint to complete the exercise
+            const response = await axios.post(
+                `http://localhost:8080/api/session-exercises/${sessionExerciseId}/complete`,
+                {},
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            );
+
+            // Mark this exercise as completed in our local state
+            setCompletedExercises(prev => ({
+                ...prev,
+                [sessionExerciseId]: true
+            }));
+
+            // Optional: Show a success message
+            alert('¡Ejercicio completado! XP recompensado con éxito.');
+
+        } catch (err) {
+            console.error('Error al completar el ejercicio:', err);
+            setError(err.response?.data?.message || 'Error al completar el ejercicio');
         }
     };
 
@@ -474,7 +533,8 @@ const ExerciseView = () => {
                     exerciseId: exercise.id,
                     sets: sets,
                     reps: reps,
-                    weight: 0 // Default weight
+                    weight: 0, // Default weight
+                    xpFitnessReward: calculateXpReward(exercise, userDetails) // Add XP reward
                 },
                 {
                     headers: {
@@ -644,6 +704,7 @@ const ExerciseView = () => {
                                                     <div className="col-sets">Series</div>
                                                     <div className="col-reps">Repeticiones</div>
                                                     <div className="col-weight">Peso (kg)</div>
+                                                    <div className="col-xp">XP</div>
                                                     <div className="col-actions">Acciones</div>
                                                 </div>
 
@@ -667,17 +728,26 @@ const ExerciseView = () => {
                                                                     onBlur={(e) => handleWeightBlur(exercise.id, parseFloat(e.target.value) || 0)}
                                                                 />
                                                             </div>
+                                                            <div className="col-xp">
+                                                                <button
+                                                                    className={`xp-reward-button ${completedExercises[exercise.id] ? 'completed' : ''}`}
+                                                                    onClick={() => completeExercise(exercise.id)}
+                                                                    disabled={completedExercises[exercise.id]}
+                                                                >
+                                                                    {completedExercises[exercise.id] ? '✓ Completado' : `+${exercise.xpFitnessReward || 0} XP`}
+                                                                </button>
+                                                            </div>
                                                             <div className="col-actions">
                                                                 {exercise.exercise?.videoUrl && (
                                                                     <a
-                                                                        href={exercise.exercise.videoUrl}
-                                                                        target="_blank"
-                                                                        rel="noopener noreferrer"
-                                                                        className="video-link"
+                                                                    href={exercise.exercise.videoUrl}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="video-link"
                                                                     >
-                                                                        Video
+                                                                    Video
                                                                     </a>
-                                                                )}
+                                                                    )}
                                                                 <button
                                                                     className="remove-button"
                                                                     onClick={() => removeExerciseFromSession(session.id, exercise.id)}
