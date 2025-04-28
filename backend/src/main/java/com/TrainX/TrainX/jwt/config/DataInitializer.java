@@ -305,7 +305,7 @@ public class DataInitializer {
         ejerciciosPrincipiante.add(new ExerciseEntity(
                 "Sprints de 10 metros",
                 "Corre a máxima velocidad una distancia de 10 metros, descansa y repite.",
-                "Piernas, Sistema cardiovascular",
+                "Piernas,Cardio",
                 4,
                 2,
                 camino,
@@ -317,7 +317,7 @@ public class DataInitializer {
         ejerciciosPrincipiante.add(new ExerciseEntity(
                 "Planchas con toques de hombro",
                 "En posición de plancha alta, toca tu hombro izquierdo con la mano derecha y viceversa, alternando manos.",
-                "Core, Hombros, Estabilidad",
+                "Core, Hombros",
                 3,
                 10,
                 camino,
@@ -329,7 +329,7 @@ public class DataInitializer {
         ejerciciosPrincipiante.add(new ExerciseEntity(
                 "Escaladores",
                 "En posición de plancha alta, lleva alternadamente las rodillas hacia el pecho en un movimiento rápido y controlado.",
-                "Core, Piernas, Cardiovascular",
+                "Core, Piernas,Cardio",
                 3,
                 20,
                 camino,
@@ -394,7 +394,7 @@ public class DataInitializer {
         ejerciciosIntermedio.add(new ExerciseEntity(
                 "Flexiones explosivas",
                 "Realiza una flexión normal pero con suficiente impulso para despegar las manos del suelo momentáneamente.",
-                "Pecho, Tríceps, Potencia",
+                "Pecho, Tríceps",
                 3,
                 8,
                 camino,
@@ -406,7 +406,7 @@ public class DataInitializer {
         ejerciciosIntermedio.add(new ExerciseEntity(
                 "Sentadillas con salto",
                 "Realiza una sentadilla completa y al subir, salta explosivamente. Aterriza suavemente y repite.",
-                "Piernas, Potencia",
+                "Piernas",
                 3,
                 12,
                 camino,
@@ -418,7 +418,7 @@ public class DataInitializer {
         ejerciciosIntermedio.add(new ExerciseEntity(
                 "Mountain climbers rápidos",
                 "En posición de plancha alta, alterna las rodillas hacia el pecho lo más rápido posible manteniendo la estabilidad.",
-                "Core, Piernas, Cardiovascular",
+                "Core, Piernas, Cardio",
                 3,
                 30,
                 camino,
@@ -447,7 +447,7 @@ public class DataInitializer {
         ejerciciosAvanzado.add(new ExerciseEntity(
                 "Sprints con cambio de dirección",
                 "Corre a máxima velocidad 10 metros, toca el suelo, cambia de dirección y regresa a máxima velocidad.",
-                "Piernas, Agilidad, Cardiovascular",
+                "Piernas, Cardio",
                 5,
                 4,
                 camino,
@@ -459,7 +459,7 @@ public class DataInitializer {
         ejerciciosAvanzado.add(new ExerciseEntity(
                 "Box jumps con una pierna",
                 "Salta sobre un cajón o plataforma elevada con una sola pierna, alterna piernas en cada repetición.",
-                "Piernas, Potencia, Equilibrio",
+                "Piernas, Equilibrio",
                 3,
                 6,
                 camino,
@@ -471,7 +471,7 @@ public class DataInitializer {
         ejerciciosAvanzado.add(new ExerciseEntity(
                 "Muscle ups",
                 "Partiendo de una posición colgada, realiza una dominada explosiva que te permita elevar el cuerpo por encima de la barra.",
-                "Espalda, Pecho, Tríceps, Potencia",
+                "Espalda, Pecho, Tríceps",
                 3,
                 5,
                 camino,
@@ -483,7 +483,7 @@ public class DataInitializer {
         ejerciciosAvanzado.add(new ExerciseEntity(
                 "Pistol squats",
                 "Sentadilla a una pierna donde la otra se extiende completamente al frente mientras bajas.",
-                "Piernas, Equilibrio, Fuerza",
+                "Piernas, Equilibrio",
                 3,
                 8,
                 camino,
@@ -495,7 +495,7 @@ public class DataInitializer {
         ejerciciosAvanzado.add(new ExerciseEntity(
                 "Saltos en cuerda doble",
                 "Realiza saltos con cuerda donde esta pasa dos veces bajo tus pies en cada salto.",
-                "Piernas, Coordinación, Cardiovascular",
+                "Piernas, Cardio",
                 4,
                 20,
                 camino,
@@ -524,7 +524,7 @@ public class DataInitializer {
         ejerciciosPro.add(new ExerciseEntity(
                 "Intervalos de velocidad 400m",
                 "Corre 400 metros a máxima velocidad, descansa 60 segundos y repite.",
-                "Resistencia, Velocidad",
+                    "Resistencia, Velocidad",
                 4,
                 1,
                 camino,
@@ -548,7 +548,7 @@ public class DataInitializer {
         ejerciciosPro.add(new ExerciseEntity(
                 "Plyo ring dips",
                 "Realiza fondos en anillas con un impulso explosivo para despegar las manos momentáneamente.",
-                "Pecho, Tríceps, Potencia",
+                "Pecho, Tríceps",
                 3,
                 8,
                 camino,
@@ -560,7 +560,7 @@ public class DataInitializer {
         ejerciciosPro.add(new ExerciseEntity(
                 "Shuttle runs con pesos",
                 "Coloca 5 marcadores separados por 5 metros. Corre hasta cada uno en orden con pesos en las manos, toca el suelo y regresa al inicio.",
-                "Agilidad, Resistencia, Fuerza",
+                "Resistencia, Piernas",
                 3,
                 1,
                 camino,
@@ -572,7 +572,7 @@ public class DataInitializer {
         ejerciciosPro.add(new ExerciseEntity(
                 "Clean and jerk",
                 "Levanta una barra desde el suelo hasta los hombros (clean) y luego sobre la cabeza con brazos extendidos (jerk).",
-                "Full body, Potencia",
+                "Full body",
                 4,
                 5,
                 camino,
@@ -829,7 +829,7 @@ public class DataInitializer {
         ejerciciosAvanzado.add(new ExerciseEntity(
                 "Press de banca cerrado",
                 "Variante del press de banca con agarre más estrecho para enfatizar los tríceps.",
-                "Tríceps, Pecho interno",
+                "Tríceps, Pecho ",
                 4,
                 8,
                 camino,
@@ -870,7 +870,7 @@ public class DataInitializer {
         ejerciciosPro.add(new ExerciseEntity(
                 "Press de banca con pausa",
                 "Press de banca estándar pero manteniendo la barra en el pecho por 2-3 segundos antes de empujar.",
-                "Pecho, Tríceps, Control",
+                "Pecho, Tríceps",
                 5,
                 5,
                 camino,
@@ -882,7 +882,7 @@ public class DataInitializer {
         ejerciciosPro.add(new ExerciseEntity(
                 "Sentadillas olímpicas",
                 "Sentadilla profunda con la espalda muy vertical, típicamente usada por levantadores olímpicos.",
-                "Cuádriceps, Glúteos, Movilidad",
+                "Cuádriceps, Glúteos",
                 5,
                 4,
                 camino,
@@ -894,7 +894,7 @@ public class DataInitializer {
         ejerciciosPro.add(new ExerciseEntity(
                 "Rack pulls",
                 "Variante del peso muerto iniciando con la barra en soportes a la altura de las rodillas para enfatizar la parte superior del movimiento.",
-                "Espalda, Trapecios, Agarre",
+                "Espalda, Trapecios",
                 5,
                 4,
                 camino,
@@ -906,7 +906,7 @@ public class DataInitializer {
         ejerciciosPro.add(new ExerciseEntity(
                 "Push press",
                 "Press militar con un impulso inicial de piernas para mover más peso.",
-                "Hombros, Piernas, Coordinación",
+                "Hombros, Piernas",
                 4,
                 5,
                 camino,
@@ -918,7 +918,7 @@ public class DataInitializer {
         ejerciciosPro.add(new ExerciseEntity(
                 "Arrancada de potencia",
                 "Levantar la barra desde el suelo hasta sobre la cabeza en un solo movimiento explosivo, sin sentadilla completa.",
-                "Full body, Potencia, Técnica",
+                "Full body",
                 4,
                 3,
                 camino,
@@ -974,7 +974,7 @@ public class DataInitializer {
         ejerciciosPrincipiante.add(new ExerciseEntity(
                 "Press de hombros con mancuernas",
                 "Sentado con mancuernas a nivel de los hombros, empújalas hacia arriba hasta extender los brazos completamente.",
-                "Deltoides, Tríceps",
+                "Hombros, Tríceps",
                 3,
                 12,
                 camino,
@@ -1022,7 +1022,7 @@ public class DataInitializer {
         ejerciciosPrincipiante.add(new ExerciseEntity(
                 "Elevaciones laterales",
                 "De pie con mancuernas a los costados, eleva las pesas lateralmente hasta que los brazos estén paralelos al suelo.",
-                "Deltoides laterales",
+                "Hombros laterales",
                 3,
                 15,
                 camino,
@@ -1039,7 +1039,7 @@ public class DataInitializer {
         ejerciciosIntermedio.add(new ExerciseEntity(
                 "Press de banca inclinado",
                 "Similar al press de banca pero en un banco inclinado para enfatizar la parte superior del pecho.",
-                "Pecho superior, Deltoides anteriores",
+                "Pecho superior, Hombros anteriores",
                 4,
                 10,
                 camino,
@@ -1099,7 +1099,7 @@ public class DataInitializer {
         ejerciciosIntermedio.add(new ExerciseEntity(
                 "Face pulls",
                 "Frente a la polea alta, jala la cuerda hacia tu rostro abriendo los codos lateralmente.",
-                "Deltoides posteriores, Manguito rotador",
+                "Hombros posteriores, Manguito rotador",
                 3,
                 15,
                 camino,
@@ -1176,7 +1176,7 @@ public class DataInitializer {
         ejerciciosAvanzado.add(new ExerciseEntity(
                 "Vuelos con cables cruzados",
                 "De pie entre dos poleas ajustadas a la altura del pecho, jala los cables frente a ti en un movimiento de abrazo.",
-                "Pecho, Pectorales internos",
+                "Pecho",
                 3,
                 12,
                 camino,
@@ -1205,7 +1205,7 @@ public class DataInitializer {
         ejerciciosPro.add(new ExerciseEntity(
                 "Press de banca con bandas",
                 "Press de banca con bandas de resistencia agregadas para incrementar la tensión al final del movimiento.",
-                "Pecho, Tríceps, Explosividad",
+                "Pecho, Tríceps",
                 4,
                 6,
                 camino,
@@ -1285,7 +1285,7 @@ public class DataInitializer {
         ejerciciosPrincipiante.add(new ExerciseEntity(
                 "Burpees modificados",
                 "Desde posición de pie, agáchate, apoya las manos, extiende las piernas sin salto y regresa a la posición inicial.",
-                "Full body, Cardiovascular",
+                "Full body, Cardio",
                 3,
                 10,
                 camino,
@@ -1309,7 +1309,7 @@ public class DataInitializer {
         ejerciciosPrincipiante.add(new ExerciseEntity(
                 "Swing con kettlebell",
                 "Con una kettlebell entre las piernas, impulsa la pesa hacia adelante y arriba usando la fuerza de las caderas.",
-                "Glúteos, Isquiotibiales, Cardiovascular",
+                "Glúteos, Isquiotibiales, Cardio",
                 3,
                 15,
                 camino,
@@ -1321,7 +1321,7 @@ public class DataInitializer {
         ejerciciosPrincipiante.add(new ExerciseEntity(
                 "Remo con mancuerna y zancada",
                 "Realiza una zancada y al estar abajo ejecuta un remo con la mancuerna del lado contrario a la pierna adelantada.",
-                "Piernas, Espalda, Coordinación",
+                "Piernas, Espalda",
                 3,
                 10,
                 camino,
@@ -1333,7 +1333,7 @@ public class DataInitializer {
         ejerciciosPrincipiante.add(new ExerciseEntity(
                 "Plancha con toque de hombro",
                 "En posición de plancha, alterna tocando tu hombro contrario con la mano mientras mantienes la estabilidad.",
-                "Core, Estabilidad",
+                "Core",
                 3,
                 20,
                 camino,
@@ -1345,7 +1345,7 @@ public class DataInitializer {
         ejerciciosPrincipiante.add(new ExerciseEntity(
                 "Saltos al cajón",
                 "Frente a un cajón o plataforma estable, salta para subir y baja controladamente.",
-                "Piernas, Potencia, Cardiovascular",
+                "Piernas, Cardio",
                 3,
                 12,
                 camino,
@@ -1362,7 +1362,7 @@ public class DataInitializer {
         ejerciciosIntermedio.add(new ExerciseEntity(
                 "Thrusters",
                 "Combinación de sentadilla frontal y press de hombros en un solo movimiento fluido.",
-                "Piernas, Hombros, Cardiovascular",
+                "Piernas, Hombros, Cardio",
                 4,
                 12,
                 camino,
@@ -1374,7 +1374,7 @@ public class DataInitializer {
         ejerciciosIntermedio.add(new ExerciseEntity(
                 "Clean and Press",
                 "Levanta una kettlebell o mancuerna desde el suelo hasta el hombro y luego sobre la cabeza en un movimiento.",
-                "Full body, Potencia",
+                "Full body",
                 4,
                 8,
                 camino,
@@ -1386,7 +1386,7 @@ public class DataInitializer {
         ejerciciosIntermedio.add(new ExerciseEntity(
                 "Burpees con salto",
                 "Burpee completo añadiendo un salto explosivo al final del movimiento.",
-                "Full body, Explosividad, Resistencia",
+                "Full body, Resistencia",
                 3,
                 15,
                 camino,
@@ -1398,7 +1398,7 @@ public class DataInitializer {
         ejerciciosIntermedio.add(new ExerciseEntity(
                 "Wall ball",
                 "Combinación de sentadilla y lanzamiento de balón medicinal contra una pared.",
-                "Piernas, Hombros, Coordinación",
+                "Piernas, Hombros",
                 4,
                 15,
                 camino,
@@ -1410,7 +1410,7 @@ public class DataInitializer {
         ejerciciosIntermedio.add(new ExerciseEntity(
                 "Remo con kettlebell y rotación",
                 "Realiza un remo con kettlebell y añade una rotación del torso al completar el movimiento.",
-                "Espalda, Core, Rotación",
+                "Espalda, Core",
                 3,
                 10,
                 camino,
@@ -1422,7 +1422,7 @@ public class DataInitializer {
         ejerciciosIntermedio.add(new ExerciseEntity(
                 "Battle ropes",
                 "Con una cuerda pesada en cada mano, genera ondas potentes alternando los brazos.",
-                "Brazos, Hombros, Cardiovascular",
+                "Brazos, Hombros, Cardio",
                 4,
                 30,
                 camino,
@@ -1439,7 +1439,7 @@ public class DataInitializer {
         ejerciciosAvanzado.add(new ExerciseEntity(
                 "Devil press",
                 "Combinación de burpee y snatch con mancuernas, levantando ambas mancuernas desde el suelo hasta arriba de la cabeza.",
-                "Full body, Potencia, Resistencia",
+                "Full body, Resistencia",
                 4,
                 10,
                 camino,
@@ -1451,7 +1451,7 @@ public class DataInitializer {
         ejerciciosAvanzado.add(new ExerciseEntity(
                 "Double kettlebell complex",
                 "Serie de movimientos encadenados con dos kettlebells: clean, squat, press, sin descanso entre ellos.",
-                "Full body, Resistencia, Fuerza",
+                "Full body, Resistencia",
                 3,
                 5,
                 camino,
@@ -1463,7 +1463,7 @@ public class DataInitializer {
         ejerciciosAvanzado.add(new ExerciseEntity(
                 "Box jump burpee",
                 "Realizar un burpee completo seguido inmediatamente de un salto al cajón.",
-                "Piernas, Potencia, Cardiovascular",
+                "Piernas, Cardio",
                 4,
                 8,
                 camino,
@@ -1487,7 +1487,7 @@ public class DataInitializer {
         ejerciciosAvanzado.add(new ExerciseEntity(
                 "Muscle ups",
                 "Dominada explosiva que termina con una transición a fondos sobre la barra.",
-                "Espalda, Pecho, Tríceps, Potencia",
+                "Espalda, Pecho, Tríceps",
                 3,
                 5,
                 camino,
@@ -1499,7 +1499,7 @@ public class DataInitializer {
         ejerciciosAvanzado.add(new ExerciseEntity(
                 "Sandbag clean and press",
                 "Levantamiento de saco de arena desde el suelo hasta por encima de la cabeza.",
-                "Full body, Fuerza funcional",
+                "Full body",
                 4,
                 6,
                 camino,
@@ -1528,7 +1528,7 @@ public class DataInitializer {
         ejerciciosPro.add(new ExerciseEntity(
                 "Muscle up a anillas",
                 "Similar al muscle up pero en anillas, requiriendo mayor estabilidad y control.",
-                "Full body, Control, Potencia",
+                "Full body",
                 3,
                 5,
                 camino,
@@ -1540,7 +1540,7 @@ public class DataInitializer {
         ejerciciosPro.add(new ExerciseEntity(
                 "Snatch",
                 "Movimiento olímpico que consiste en llevar la barra desde el suelo hasta encima de la cabeza en un solo movimiento.",
-                "Full body, Técnica, Explosividad",
+                "Full body",
                 5,
                 3,
                 camino,
@@ -1552,7 +1552,7 @@ public class DataInitializer {
         ejerciciosPro.add(new ExerciseEntity(
                 "Turkish get-up",
                 "Levantarse del suelo a posición de pie mientras se sostiene una pesa sobre la cabeza.",
-                "Full body, Estabilidad, Coordinación",
+                "Full body",
                 3,
                 5,
                 camino,
@@ -1564,7 +1564,7 @@ public class DataInitializer {
         ejerciciosPro.add(new ExerciseEntity(
                 "Pistol squat",
                 "Sentadilla a una pierna manteniendo la otra extendida frente a ti.",
-                "Piernas, Equilibrio, Fuerza unilateral",
+                "Piernas, Equilibrio",
                 3,
                 8,
                 camino,
@@ -1576,7 +1576,7 @@ public class DataInitializer {
         ejerciciosPro.add(new ExerciseEntity(
                 "Climbing rope",
                 "Escalar una cuerda usando principalmente la fuerza de brazos y técnica de piernas.",
-                "Brazos, Espalda, Agarre, Coordinación",
+                "Brazos, Espalda, Coordinación",
                 3,
                 3,
                 camino,
