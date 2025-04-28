@@ -7,8 +7,6 @@ import com.TrainX.TrainX.exercise.ExerciseDTO;
 import com.TrainX.TrainX.exercise.ExerciseEntity;
 import com.TrainX.TrainX.exercise.ExerciseRepository;
 import com.TrainX.TrainX.level.LevelEntity;
-import com.TrainX.TrainX.xpFitness.XpFitnessEntity;
-import com.TrainX.TrainX.xpFitness.XpFitnessRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,11 +21,86 @@ public class SessionService {
     private SessionRepository sessionRepository;
 
     @Autowired
+    private SessionExerciseRepository sessionExerciseRepository;
+
+    @Autowired
     private UserRepository userRepository;
 
     @Autowired
     private ExerciseRepository exerciseRepository;
 
+    @Transactional
+    public SessionDTO saveSession(SessionDTO sessionDTO) {
+        try {
+            // Debug logging
+            System.out.println("Processing sessionDTO with ID: " + sessionDTO.getId() +
+                    ", Type: " + sessionDTO.getSessionType() +
+                    ", UserId: " + sessionDTO.getUserId());
+
+            // Get user from sessionDTO
+            Long userId = sessionDTO.getUserId();
+            if (userId == null) {
+                throw new RuntimeException("User ID is required");
+            }
+
+            UserEntity user = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+
+            // Create a new session entity
+            SessionEntity sessionEntity = new SessionEntity();
+            sessionEntity.setSessionType(sessionDTO.getSessionType());
+            sessionEntity.setUser(user);
+
+            // Save the session first to get an ID
+            SessionEntity savedSession = sessionRepository.save(sessionEntity);
+            System.out.println("Saved session with ID: " + savedSession.getId());
+
+            // Now process each exercise with the session
+            if (sessionDTO.getExercises() != null && !sessionDTO.getExercises().isEmpty()) {
+                for (SessionExerciseDTO exerciseDTO : sessionDTO.getExercises()) {
+                    try {
+                        if (exerciseDTO.getExercise() == null || exerciseDTO.getExercise().getId() == null) {
+                            System.out.println("Warning: Exercise or exercise ID is null in DTO");
+                            continue;
+                        }
+
+                        Long exerciseId = exerciseDTO.getExercise().getId();
+                        ExerciseEntity exercise = exerciseRepository.findById(exerciseId)
+                                .orElseThrow(() -> new RuntimeException("Exercise not found with id: " + exerciseId));
+
+                        SessionExerciseEntity exerciseEntity = new SessionExerciseEntity();
+                        exerciseEntity.setSession(savedSession);
+                        exerciseEntity.setExercise(exercise);
+                        exerciseEntity.setSets(exerciseDTO.getSets() != null ? exerciseDTO.getSets() : 3);
+                        exerciseEntity.setReps(exerciseDTO.getReps() != null ? exerciseDTO.getReps() : 10);
+                        exerciseEntity.setWeight(exerciseDTO.getWeight() != null ? exerciseDTO.getWeight() : 0.0);
+                        exerciseEntity.setXpFitnessReward(exerciseDTO.getXpFitnessReward() != null ?
+                                exerciseDTO.getXpFitnessReward() : 0L);
+
+                        sessionExerciseRepository.save(exerciseEntity);
+                        savedSession.getExercises().add(exerciseEntity);
+
+                        System.out.println("Added exercise with ID: " + exercise.getId() + " to session");
+                    } catch (Exception e) {
+                        System.out.println("Error processing exercise: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            // Save the session again with exercises
+            savedSession = sessionRepository.save(savedSession);
+
+            // Convert back to DTO for response
+            return convertToDTO(savedSession);
+        } catch (Exception e) {
+            System.out.println("Error in saveSession: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+    @Transactional
     public List<SessionDTO> generateSessionsForUser(Long userId) {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
@@ -38,10 +111,8 @@ public class SessionService {
         }
 
         // Clear existing sessions
-        if (!user.getSessions().isEmpty()) {
-            user.getSessions().clear();
-            userRepository.save(user);
-        }
+        List<SessionEntity> existingSessions = sessionRepository.findByUser(user);
+        sessionRepository.deleteAll(existingSessions);
 
         // Create session types
         String[] sessionTypes = {
@@ -59,7 +130,6 @@ public class SessionService {
         // Generate sessions
         for (String sessionType : sessionTypes) {
             SessionEntity session = new SessionEntity(sessionType, user);
-            user.addSession(session);
 
             // Fetch exercises for this session type
             List<ExerciseEntity> selectedExercises = selectExercisesForSessionType(
@@ -68,14 +138,12 @@ public class SessionService {
             // Add exercises to session
             for (ExerciseEntity exercise : selectedExercises) {
                 SessionExerciseEntity sessionExercise = new SessionExerciseEntity(
-                        session, exercise, 3, 8,exercise.getXpFitnessReward());
+                        session, exercise, 3, 8, exercise.getXpFitnessReward());
                 session.addExercise(sessionExercise);
             }
 
-            sessions.add(session);
+            sessions.add(sessionRepository.save(session));
         }
-
-        userRepository.save(user);
 
         // Convert to DTOs
         return sessions.stream()
@@ -167,6 +235,7 @@ public class SessionService {
         SessionDTO dto = new SessionDTO();
         dto.setId(session.getId());
         dto.setSessionType(session.getSessionType());
+        dto.setUserId(session.getUser().getId());
 
         List<SessionExerciseDTO> exerciseDTOs = session.getExercises().stream()
                 .map(this::convertToExerciseDTO)
@@ -177,15 +246,17 @@ public class SessionService {
     }
 
     private SessionExerciseDTO convertToExerciseDTO(SessionExerciseEntity sessionExercise) {
-        ExerciseDTO exerciseDTO = new ExerciseDTO(
-                sessionExercise.getExercise().getName(),
-                sessionExercise.getExercise().getDescription(),
-                sessionExercise.getExercise().getMuscleGroup(),
-                sessionExercise.getExercise().getSets(),
-                sessionExercise.getExercise().getReps(),
-                sessionExercise.getExercise().getVideoUrl(),
-                sessionExercise.getExercise().getXpFitnessReward()
-        );
+        ExerciseEntity exercise = sessionExercise.getExercise();
+
+        ExerciseDTO exerciseDTO = new ExerciseDTO();
+        exerciseDTO.setId(exercise.getId());
+        exerciseDTO.setName(exercise.getName());
+        exerciseDTO.setDescription(exercise.getDescription());
+        exerciseDTO.setMuscleGroup(exercise.getMuscleGroup());
+        exerciseDTO.setSets(exercise.getSets());
+        exerciseDTO.setReps(exercise.getReps());
+        exerciseDTO.setVideoUrl(exercise.getVideoUrl());
+        exerciseDTO.setXpFitnessReward(exercise.getXpFitnessReward());
 
         return new SessionExerciseDTO(
                 sessionExercise.getId(),
@@ -197,21 +268,22 @@ public class SessionService {
         );
     }
 
+    @Transactional
     public void updateExerciseWeight(Long sessionExerciseId, Double weight) {
-        SessionExerciseEntity sessionExercise = sessionRepository.findExerciseById(sessionExerciseId)
+        SessionExerciseEntity sessionExercise = sessionExerciseRepository.findById(sessionExerciseId)
                 .orElseThrow(() -> new RuntimeException("Session exercise not found"));
 
         sessionExercise.setWeight(weight);
-        sessionRepository.saveExercise(sessionExercise);
+        sessionExerciseRepository.save(sessionExercise);
     }
 
     public List<SessionDTO> getUserSessions(Long userId) {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        return user.getSessions().stream()
+        List<SessionEntity> sessions = sessionRepository.findByUser(user);
+        return sessions.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
-
 }

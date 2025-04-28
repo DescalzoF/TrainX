@@ -570,10 +570,15 @@
 .xp-reward-button.completed {
     background-color: #2e7d32; /* Darker green */
     cursor: default;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
-
 .completed-text {
-    font-size: 0.9rem; /* Smaller text for completed state */
+    font-size: 0.8rem; /* Smaller text size for completed state */
+    line-height: 1; /* Improve vertical alignment */
+    text-align: center; /* Center the text */
+    display: block; /* Make it a block element for better centering */
 }
 
 /* Responsive adjustments */
@@ -597,8 +602,22 @@
         align-self: flex-end;
     }
     .xp-success-box {
-        max-width: 280px;
-        padding: 12px 20px;
+        position: fixed;
+        top: 80px; /* Changed from 30px to lower the popup */
+        right: 30px;
+        background-color: #4CAF50;
+        color: white;
+        padding: 15px 25px;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        font-family: 'Arial', sans-serif;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        animation: slideInRight 0.5s forwards, fadeOut 0.5s 3.5s forwards;
+        min-width: 250px;
+        max-width: 320px;
     }
     .section-subtitles {
         grid-template-columns: 2fr 1fr 0.5fr 0.5fr 0.5fr 0.5fr;

@@ -46,6 +46,32 @@ public class SessionController {
         }
     }
 
+    @PostMapping("")
+    public ResponseEntity<?> saveSession(@RequestBody SessionDTO sessionDTO) {
+        try {
+            // Get current authenticated user
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName();
+            UserEntity currentUser = userService.getUserByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            // Set the user ID explicitly
+            sessionDTO.setUserId(currentUser.getId());
+
+            // Log the incoming DTO
+            System.out.println("Received session DTO: " + sessionDTO);
+
+            // Save the session
+            SessionDTO savedSession = sessionService.saveSession(sessionDTO);
+            return ResponseEntity.ok(savedSession);
+        } catch (Exception e) {
+            // Log the full stack trace
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "Error saving session: " + e.getMessage()));
+        }
+    }
+
     @GetMapping("/user")
     public ResponseEntity<?> getCurrentUserSessions() {
         try {

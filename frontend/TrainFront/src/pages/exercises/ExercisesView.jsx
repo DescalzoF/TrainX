@@ -181,6 +181,7 @@ const ExerciseView = () => {
     };
 
     // Function to generate sessions with level-based filtering and camino fitness adjustments
+    // Function to generate sessions with level-based filtering and camino fitness adjustments
     const generateSessions = async () => {
         setLoading(true);
         setGenerationSuccess(false);
@@ -244,67 +245,71 @@ const ExerciseView = () => {
                     reps = 12;
                 }
 
-                // Match exercises to sessions based on muscle groups
+                // Inside the generateSessions function, replace the session mapping part with this:
                 sessionsData = await Promise.all(sessionsData.map(async (session) => {
-                    // Only populate Full Body session initially with exercises, leave others empty
-                    if (session.sessionType !== 'Full Body') {
-                        session.exercises = [];
-                        return session;
-                    }
+                    // Now populate all sessions with appropriate exercises
+                    session.exercises = [];
 
-                    // Get matching exercises for the session type
-                    let matchingExercises = [];
+                    // Get session type in lowercase for easier comparison
                     const sessionTypeLower = session.sessionType.toLowerCase();
 
                     // Define muscle group keywords based on session type
                     let muscleKeywords = [];
 
-                    // Map session types to relevant muscle group keywords
-                    if (sessionTypeLower === 'upper body') {
-                        muscleKeywords = ['pecho', 'chest', 'espalda', 'back', 'hombro', 'shoulder', 'brazo', 'arm', 'bicep', 'tricep'];
-                    } else if (sessionTypeLower === 'lower body' || sessionTypeLower === 'legs' || sessionTypeLower === 'piernas') {
-                        muscleKeywords = ['pierna', 'leg', 'quad', 'hamstring', 'glute', 'cadera', 'hip'];
-                    } else if (sessionTypeLower === 'full body') {
-                        muscleKeywords = ['pecho', 'chest', 'espalda', 'back', 'hombro', 'shoulder', 'pierna', 'leg', 'brazo', 'arm'];
-                    } else if (sessionTypeLower === 'push' || sessionTypeLower === 'empuje') {
-                        muscleKeywords = ['pecho', 'chest', 'hombro', 'shoulder', 'tricep'];
-                    } else if (sessionTypeLower === 'pull' || sessionTypeLower === 'jalón') {
-                        muscleKeywords = ['espalda', 'back', 'bicep', 'trapecio', 'traps'];
-                    } else if (sessionTypeLower === 'core' || sessionTypeLower === 'abdomen') {
-                        muscleKeywords = ['abdomen', 'abs', 'core'];
-                    } else if (sessionTypeLower === 'back' || sessionTypeLower === 'espalda') {
-                        muscleKeywords = ['espalda', 'back', 'trapecio', 'traps'];
+                    // Map session types to relevant muscle groups - make sure to include all possible translations
+                    if (sessionTypeLower === 'full body' || sessionTypeLower === 'cuerpo completo') {
+                        muscleKeywords = ['espalda', 'piernas', 'pecho', 'hombros', 'brazos', 'abdominales'];
                     } else if (sessionTypeLower === 'chest & shoulder' || sessionTypeLower === 'pecho y hombros') {
-                        muscleKeywords = ['pecho', 'chest', 'hombro', 'shoulder'];
+                        muscleKeywords = ['pecho', 'hombros', 'chest', 'shoulder'];
                     } else if (sessionTypeLower === 'arms' || sessionTypeLower === 'brazos') {
-                        muscleKeywords = ['brazo', 'arm', 'bicep', 'tricep'];
+                        muscleKeywords = ['brazos', 'biceps', 'triceps', 'arm', 'bicep', 'tricep'];
                     } else if (sessionTypeLower === 'back & abs' || sessionTypeLower === 'espalda y abdominales') {
-                        muscleKeywords = ['espalda', 'back', 'abdomen', 'abs', 'core'];
+                        muscleKeywords = ['espalda', 'abdominales', 'back', 'abs', 'core'];
+                    } else if (sessionTypeLower === 'legs' || sessionTypeLower === 'piernas') {
+                        muscleKeywords = ['piernas', 'legs', 'quad', 'hamstring', 'glutes'];
                     }
+
+                    console.log(`Sesión: ${session.sessionType}, buscando grupos musculares:`, muscleKeywords);
 
                     // Filter exercises based on muscle keywords
                     if (exercises && exercises.length > 0) {
-                        matchingExercises = exercises.filter(exercise => {
+                        let matchingExercises = exercises.filter(exercise => {
                             if (userDetails && exercise.level && exercise.caminoFitness) {
-                                const isCorrectLevel = exercise.level.toLowerCase() === userDetails.levelName.toLowerCase();
-                                const isCorrectCamino = exercise.caminoFitness.toLowerCase() === userDetails.caminoFitnessName.toLowerCase();
+                                // More flexible matching for level and caminoFitness
+                                const isCorrectLevel = !exercise.level || exercise.level.toLowerCase() === userDetails.levelName.toLowerCase();
+                                const isCorrectCamino = !exercise.caminoFitness || exercise.caminoFitness.toLowerCase() === userDetails.caminoFitnessName.toLowerCase();
 
                                 if (!isCorrectLevel || !isCorrectCamino) {
                                     return false;
                                 }
                             }
+
                             if (!exercise.muscleGroup) return false;
 
                             const muscleGroupLower = exercise.muscleGroup.toLowerCase();
-                            return muscleKeywords.some(keyword => muscleGroupLower.includes(keyword));
+                            return muscleKeywords.some(keyword => {
+                                // Check for exact match or containment
+                                return muscleGroupLower === keyword ||
+                                    muscleGroupLower.includes(keyword) ||
+                                    keyword.includes(muscleGroupLower);
+                            });
                         });
 
-                        // Limit the number of exercises based on user level
-                        matchingExercises = matchingExercises.slice(0, exerciseLimit);
+                        console.log(`Encontrados ${matchingExercises.length} ejercicios que coinciden para ${session.sessionType}`);
 
-                        // Create session exercises from matching exercises
+                        // Randomize selection of exercises
+                        if (matchingExercises.length > 0) {
+                            // Shuffle array to get random exercises
+                            matchingExercises = matchingExercises
+                                .sort(() => 0.5 - Math.random())
+                                .slice(0, exerciseLimit);
+
+                            console.log(`Seleccionados ${matchingExercises.length} ejercicios aleatorios para ${session.sessionType}`);
+                        }
+
+                        // Create session exercises from matching exercises with unique IDs
                         const sessionExercises = matchingExercises.map(exercise => ({
-                            id: `temp-${session.id}-${exercise.id}`,
+                            id: `temp-${session.id || Date.now()}-${exercise.id || Math.random().toString(36).substring(2, 9)}`,
                             exercise: exercise,
                             sets: sets,
                             reps: reps,
@@ -321,14 +326,73 @@ const ExerciseView = () => {
 
             // Update the sessions in the UI
             setSessions(sessionsData);
-            setGenerationSuccess(true);
-            setError(null);
+
+            // Save sessions to database
+            try {
+                await saveGeneratedSessions(sessionsData);
+                setGenerationSuccess(true);
+                setError(null);
+            } catch (err) {
+                console.error('Error completing session generation:', err);
+                setError('Error saving sessions to database');
+                setGenerationSuccess(false);
+            }
         } catch (err) {
             console.error('Error al generar sesiones:', err);
             setError(err.response?.data?.message || 'Error al generar sesiones');
             setGenerationSuccess(false);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const saveGeneratedSessions = async (sessions) => {
+        try {
+            const token = localStorage.getItem('jwtToken') || localStorage.getItem('token');
+            console.log("Token found:", token ? "Yes (length: " + token.length + ")" : "No");
+
+            // Format sessions before saving
+            for (const session of sessions) {
+                // Create a properly formatted session object
+                const sessionToSave = {
+                    sessionType: session.sessionType,
+                    // Add userId explicitly if needed
+                    userId: localStorage.getItem('userId'),
+                    exercises: session.exercises.map(ex => ({
+                        exerciseId: ex.exercise.id,
+                        sets: ex.sets,
+                        reps: ex.reps,
+                        weight: ex.weight || 0,
+                        xpFitnessReward: ex.xpFitnessReward
+                    }))
+                };
+
+                console.log("Saving session:", sessionToSave);
+
+                // Save individual session with proper authorization header
+                const response = await axios.post(
+                    'http://localhost:8080/api/sessions',
+                    sessionToSave,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
+                    }
+                );
+
+                console.log("Session save response:", response.data);
+            }
+
+            console.log('Sessions saved to database successfully');
+            return true;
+        } catch (err) {
+            console.error('Error saving sessions to database:', err);
+            if (err.response) {
+                console.error('Response status:', err.response.status);
+                console.error('Response data:', err.response.data);
+            }
+            throw err; // Re-throw to handle in the calling function
         }
     };
 
@@ -357,14 +421,36 @@ const ExerciseView = () => {
     const updateWeight = async (sessionExerciseId, weight) => {
         try {
             const token = localStorage.getItem('jwtToken') || localStorage.getItem('token');
-            await axios.put(`http://localhost:8080/api/sessions/exercise/${sessionExerciseId}/weight`,
-                { weight },
+
+            // For session exercise IDs that start with "temp-", we can't update them on the server yet
+            if (sessionExerciseId.startsWith('temp-')) {
+                console.log('Cannot update temporary exercise weight on server yet');
+                // Just update local state
+                setSessions(prevSessions =>
+                    prevSessions.map(session => ({
+                        ...session,
+                        exercises: session.exercises.map(exercise =>
+                            exercise.id === sessionExerciseId
+                                ? { ...exercise, weight }
+                                : exercise
+                        )
+                    }))
+                );
+                return;
+            }
+
+            // For real IDs, try to update on server
+            await axios.put(
+                `http://localhost:8080/api/sessions/exercise/${sessionExerciseId}/weight`,
+                { weight: parseFloat(weight) || 0 },
                 {
                     headers: {
-                        'Authorization': `Bearer ${token}`
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
                     }
                 }
             );
+
             // Update local state to reflect the change
             setSessions(prevSessions =>
                 prevSessions.map(session => ({
@@ -378,7 +464,17 @@ const ExerciseView = () => {
             );
         } catch (err) {
             console.error('Error al actualizar el peso:', err);
-            setError(err.response?.data?.message || 'Error al actualizar el peso');
+            // Continue with local state update even if server update fails
+            setSessions(prevSessions =>
+                prevSessions.map(session => ({
+                    ...session,
+                    exercises: session.exercises.map(exercise =>
+                        exercise.id === sessionExerciseId
+                            ? { ...exercise, weight }
+                            : exercise
+                    )
+                }))
+            );
         }
     };
 
@@ -452,7 +548,6 @@ const ExerciseView = () => {
     };
 
     const handleWeightChange = (sessionExerciseId, value) => {
-        // Update local state but only for the specific exercise
         setSessions(prevSessions =>
             prevSessions.map(session => ({
                 ...session,

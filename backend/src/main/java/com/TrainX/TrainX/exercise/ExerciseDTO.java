@@ -10,6 +10,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ExerciseDTO {
+    private Long id;
     private String name;
     private String description;
     private String muscleGroup;
@@ -18,5 +19,15 @@ public class ExerciseDTO {
     private String videoUrl;
     private Long xpFitnessReward;
 
-    // Getters and Setters
+    // Additional constructor for backward compatibility
+    public ExerciseDTO(String name, String description, String muscleGroup,
+                       Integer sets, Integer reps, String videoUrl, Long xpFitnessReward) {
+        this.name = name;
+        this.description = description;
+        this.muscleGroup = muscleGroup;
+        this.sets = sets;
+        this.reps = reps;
+        this.videoUrl = videoUrl;
+        this.xpFitnessReward = xpFitnessReward;
+    }
 }

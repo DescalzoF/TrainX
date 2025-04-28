@@ -14,5 +14,6 @@ import java.util.List;
 public class SessionDTO {
     private Long id;
     private String sessionType;
+    private Long userId;
     private List<SessionExerciseDTO> exercises;
 }
