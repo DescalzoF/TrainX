@@ -1,11 +1,9 @@
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css');
+
 .exercises-view-container {
-    max-width: 1200px;
-    margin: 150px auto;
+    max-width: 1500px; /* Incrementado desde 1200px */
+    margin: 120px auto;
     padding: 20px;
-    font-family: 'Arial', sans-serif;
-    background-color: #fcfcfc;
-    border-radius: 15px;
-    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.05);
 }
 .exercises-view-container h1 {
     text-align: center;
@@ -33,11 +31,7 @@
     gap: 25px;
 }
 .sessions-panel {
-    flex: 1 1 100%;
-    background-color: #fff;
-    border-radius: 12px;
-    padding: 25px;
-    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.07);
+    flex: 3 1 75%; /* Aumentado para ocupar más espacio */
 }
 .exercise-selection-panel,
 .exercises-display {
@@ -235,7 +229,7 @@
 }
 .table-header, .table-row {
     display: grid;
-    grid-template-columns: 2fr 1fr 0.7fr 0.7fr 0.7fr 1fr;
+    grid-template-columns: 1fr 2fr 0.7fr 0.7fr 0.7fr 0.7fr 1fr;
     gap: 10px;
     padding: 12px 0;
     align-items: center;
@@ -254,6 +248,13 @@
 .col-exercise, .col-muscle, .col-sets, .col-reps, .col-weight, .col-actions {
     padding: 8px 12px;
 }
+
+.col-description {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    color: #666;
+}
+
 /* Fix for the exercise name and description alignment */
 .col-exercise {
     display: flex;
@@ -283,17 +284,26 @@
     gap: 10px;
     justify-content: flex-end;
 }
+/* Update video link button styling */
 .video-link {
-    background-color: #26a69a;
+    background-color: #2e7d32; /* Darker green */
     color: white;
     text-decoration: none;
     padding: 6px 12px;
     border-radius: 4px;
     font-size: 14px;
     transition: background-color 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
+
 .video-link:hover {
-    background-color: #00897b;
+    background-color: #1b5e20; /* Even darker green on hover */
+}
+
+.fa-youtube-play {
+    font-size: 16px;
 }
 .remove-button {
     background-color: #f44336;
@@ -482,7 +492,6 @@
     right: 0;
 }
 
-/* XP Fitness Reward Success Box */
 .xp-success-box {
     position: fixed;
     top: 30px;
@@ -498,6 +507,7 @@
     display: flex;
     align-items: center;
     animation: slideInRight 0.5s forwards, fadeOut 0.5s 3.5s forwards;
+    min-width: 250px;
     max-width: 320px;
 }
 
@@ -537,7 +547,6 @@
     to { opacity: 0; }
 }
 
-/* XP Button */
 .xp-reward-button {
     background-color: #0061ff;
     color: white;
@@ -559,8 +568,12 @@
 }
 
 .xp-reward-button.completed {
-    background-color: #4CAF50;
+    background-color: #2e7d32; /* Darker green */
     cursor: default;
+}
+
+.completed-text {
+    font-size: 0.9rem; /* Smaller text for completed state */
 }
 
 /* Responsive adjustments */
@@ -595,6 +608,14 @@
         font-size: 1rem;
     }
 }
+
+@media (max-width: 768px) {
+    .table-header, .table-row {
+        grid-template-columns: 1fr 2fr 0.5fr 0.5fr 0.5fr 0.5fr 0.5fr;
+        font-size: 14px;
+    }
+}
+
 @media (max-width: 576px) {
     .table-header, .table-row {
         grid-template-columns: 1fr;
@@ -633,4 +654,59 @@
     .section-subtitles {
         display: none; /* Hide on very small screens as we'll show labels inline */
     }
+}
+
+/* Fireworks animation */
+.fireworks-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    overflow: hidden;
+}
+
+.firework {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background-color: transparent;
+    box-shadow:
+            0 0 10px 2px rgba(255, 200, 0, 0.9),
+            0 0 20px 5px rgba(255, 130, 0, 0.7),
+            0 0 30px 10px rgba(255, 0, 0, 0.5);
+    animation: firework-explosion 1s ease-out forwards;
+    transform-origin: center;
+}
+
+@keyframes firework-explosion {
+    0% {
+        transform: scale(0);
+        opacity: 1;
+    }
+    20% {
+        opacity: 1;
+    }
+    100% {
+        transform: scale(15);
+        opacity: 0;
+    }
+}
+
+/* Add different colors for variety */
+.firework:nth-child(3n) {
+    box-shadow:
+            0 0 10px 2px rgba(0, 255, 200, 0.9),
+            0 0 20px 5px rgba(0, 200, 255, 0.7),
+            0 0 30px 10px rgba(0, 100, 255, 0.5);
+}
+
+.firework:nth-child(3n+1) {
+    box-shadow:
+            0 0 10px 2px rgba(255, 0, 200, 0.9),
+            0 0 20px 5px rgba(200, 0, 255, 0.7),
+            0 0 30px 10px rgba(100, 0, 255, 0.5);
 }

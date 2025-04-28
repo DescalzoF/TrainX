@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import "./ExercisesView.css";
+import confetti from 'canvas-confetti';
 
 const ExerciseView = () => {
     const [exercises, setExercises] = useState([]);
@@ -284,6 +285,14 @@ const ExerciseView = () => {
                     // Filter exercises based on muscle keywords
                     if (exercises && exercises.length > 0) {
                         matchingExercises = exercises.filter(exercise => {
+                            if (userDetails && exercise.level && exercise.caminoFitness) {
+                                const isCorrectLevel = exercise.level.toLowerCase() === userDetails.levelName.toLowerCase();
+                                const isCorrectCamino = exercise.caminoFitness.toLowerCase() === userDetails.caminoFitnessName.toLowerCase();
+
+                                if (!isCorrectLevel || !isCorrectCamino) {
+                                    return false;
+                                }
+                            }
                             if (!exercise.muscleGroup) return false;
 
                             const muscleGroupLower = exercise.muscleGroup.toLowerCase();
@@ -373,7 +382,6 @@ const ExerciseView = () => {
         }
     };
 
-    // New function to complete an exercise and claim XP reward
     const completeExercise = async (sessionExerciseId) => {
         try {
             // Only proceed if the exercise hasn't been completed yet
@@ -400,8 +408,42 @@ const ExerciseView = () => {
                 [sessionExerciseId]: true
             }));
 
-            // Optional: Show a success message
-            alert('¡Ejercicio completado! XP recompensado con éxito.');
+            // Trigger confetti effect
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#0061ff', '#26a69a', '#4CAF50', '#FFC107'],
+                disableForReducedMotion: true,
+                zIndex: 2000,
+                decay: 0.94,
+                scalar: 0.8
+            });
+
+            // Show XP success notification
+            const exerciseData = sessions
+                .flatMap(s => s.exercises)
+                .find(e => e.id === sessionExerciseId);
+
+            if (exerciseData) {
+                // Create and add success notification to DOM
+                const xpPoints = exerciseData.xpFitnessReward || 0;
+                const successBox = document.createElement('div');
+                successBox.className = 'xp-success-box';
+                successBox.innerHTML = `
+                <div class="xp-success-icon">🏆</div>
+                <div class="xp-success-content">
+                    <div class="xp-success-title">¡Ejercicio completado!</div>
+                    <div class="xp-success-message">XP recompensado: <span class="xp-points">+${xpPoints}</span></div>
+                </div>
+            `;
+                document.body.appendChild(successBox);
+
+                // Remove the notification after animation completes
+                setTimeout(() => {
+                    document.body.removeChild(successBox);
+                }, 4000);
+            }
 
         } catch (err) {
             console.error('Error al completar el ejercicio:', err);
@@ -700,9 +742,9 @@ const ExerciseView = () => {
                                             <div className="exercises-table">
                                                 <div className="table-header">
                                                     <div className="col-exercise">Ejercicio</div>
-                                                    <div className="col-muscle">Grupo Muscular</div>
-                                                    <div className="col-sets">Series</div>
+                                                    <div className="col-description">Descripción</div>
                                                     <div className="col-reps">Repeticiones</div>
+                                                    <div className="col-sets">Series</div>
                                                     <div className="col-weight">Peso (kg)</div>
                                                     <div className="col-xp">XP</div>
                                                     <div className="col-actions">Acciones</div>
@@ -713,11 +755,12 @@ const ExerciseView = () => {
                                                         <div className="table-row" key={exercise.id || `exercise-${session.id}-${idx}`}>
                                                             <div className="col-exercise">
                                                                 <strong>{exercise.exercise?.name || 'Ejercicio Desconocido'}</strong>
+                                                            </div>
+                                                            <div className="col-description">
                                                                 <p className="exercise-description">{exercise.exercise?.description || ''}</p>
                                                             </div>
-                                                            <div className="col-muscle">{exercise.exercise?.muscleGroup || 'Desconocido'}</div>
-                                                            <div className="col-sets">{exercise.sets || 0}</div>
                                                             <div className="col-reps">{exercise.reps || 0}</div>
+                                                            <div className="col-sets">{exercise.sets || 0}</div>
                                                             <div className="col-weight">
                                                                 <input
                                                                     type="number"
@@ -734,7 +777,11 @@ const ExerciseView = () => {
                                                                     onClick={() => completeExercise(exercise.id)}
                                                                     disabled={completedExercises[exercise.id]}
                                                                 >
-                                                                    {completedExercises[exercise.id] ? '✓ Completado' : `+${exercise.xpFitnessReward || 0} XP`}
+                                                                    {completedExercises[exercise.id] ? (
+                                                                        <span className="completed-text">✓ Completado</span>
+                                                                    ) : (
+                                                                        `+${exercise.xpFitnessReward || 0} XP`
+                                                                    )}
                                                                 </button>
                                                             </div>
                                                             <div className="col-actions">
@@ -745,7 +792,7 @@ const ExerciseView = () => {
                                                                     rel="noopener noreferrer"
                                                                     className="video-link"
                                                                     >
-                                                                    Video
+                                                                    <i className="fa fa-youtube-play"></i> Video
                                                                     </a>
                                                                     )}
                                                                 <button
