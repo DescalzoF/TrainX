@@ -16,4 +16,5 @@ public class SessionExerciseDTO {
     private Integer sets;
     private Integer reps;
     private Double weight;
+    private Long xpFitnessReward;
 }

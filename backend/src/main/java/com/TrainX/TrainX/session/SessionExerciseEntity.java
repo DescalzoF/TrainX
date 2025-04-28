@@ -27,15 +27,19 @@ public class SessionExerciseEntity {
     @Column(nullable = true)
     private Double weight; // Can be modified by the user
 
+    @Column(nullable = true)
+    private Long xpFitnessReward; // XP reward for this exercise
+
     public SessionExerciseEntity() {
     }
 
-    public SessionExerciseEntity(SessionEntity session, ExerciseEntity exercise, Integer sets, Integer reps) {
+    public SessionExerciseEntity(SessionEntity session, ExerciseEntity exercise, Integer sets, Integer reps, Long xpFitnessReward) {
         this.session = session;
         this.exercise = exercise;
         this.sets = sets;
         this.reps = reps;
         this.weight = 0.0; // Default weight
+        this.xpFitnessReward = xpFitnessReward;
     }
 
     // Getters and Setters
@@ -81,5 +85,12 @@ public class SessionExerciseEntity {
 
     public void setWeight(Double weight) {
         this.weight = weight;
+    }
+
+    public Long getXpFitnessReward() {
+        return xpFitnessReward;
+    }
+    public void setXpFitnessReward(Long xpFitnessReward) {
+        this.xpFitnessReward = xpFitnessReward;
     }
 }

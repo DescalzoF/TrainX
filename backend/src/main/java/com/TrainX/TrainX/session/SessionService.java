@@ -7,8 +7,11 @@ import com.TrainX.TrainX.exercise.ExerciseDTO;
 import com.TrainX.TrainX.exercise.ExerciseEntity;
 import com.TrainX.TrainX.exercise.ExerciseRepository;
 import com.TrainX.TrainX.level.LevelEntity;
+import com.TrainX.TrainX.xpFitness.XpFitnessEntity;
+import com.TrainX.TrainX.xpFitness.XpFitnessRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -65,7 +68,7 @@ public class SessionService {
             // Add exercises to session
             for (ExerciseEntity exercise : selectedExercises) {
                 SessionExerciseEntity sessionExercise = new SessionExerciseEntity(
-                        session, exercise, 3, 8);
+                        session, exercise, 3, 8,exercise.getXpFitnessReward());
                 session.addExercise(sessionExercise);
             }
 
@@ -189,7 +192,8 @@ public class SessionService {
                 exerciseDTO,
                 sessionExercise.getSets(),
                 sessionExercise.getReps(),
-                sessionExercise.getWeight()
+                sessionExercise.getWeight(),
+                sessionExercise.getXpFitnessReward()
         );
     }
 
@@ -209,4 +213,5 @@ public class SessionService {
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
+
 }
