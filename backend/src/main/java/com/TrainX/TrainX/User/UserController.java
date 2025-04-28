@@ -162,4 +162,66 @@ public class UserController {
         }
     }
 
+    @GetMapping("/exerciseDetails")
+    public ResponseEntity<Object> getUserExerciseDetails() {
+        try {
+            // Obtener el nombre de usuario de la autenticación actual
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+            // Validar que el usuario está autenticado
+            if (authentication == null || !authentication.isAuthenticated()) {
+                MessageResponse messageResponse = new MessageResponse("Error: Usuario no autenticado.");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(messageResponse);
+            }
+
+            String username = authentication.getName();
+
+            // Obtener los detalles del usuario
+            UserEntity currentUser = userService.getUserByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            // Obtener el levelId de manera segura
+            Long levelId = null;
+            if (currentUser.getLevel() != null) {
+                levelId = currentUser.getLevel().getIdLevel();
+            } else {
+                System.out.println("No se encontró el level para el usuario.");
+            }
+
+            // Obtener el caminoFitnessId de manera segura
+            Long caminoFitnessId = null;
+            if (currentUser.getCaminoFitnessActual() != null) {
+                caminoFitnessId = currentUser.getCaminoFitnessActual().getIdCF();
+            } else {
+                System.out.println("No se encontró el camino fitness para el usuario.");
+            }
+
+            // Imprimir los valores de los ids para depuración
+            System.out.println("Level ID: " + levelId);
+            System.out.println("Camino Fitness ID: " + caminoFitnessId);
+
+            // Si ambos valores son nulos, devolver error
+            if (levelId == null || caminoFitnessId == null) {
+                MessageResponse messageResponse = new MessageResponse("Error: El usuario no tiene configurado el camino fitness o el nivel.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(messageResponse);
+            }
+
+            // Respuesta con los valores de levelId y caminoFitnessId
+            Map<String, Long> response = Map.of(
+                    "id", currentUser.getId(),
+                    "caminoFitnessId", caminoFitnessId,
+                    "levelId", levelId
+            );
+
+            // Retornar los valores correctos
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            // En caso de error, devolver un mensaje con la excepción
+            MessageResponse messageResponse = new MessageResponse("Error retrieving user profile: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(messageResponse);
+        }
+    }
+
 }
+
+

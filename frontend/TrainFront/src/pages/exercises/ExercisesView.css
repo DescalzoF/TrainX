@@ -1,0 +1,79 @@
+.exercise-view-container {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    background-color: #f7f7f7;
+}
+
+.title {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.loading {
+    text-align: center;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.error-message {
+    text-align: center;
+    color: red;
+    font-size: 1.2rem;
+}
+
+.exercises-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.exercise-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    transition: transform 0.3s ease;
+}
+
+.exercise-card:hover {
+    transform: scale(1.05);
+}
+
+.exercise-name {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.exercise-description {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.exercise-muscle-group,
+.exercise-sets-reps,
+.xp-reward,
+.level-id,
+.camino-fitness-id {
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+}
+
+.exercise-video-link {
+    display: inline-block;
+    margin-top: 10px;
+    color: #0066cc;
+    text-decoration: none;
+}
+
+.exercise-video-link:hover {
+    text-decoration: underline;
+}
+
+.no-exercises {
+    text-align: center;
+    font-size: 1.2rem;
+    color: #333;
+}

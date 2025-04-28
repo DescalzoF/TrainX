@@ -78,4 +78,9 @@ public class LevelService {
         // Llamada al repositorio para encontrar el nivel por su ID.
         return levelRepository.findById(levelId);
     }
+
+    public Optional<LevelEntity> findById(Long levelId) {
+        // Llamada al repositorio para encontrar el nivel por su ID.
+        return levelRepository.findById(levelId);
+    }
 }

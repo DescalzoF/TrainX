@@ -82,4 +82,21 @@ public class ExerciseController {
             return ResponseEntity.notFound().build();
         }
     }
+    @GetMapping("/{caminoFitnessId}/{levelId}")
+    public ResponseEntity<List<ExerciseDTO>> getExercisesByPathVariables(
+            @PathVariable Long caminoFitnessId,
+            @PathVariable Long levelId) {
+
+        System.out.println("Endpoint /{caminoFitnessId}/{levelId} llamado con caminoFitnessId=" + caminoFitnessId + ", levelId=" + levelId);
+
+        List<ExerciseDTO> exercises = exerciseService.findExercisesByCaminoFitnessAndLevel(caminoFitnessId, levelId);
+
+        if (exercises.isEmpty()) {
+            System.out.println("No se encontraron ejercicios para estos parámetros");
+            return ResponseEntity.noContent().build();
+        } else {
+            System.out.println("Se encontraron " + exercises.size() + " ejercicios");
+            return ResponseEntity.ok(exercises);
+        }
+    }
 }

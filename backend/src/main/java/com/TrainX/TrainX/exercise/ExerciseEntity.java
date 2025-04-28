@@ -31,7 +31,7 @@ public class ExerciseEntity {
     private String videoUrl;
 
     @Column(nullable = false)
-    private int xpFitnessReward;
+    private Long xpFitnessReward;
 
     // Many exercises can belong to one camino fitness type
     @ManyToOne
@@ -44,7 +44,7 @@ public class ExerciseEntity {
 
     public ExerciseEntity() {}
 
-    public ExerciseEntity(String name, String description, String muscleGroup, Integer sets, Integer reps, CaminoFitnessEntity caminoFitness, LevelEntity level, String videoUrl, int xpFitnessReward) {
+    public ExerciseEntity(String name, String description, String muscleGroup, Integer sets, Integer reps, CaminoFitnessEntity caminoFitness, LevelEntity level, String videoUrl, Long xpFitnessReward) {
         this.name = name;
         this.description = description;
         this.muscleGroup = muscleGroup;
@@ -91,7 +91,7 @@ public class ExerciseEntity {
     public LevelEntity getLevel() {
         return level;
     }
-    public int getXpFitnessReward() {
+    public Long getXpFitnessReward() {
         return xpFitnessReward;
     }
 
@@ -127,7 +127,7 @@ public class ExerciseEntity {
     public void setLevel(LevelEntity level) {
         this.level = level;
     }
-    public void setXpFitnessReward(int xpFitnessReward) {
+    public void setXpFitnessReward(Long xpFitnessReward) {
         this.xpFitnessReward = xpFitnessReward;
     }
 }

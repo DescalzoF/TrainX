@@ -202,7 +202,7 @@ public class DataInitializer {
                     camino,
                     principiante,
                     "",    // videoUrl vacío
-                    50     // xpReward Principiante
+                    50L     // xpReward Principiante
             ));
         }
         exerciseRepository.saveAll(ejerciciosPrincipiante);
@@ -219,7 +219,7 @@ public class DataInitializer {
                     camino,
                     intermedio,
                     "",
-                    75     // xpReward Intermedio
+                    75L     // xpReward Intermedio
             ));
         }
         exerciseRepository.saveAll(ejerciciosIntermedio);
@@ -236,7 +236,7 @@ public class DataInitializer {
                     camino,
                     avanzado,
                     "",
-                    100    // xpReward Avanzado
+                    100L    // xpReward Avanzado
             ));
         }
         exerciseRepository.saveAll(ejerciciosAvanzado);
@@ -253,7 +253,7 @@ public class DataInitializer {
                     camino,
                     pro,
                     "",
-                    125    // xpReward Pro
+                    125L    // xpReward Pro
             ));
         }
         exerciseRepository.saveAll(ejerciciosPro);
@@ -287,7 +287,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/saltos-lugar",
-                50
+                50L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -299,7 +299,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/burpees-modificados",
-                60
+                60L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -311,7 +311,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/sprints-10m",
-                55
+                55L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -323,7 +323,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/plancha-toques",
-                50
+                50L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -335,7 +335,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/escaladores",
-                55
+                55L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -347,7 +347,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/saltos-laterales",
-                50
+                50L
         ));
 
         exerciseRepository.saveAll(ejerciciosPrincipiante);
@@ -364,7 +364,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/burpees-completos",
-                75
+                75L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -376,7 +376,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/sprints-20m",
-                70
+                70L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -388,7 +388,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/saltos-cajon",
-                80
+                80L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -400,7 +400,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/flexiones-explosivas",
-                75
+                75L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -412,7 +412,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/sentadillas-salto",
-                75
+                75L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -424,7 +424,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/mountain-climbers",
-                65
+                65L
         ));
 
         exerciseRepository.saveAll(ejerciciosIntermedio);
@@ -441,7 +441,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/burpees-dominadas",
-                100
+                100L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -453,7 +453,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/sprints-cambio",
-                90
+                90L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -465,7 +465,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/box-jumps-unilateral",
-                95
+                95L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -477,7 +477,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/muscle-ups",
-                100
+                100L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -489,7 +489,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/pistol-squats",
-                90
+                90L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -501,7 +501,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/doble-salto-cuerda",
-                85
+                85L
         ));
 
         exerciseRepository.saveAll(ejerciciosAvanzado);
@@ -518,7 +518,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/devil-press",
-                120
+                120L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -530,7 +530,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/sprints-400m",
-                130
+                130L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -542,7 +542,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/handstand-pushups",
-                120
+                120L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -554,7 +554,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/plyo-dips",
-                110
+                110L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -566,7 +566,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/shuttle-runs",
-                120
+                120L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -578,7 +578,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/clean-jerk",
-                130
+                130L
         ));
 
         exerciseRepository.saveAll(ejerciciosPro);
@@ -645,7 +645,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/bench-press-empty",
-                50
+                50L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -657,7 +657,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/bodyweight-squat",
-                45
+                45L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -669,7 +669,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/rdl-dumbbells",
-                50
+                50L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -681,7 +681,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/shoulder-press-db",
-                45
+                45L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -693,7 +693,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/db-row",
-                45
+                45L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -705,7 +705,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/calf-raises",
-                40
+                40L
         ));
 
         exerciseRepository.saveAll(ejerciciosPrincipiante);
@@ -722,7 +722,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/bench-press",
-                75
+                75L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -734,7 +734,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/back-squat",
-                80
+                80L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -746,7 +746,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/deadlift",
-                85
+                85L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -758,7 +758,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/ohp-press",
-                75
+                75L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -770,7 +770,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/pull-ups",
-                80
+                80L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -782,7 +782,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/dips",
-                75
+                75L
         ));
 
         exerciseRepository.saveAll(ejerciciosIntermedio);
@@ -799,7 +799,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/incline-bench",
-                90
+                90L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -811,7 +811,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/front-squat",
-                95
+                95L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -823,7 +823,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/sumo-deadlift",
-                100
+                100L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -835,7 +835,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/close-grip-bench",
-                85
+                85L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -847,7 +847,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/pendlay-row",
-                90
+                90L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -859,7 +859,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/barbell-lunge",
-                90
+                90L
         ));
 
         exerciseRepository.saveAll(ejerciciosAvanzado);
@@ -876,7 +876,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/pause-bench",
-                110
+                110L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -888,7 +888,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/olympic-squat",
-                120
+                120L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -900,7 +900,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/rack-pulls",
-                115
+                115L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -912,7 +912,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/push-press",
-                120
+                120L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -924,7 +924,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/power-snatch",
-                130
+                130L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -936,7 +936,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/good-morning",
-                110
+                110L
         ));
 
         exerciseRepository.saveAll(ejerciciosPro);
@@ -968,7 +968,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/bicep-curl",
-                45
+                45L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -980,7 +980,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/shoulder-press",
-                50
+                50L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -992,7 +992,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/db-bench-press",
-                55
+                55L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -1004,7 +1004,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/tricep-extension",
-                45
+                45L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -1016,7 +1016,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/db-deadlift",
-                50
+                50L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -1028,7 +1028,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/lateral-raise",
-                40
+                40L
         ));
 
         exerciseRepository.saveAll(ejerciciosPrincipiante);
@@ -1045,7 +1045,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/incline-bench",
-                70
+                70L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -1057,7 +1057,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/barbell-curl",
-                65
+                65L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -1069,7 +1069,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/tricep-pushdown",
-                60
+                60L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -1081,7 +1081,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/seated-row",
-                75
+                75L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -1093,7 +1093,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/bulgarian-squat",
-                70
+                70L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -1105,7 +1105,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/face-pull",
-                65
+                65L
         ));
 
         exerciseRepository.saveAll(ejerciciosIntermedio);
@@ -1122,7 +1122,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/decline-bench",
-                85
+                85L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -1134,7 +1134,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/preacher-curl",
-                80
+                80L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -1146,7 +1146,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/skull-crusher",
-                80
+                80L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -1158,7 +1158,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/lat-pulldown",
-                90
+                90L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -1170,7 +1170,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/hack-squat",
-                90
+                90L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -1182,7 +1182,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/cable-fly",
-                85
+                85L
         ));
 
         exerciseRepository.saveAll(ejerciciosAvanzado);
@@ -1199,7 +1199,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/concentration-curl",
-                100
+                100L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -1211,7 +1211,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/band-bench",
-                110
+                110L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -1223,7 +1223,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/overhead-extension",
-                100
+                100L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -1235,7 +1235,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/dumbbell-pullover",
-                105
+                105L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -1247,7 +1247,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/high-leg-press",
-                110
+                110L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -1259,7 +1259,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/weighted-pullup",
-                120
+                120L
         ));
 
         exerciseRepository.saveAll(ejerciciosPro);
@@ -1291,7 +1291,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/modified-burpee",
-                50
+                50L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -1303,7 +1303,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/mountain-climber",
-                45
+                45L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -1315,7 +1315,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/kb-swing",
-                55
+                55L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -1327,7 +1327,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/lunge-row",
-                50
+                50L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -1339,7 +1339,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/shoulder-tap",
-                45
+                45L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -1351,7 +1351,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/box-jump",
-                55
+                55L
         ));
 
         exerciseRepository.saveAll(ejerciciosPrincipiante);
@@ -1368,7 +1368,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/thruster",
-                75
+                75L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -1380,7 +1380,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/clean-press",
-                80
+                80L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -1392,7 +1392,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/jump-burpee",
-                75
+                75L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -1404,7 +1404,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/wall-ball",
-                70
+                70L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -1416,7 +1416,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/kb-row-twist",
-                75
+                75L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -1428,7 +1428,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/battle-ropes",
-                80
+                80L
         ));
 
         exerciseRepository.saveAll(ejerciciosIntermedio);
@@ -1445,7 +1445,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/devil-press",
-                95
+                95L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -1457,7 +1457,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/kb-complex",
-                100
+                100L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -1469,7 +1469,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/box-jump-burpee",
-                90
+                90L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -1481,7 +1481,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/man-makers",
-                95
+                95L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -1493,7 +1493,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/muscle-up",
-                100
+                100L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -1505,7 +1505,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/sandbag-clean",
-                90
+                90L
         ));
 
         exerciseRepository.saveAll(ejerciciosAvanzado);
@@ -1522,7 +1522,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/hspu",
-                110
+                110L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -1534,7 +1534,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/ring-muscle-up",
-                120
+                120L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -1546,7 +1546,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/snatch",
-                125
+                125L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -1558,7 +1558,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/tgu",
-                115
+                115L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -1570,7 +1570,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/pistol-squat",
-                115
+                115L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -1582,7 +1582,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/rope-climb",
-                130
+                130L
         ));
 
         exerciseRepository.saveAll(ejerciciosPro);
