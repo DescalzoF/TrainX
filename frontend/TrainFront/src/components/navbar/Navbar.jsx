@@ -1,4 +1,3 @@
-// Navbar.jsx - ensuring logo and path respect selectedCaminoId
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CgProfile } from "react-icons/cg";
@@ -8,7 +7,7 @@ import logoImage from '../../assets/trainx-logo.png';
 import { MdOutlineArrowDropDown } from "react-icons/md";
 import { IoIosLogOut } from "react-icons/io";
 import { useAuth } from '../../contexts/AuthContext.jsx';
-import XPBar from '../XPBar/XPBar'; // Import the XPBar component
+import XPBar from '../XPBar/XPBar';
 
 function Navbar() {
     const navigate = useNavigate();
@@ -64,11 +63,6 @@ function Navbar() {
         if (!isLoggedIn) {
             navigate('/');
         } else {
-            // Special case for Foro to redirect to Session
-            if (path === '/forum') {
-                navigate('/session');
-                return;
-            }
 
             if (path === '/camino') {
                 if (hasChosenCaminoFitness()) {
