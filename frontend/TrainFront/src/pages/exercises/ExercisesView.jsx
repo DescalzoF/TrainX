@@ -13,6 +13,7 @@ const ExerciseView = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [filteredExercises, setFilteredExercises] = useState([]);
     const [selectedSessionForAdd, setSelectedSessionForAdd] = useState(null);
+    const [muscleGroups, setMuscleGroups] = useState([]);
 
     useEffect(() => {
         // Fetch user data on component mount
@@ -57,10 +58,10 @@ const ExerciseView = () => {
                     // If we got a valid response, proceed with these values
                     await fetchExercises(response.data.caminoFitnessId, response.data.levelId, axiosConfig);
                 } else {
-                    throw new Error("Invalid response format");
+                    throw new Error("Formato de respuesta inválido");
                 }
             } catch (apiError) {
-                console.warn("Error fetching user details from API, using localStorage values:", apiError);
+                console.warn("Error al obtener detalles del usuario desde la API, usando valores de localStorage:", apiError);
 
                 // If API request failed, use localStorage values
                 if (caminoFitnessId) {
@@ -103,7 +104,7 @@ const ExerciseView = () => {
             throw new Error(`Datos incompletos: caminoFitnessId=${caminoFitnessId}, levelId=${levelId}`);
         }
 
-        console.log(`Fetching exercises for camino=${caminoFitnessId}, level=${levelId}`);
+        console.log(`Obteniendo ejercicios para camino=${caminoFitnessId}, nivel=${levelId}`);
 
         // Realizar la solicitud para obtener los ejercicios según los IDs
         const response = await axios.get(`http://localhost:8080/api/exercises/${caminoFitnessId}/${levelId}`, axiosConfig);
@@ -114,10 +115,15 @@ const ExerciseView = () => {
         if (Array.isArray(response.data)) {
             setExercises(response.data);
             setFilteredExercises(response.data);
+
+            // Extraer grupos musculares únicos
+            const uniqueMuscleGroups = [...new Set(response.data.map(ex => ex.muscleGroup))];
+            setMuscleGroups(uniqueMuscleGroups);
         } else {
             console.warn("La respuesta no es un array:", response.data);
             setExercises([]);
             setFilteredExercises([]);
+            setMuscleGroups([]);
         }
 
         setLoading(false);
@@ -165,8 +171,8 @@ const ExerciseView = () => {
             setSessions(Array.isArray(response.data) ? response.data : []);
             setError(null);
         } catch (err) {
-            console.error('Error fetching sessions:', err);
-            setError(err.response?.data?.message || 'Failed to load sessions');
+            console.error('Error al cargar sesiones:', err);
+            setError(err.response?.data?.message || 'Error al cargar las sesiones');
             // Set sessions to empty array in case of error
             setSessions([]);
         }
@@ -194,7 +200,7 @@ const ExerciseView = () => {
                 const levelName = userDetails.levelName ? userDetails.levelName.toLowerCase() : '';
                 const caminoFitnessName = userDetails.caminoFitnessName ? userDetails.caminoFitnessName.toLowerCase() : '';
 
-                console.log("Applying filters - Level:", levelName, "Camino:", caminoFitnessName);
+                console.log("Aplicando filtros - Nivel:", levelName, "Camino:", caminoFitnessName);
 
                 // Filter sessions based on level
                 let maxSessions = 5; // Default to highest (profesional)
@@ -209,39 +215,97 @@ const ExerciseView = () => {
                 // Limit sessions based on user level
                 sessionsData = sessionsData.slice(0, maxSessions);
 
-                // Adjust sets and reps based on camino fitness
-                sessionsData = sessionsData.map(session => {
-                    let sets = 3;
-                    let reps = 12;
+                // Determine exercise limit based on user level
+                let exerciseLimit = 6; // Default for 'profesional'
+                if (levelName === 'principiante') {
+                    exerciseLimit = 4;
+                } else if (levelName === 'intermedio' || levelName === 'intermediante') {
+                    exerciseLimit = 4;
+                } else if (levelName === 'avanzado') {
+                    exerciseLimit = 5;
+                }
 
-                    // Set reps and sets based on camino fitness type
-                    if (caminoFitnessName === 'fuerza') {
-                        sets = 3;
-                        reps = 6;
-                    } else if (caminoFitnessName === 'deportista') {
-                        sets = 4;
-                        reps = 16;
-                    } else if (caminoFitnessName === 'hipertrofia') {
-                        sets = 3;
-                        reps = 12;
-                    } else if (caminoFitnessName === 'entrenamiento hibrido' || caminoFitnessName === 'híbrido') {
-                        sets = 4;
-                        reps = 12;
+                // Set reps and sets based on camino fitness type
+                let sets = 3;
+                let reps = 12;
+                if (caminoFitnessName === 'fuerza') {
+                    sets = 3;
+                    reps = 6;
+                } else if (caminoFitnessName === 'deportista') {
+                    sets = 4;
+                    reps = 16;
+                } else if (caminoFitnessName === 'hipertrofia') {
+                    sets = 3;
+                    reps = 12;
+                } else if (caminoFitnessName === 'entrenamiento hibrido' || caminoFitnessName === 'híbrido') {
+                    sets = 4;
+                    reps = 12;
+                }
+
+                // Match exercises to sessions based on muscle groups
+                sessionsData = await Promise.all(sessionsData.map(async (session) => {
+                    // Only populate Full Body session initially with exercises, leave others empty
+                    if (session.sessionType !== 'Full Body') {
+                        session.exercises = [];
+                        return session;
                     }
-                    // For 'otro', we'll keep whatever came from the server or allow the user to modify
 
-                    // Update the exercises with the new sets and reps values
-                    const updatedExercises = session.exercises.map(exercise => ({
-                        ...exercise,
-                        sets: sets,
-                        reps: reps
-                    }));
+                    // Get matching exercises for the session type
+                    let matchingExercises = [];
+                    const sessionTypeLower = session.sessionType.toLowerCase();
 
-                    return {
-                        ...session,
-                        exercises: updatedExercises
-                    };
-                });
+                    // Define muscle group keywords based on session type
+                    let muscleKeywords = [];
+
+                    // Map session types to relevant muscle group keywords
+                    if (sessionTypeLower === 'upper body') {
+                        muscleKeywords = ['pecho', 'chest', 'espalda', 'back', 'hombro', 'shoulder', 'brazo', 'arm', 'bicep', 'tricep'];
+                    } else if (sessionTypeLower === 'lower body' || sessionTypeLower === 'legs' || sessionTypeLower === 'piernas') {
+                        muscleKeywords = ['pierna', 'leg', 'quad', 'hamstring', 'glute', 'cadera', 'hip'];
+                    } else if (sessionTypeLower === 'full body') {
+                        muscleKeywords = ['pecho', 'chest', 'espalda', 'back', 'hombro', 'shoulder', 'pierna', 'leg', 'brazo', 'arm'];
+                    } else if (sessionTypeLower === 'push' || sessionTypeLower === 'empuje') {
+                        muscleKeywords = ['pecho', 'chest', 'hombro', 'shoulder', 'tricep'];
+                    } else if (sessionTypeLower === 'pull' || sessionTypeLower === 'jalón') {
+                        muscleKeywords = ['espalda', 'back', 'bicep', 'trapecio', 'traps'];
+                    } else if (sessionTypeLower === 'core' || sessionTypeLower === 'abdomen') {
+                        muscleKeywords = ['abdomen', 'abs', 'core'];
+                    } else if (sessionTypeLower === 'back' || sessionTypeLower === 'espalda') {
+                        muscleKeywords = ['espalda', 'back', 'trapecio', 'traps'];
+                    } else if (sessionTypeLower === 'chest & shoulder' || sessionTypeLower === 'pecho y hombros') {
+                        muscleKeywords = ['pecho', 'chest', 'hombro', 'shoulder'];
+                    } else if (sessionTypeLower === 'arms' || sessionTypeLower === 'brazos') {
+                        muscleKeywords = ['brazo', 'arm', 'bicep', 'tricep'];
+                    } else if (sessionTypeLower === 'back & abs' || sessionTypeLower === 'espalda y abdominales') {
+                        muscleKeywords = ['espalda', 'back', 'abdomen', 'abs', 'core'];
+                    }
+
+                    // Filter exercises based on muscle keywords
+                    if (exercises && exercises.length > 0) {
+                        matchingExercises = exercises.filter(exercise => {
+                            if (!exercise.muscleGroup) return false;
+
+                            const muscleGroupLower = exercise.muscleGroup.toLowerCase();
+                            return muscleKeywords.some(keyword => muscleGroupLower.includes(keyword));
+                        });
+
+                        // Limit the number of exercises based on user level
+                        matchingExercises = matchingExercises.slice(0, exerciseLimit);
+
+                        // Create session exercises from matching exercises
+                        const sessionExercises = matchingExercises.map(exercise => ({
+                            id: `temp-${session.id}-${exercise.id}`,
+                            exercise: exercise,
+                            sets: sets,
+                            reps: reps,
+                            weight: 0
+                        }));
+
+                        session.exercises = sessionExercises;
+                    }
+
+                    return session;
+                }));
             }
 
             // Update the sessions in the UI
@@ -249,8 +313,8 @@ const ExerciseView = () => {
             setGenerationSuccess(true);
             setError(null);
         } catch (err) {
-            console.error('Error generating sessions:', err);
-            setError(err.response?.data?.message || 'Failed to generate sessions');
+            console.error('Error al generar sesiones:', err);
+            setError(err.response?.data?.message || 'Error al generar sesiones');
             setGenerationSuccess(false);
         } finally {
             setLoading(false);
@@ -281,8 +345,8 @@ const ExerciseView = () => {
                 }))
             );
         } catch (err) {
-            console.error('Error updating weight:', err);
-            setError(err.response?.data?.message || 'Failed to update weight');
+            console.error('Error al actualizar el peso:', err);
+            setError(err.response?.data?.message || 'Error al actualizar el peso');
         }
     };
 
@@ -329,9 +393,45 @@ const ExerciseView = () => {
         }
     };
 
-    // Select a session to add exercises to
-    const selectSessionForAdd = (sessionId) => {
-        setSelectedSessionForAdd(sessionId === selectedSessionForAdd ? null : sessionId);
+    const filterByMuscleGroup = (muscleGroup) => {
+        if (!muscleGroup) {
+            // Si no se proporciona grupo muscular, mostrar todos los ejercicios
+            setFilteredExercises(exercises);
+        } else {
+            // Convertir a minúsculas para comparación insensible a mayúsculas/minúsculas
+            const muscleGroupLower = muscleGroup.toLowerCase();
+
+            // Filtrar ejercicios que coincidan con el grupo muscular
+            const filtered = exercises.filter(exercise => {
+                // Si el ejercicio no tiene grupo muscular definido, excluirlo
+                if (!exercise.muscleGroup) return false;
+
+                // Convertir el grupo muscular del ejercicio a minúsculas
+                const exerciseMuscleGroup = exercise.muscleGroup.toLowerCase();
+
+                // Verificar si coincide exactamente o si es una subcadena
+                return exerciseMuscleGroup === muscleGroupLower ||
+                    exerciseMuscleGroup.includes(muscleGroupLower) ||
+                    // Manejar traducciones comunes
+                    (muscleGroupLower === 'espalda' && exerciseMuscleGroup.includes('back')) ||
+                    (muscleGroupLower === 'pecho' && exerciseMuscleGroup.includes('chest')) ||
+                    (muscleGroupLower === 'hombros' && exerciseMuscleGroup.includes('shoulder')) ||
+                    (muscleGroupLower === 'piernas' &&
+                        (exerciseMuscleGroup.includes('leg') ||
+                            exerciseMuscleGroup.includes('quad') ||
+                            exerciseMuscleGroup.includes('hamstring'))) ||
+                    (muscleGroupLower === 'brazos' &&
+                        (exerciseMuscleGroup.includes('arm') ||
+                            exerciseMuscleGroup.includes('bicep') ||
+                            exerciseMuscleGroup.includes('tricep'))) ||
+                    (muscleGroupLower === 'abdomen' &&
+                        (exerciseMuscleGroup.includes('abs') ||
+                            exerciseMuscleGroup.includes('core')));
+            });
+
+            // Actualizar el estado con los ejercicios filtrados
+            setFilteredExercises(filtered);
+        }
     };
 
     // Add exercise to a session
@@ -404,11 +504,11 @@ const ExerciseView = () => {
             }
 
             // Show success message
-            alert(`Exercise ${exercise.name} added to session`);
+            alert(`Ejercicio ${exercise.name} añadido a la sesión`);
 
         } catch (err) {
-            console.error('Error adding exercise to session:', err);
-            setError(err.response?.data?.message || 'Failed to add exercise to session');
+            console.error('Error al añadir ejercicio a la sesión:', err);
+            setError(err.response?.data?.message || 'Error al añadir ejercicio a la sesión');
         }
     };
 
@@ -438,8 +538,8 @@ const ExerciseView = () => {
             );
 
         } catch (err) {
-            console.error('Error removing exercise from session:', err);
-            setError(err.response?.data?.message || 'Failed to remove exercise from session');
+            console.error('Error al eliminar ejercicio de la sesión:', err);
+            setError(err.response?.data?.message || 'Error al eliminar ejercicio de la sesión');
         }
     };
 
@@ -481,9 +581,27 @@ const ExerciseView = () => {
         );
     }
 
+    const translateSessionType = (sessionType) => {
+        const translations = {
+            'Upper Body': 'Parte Superior',
+            'Lower Body': 'Parte Inferior',
+            'Full Body': 'Cuerpo Completo',
+            'Push': 'Empuje',
+            'Pull': 'Jalón',
+            'Legs': 'Piernas',
+            'Cardio': 'Cardio',
+            'Core': 'Core',
+            'Back': 'Espalda',
+            'Chest & Shoulder': 'Pecho y Hombros',
+            'Arms' : 'Brazos',
+            'Back & Abs': 'Espalda y Abdominales',
+        };
+        return translations[sessionType] || sessionType;
+    };
+
     return (
         <div className="exercises-view-container">
-            <h1>My Fitness Program</h1>
+            <h1>Mi Programa de Entrenamiento</h1>
 
             {/* Sessions generation section */}
             <div className="generate-section">
@@ -492,16 +610,16 @@ const ExerciseView = () => {
                     onClick={generateSessions}
                     disabled={loading}
                 >
-                    {loading ? 'Generating...' : 'Generate Training Sessions'}
+                    {loading ? 'Generando...' : 'Generar Sesiones de Entrenamiento'}
                 </button>
                 {error && <p className="error-message">{error}</p>}
-                {generationSuccess && <p className="success-message">Sessions generated successfully!</p>}
+                {generationSuccess && <p className="success-message">¡Sesiones generadas con éxito!</p>}
             </div>
 
             <div className="content-container">
                 {/* Sessions panel */}
                 <div className="sessions-panel">
-                    <h2>Your Training Sessions</h2>
+                    <h2>Tus Sesiones de Entrenamiento</h2>
 
                     {Array.isArray(sessions) && sessions.length > 0 ? (
                         <div className="sessions-list">
@@ -511,7 +629,7 @@ const ExerciseView = () => {
                                         className="session-header"
                                         onClick={() => toggleSession(session.id)}
                                     >
-                                        <h3>{session.sessionType}</h3>
+                                        <h3>{translateSessionType(session.sessionType)}</h3>
                                         <span className="toggle-icon">
                                             {activeSession === session.id ? '▼' : '▶'}
                                         </span>
@@ -521,22 +639,22 @@ const ExerciseView = () => {
                                         <div className="session-details">
                                             <div className="exercises-table">
                                                 <div className="table-header">
-                                                    <div className="col-exercise">Exercise</div>
-                                                    <div className="col-muscle">Muscle Group</div>
-                                                    <div className="col-sets">Sets</div>
-                                                    <div className="col-reps">Reps</div>
-                                                    <div className="col-weight">Weight (kg)</div>
-                                                    <div className="col-actions">Actions</div>
+                                                    <div className="col-exercise">Ejercicio</div>
+                                                    <div className="col-muscle">Grupo Muscular</div>
+                                                    <div className="col-sets">Series</div>
+                                                    <div className="col-reps">Repeticiones</div>
+                                                    <div className="col-weight">Peso (kg)</div>
+                                                    <div className="col-actions">Acciones</div>
                                                 </div>
 
                                                 {session.exercises && Array.isArray(session.exercises) ? (
                                                     session.exercises.map((exercise, idx) => (
                                                         <div className="table-row" key={exercise.id || `exercise-${session.id}-${idx}`}>
                                                             <div className="col-exercise">
-                                                                <strong>{exercise.exercise?.name || 'Unknown Exercise'}</strong>
+                                                                <strong>{exercise.exercise?.name || 'Ejercicio Desconocido'}</strong>
                                                                 <p className="exercise-description">{exercise.exercise?.description || ''}</p>
                                                             </div>
-                                                            <div className="col-muscle">{exercise.exercise?.muscleGroup || 'Unknown'}</div>
+                                                            <div className="col-muscle">{exercise.exercise?.muscleGroup || 'Desconocido'}</div>
                                                             <div className="col-sets">{exercise.sets || 0}</div>
                                                             <div className="col-reps">{exercise.reps || 0}</div>
                                                             <div className="col-weight">
@@ -564,25 +682,16 @@ const ExerciseView = () => {
                                                                     className="remove-button"
                                                                     onClick={() => removeExerciseFromSession(session.id, exercise.id)}
                                                                 >
-                                                                    Remove
+                                                                    Eliminar
                                                                 </button>
                                                             </div>
                                                         </div>
                                                     ))
                                                 ) : (
                                                     <div className="table-row">
-                                                        <div style={{ padding: '20px', textAlign: 'center' }}>No exercises found for this session</div>
+                                                        <div style={{ padding: '20px', textAlign: 'center' }}>No se encontraron ejercicios para esta sesión</div>
                                                     </div>
                                                 )}
-                                            </div>
-
-                                            <div className="session-actions">
-                                                <button
-                                                    className="add-exercise-button"
-                                                    onClick={() => selectSessionForAdd(session.id)}
-                                                >
-                                                    {selectedSessionForAdd === session.id ? 'Cancel' : 'Add Exercise'}
-                                                </button>
                                             </div>
                                         </div>
                                     )}
@@ -590,23 +699,40 @@ const ExerciseView = () => {
                             ))}
                         </div>
                     ) : (
-                        !loading && <p className="no-sessions">No training sessions available. Generate sessions to get started!</p>
+                        !loading && <p className="no-sessions">No hay sesiones de entrenamiento disponibles. ¡Genera sesiones para comenzar!</p>
                     )}
                 </div>
 
                 {/* Exercise search and selection panel */}
                 {selectedSessionForAdd && (
                     <div className="exercise-selection-panel">
-                        <h2>Add Exercise to Session</h2>
+                        <h2>Añadir Ejercicio a la Sesión</h2>
 
                         <div className="search-container">
                             <input
                                 type="text"
-                                placeholder="Search exercises..."
+                                placeholder="Buscar ejercicios..."
                                 value={searchTerm}
                                 onChange={handleSearchChange}
                                 className="search-input"
                             />
+                        </div>
+
+                        {/* Muscle group filter buttons */}
+                        <div className="muscle-group-filters">
+                            <button
+                                className="filter-button all-button"
+                                onClick={() => setFilteredExercises(exercises)}>
+                                Todos
+                            </button>
+                            {muscleGroups.map((group, index) => (
+                                <button
+                                    key={index}
+                                    className="filter-button"
+                                    onClick={() => filterByMuscleGroup(group)}>
+                                    {group}
+                                </button>
+                            ))}
                         </div>
 
                         <div className="filtered-exercises">
@@ -622,12 +748,12 @@ const ExerciseView = () => {
                                             className="add-button"
                                             onClick={() => addExerciseToSession(exercise, selectedSessionForAdd)}
                                         >
-                                            Add
+                                            Añadir
                                         </button>
                                     </div>
                                 ))
                             ) : (
-                                <p className="no-results">No exercises found matching your search.</p>
+                                <p className="no-results">No se encontraron ejercicios que coincidan con tu búsqueda.</p>
                             )}
                         </div>
                     </div>
