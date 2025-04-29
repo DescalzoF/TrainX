@@ -1,7 +1,7 @@
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css');
 
 .exercises-view-container {
-    max-width: 1500px; /* Incrementado desde 1200px */
+    max-width: 1500px;
     margin: 120px auto;
     padding: 20px;
 }
@@ -31,7 +31,7 @@
     gap: 25px;
 }
 .sessions-panel {
-    flex: 3 1 75%; /* Aumentado para ocupar más espacio */
+    flex: 3 1 75%;
 }
 .exercise-selection-panel,
 .exercises-display {
@@ -51,62 +51,6 @@
         flex: 1 1 35%;
         margin-top: 0;
     }
-}
-/* Generate button section with updated color */
-.generate-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 40px;
-    position: relative;
-}
-.generate-button {
-    background-color: #0061ff;
-    color: white;
-    border: none;
-    padding: 15px 35px;
-    font-size: 18px;
-    font-weight: 600;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 10px rgba(0, 97, 255, 0.3);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-.generate-button:hover {
-    background-color: #0052d6;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0, 97, 255, 0.4);
-}
-.generate-button:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-}
-.error-message {
-    color: #d32f2f;
-    margin-top: 15px;
-    text-align: center;
-    font-weight: bold;
-    padding: 10px;
-    background-color: rgba(211, 47, 47, 0.1);
-    border-radius: 5px;
-}
-.success-message {
-    color: #388e3c;
-    margin-top: 15px;
-    text-align: center;
-    font-weight: bold;
-    padding: 10px;
-    background-color: rgba(56, 142, 60, 0.1);
-    border-radius: 5px;
-    animation: fadeIn 0.5s ease;
-}
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
 }
 /* Loading and error states */
 .loading-container {
@@ -169,11 +113,6 @@
 }
 
 /* Session cards styling */
-.sessions-list {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
 .session-card {
     border-radius: 8px;
     border: 1px solid #e0e0e0;
@@ -202,14 +141,6 @@
     color: #333;
     font-size: 18px;
     font-weight: 600;
-}
-.toggle-icon {
-    color: #0061ff;
-    font-size: 16px;
-    transition: transform 0.3s;
-}
-.session-card.active .toggle-icon {
-    transform: rotate(180deg);
 }
 .session-details {
     padding: 20px;
@@ -245,7 +176,7 @@
 .table-row:last-child {
     border-bottom: none;
 }
-.col-exercise, .col-muscle, .col-sets, .col-reps, .col-weight, .col-actions {
+.col-exercise, .col-muscle, .col-sets, .col-reps, .col-weight, .col-actions, .col-xp {
     padding: 8px 12px;
 }
 
@@ -286,7 +217,7 @@
 }
 /* Update video link button styling */
 .video-link {
-    background-color: #2e7d32; /* Darker green */
+    background-color: #2e7d32;
     color: white;
     text-decoration: none;
     padding: 6px 12px;
@@ -299,197 +230,11 @@
 }
 
 .video-link:hover {
-    background-color: #1b5e20; /* Even darker green on hover */
+    background-color: #1b5e20;
 }
 
 .fa-youtube-play {
     font-size: 16px;
-}
-.remove-button {
-    background-color: #f44336;
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s;
-}
-.remove-button:hover {
-    background-color: #d32f2f;
-}
-
-/* Session actions */
-.session-actions {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 20px;
-}
-.add-exercise-button {
-    background-color: #0061ff;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s;
-}
-.add-exercise-button:hover {
-    background-color: #0052d6;
-    transform: translateY(-2px);
-}
-
-/* Exercise selection panel */
-.search-container {
-    margin-bottom: 20px;
-}
-.search-input {
-    width: 100%;
-    padding: 12px 15px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 16px;
-    transition: border-color 0.3s;
-}
-.search-input:focus {
-    border-color: #0061ff;
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(0, 97, 255, 0.2);
-}
-.muscle-group-filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-.filter-button {
-    background-color: #f0f5ff;
-    border: 1px solid #d9e6ff;
-    color: #0061ff;
-    padding: 8px 15px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: all 0.3s;
-}
-.filter-button:hover {
-    background-color: #d9e6ff;
-}
-.filter-button.all-button {
-    background-color: #0061ff;
-    color: white;
-    border-color: #0061ff;
-}
-.filter-button.all-button:hover {
-    background-color: #0052d6;
-}
-.filtered-exercises {
-    max-height: 500px;
-    overflow-y: auto;
-    padding-right: 10px;
-    margin-top: 20px;
-}
-.exercise-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px;
-    border: 1px solid #eee;
-    border-radius: 8px;
-    margin-bottom: 15px;
-    transition: all 0.3s;
-}
-.exercise-item:hover {
-    border-color: #0061ff;
-    box-shadow: 0 3px 10px rgba(0, 97, 255, 0.1);
-}
-.exercise-info {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-.exercise-info h4 {
-    margin: 0;
-    color: #333;
-    font-size: 16px;
-    flex: 0 0 auto;
-}
-.muscle-group {
-    color: #0061ff;
-    font-size: 14px;
-    font-weight: 600;
-    margin: 0;
-}
-.description {
-    color: #666;
-    font-size: 14px;
-    margin: 0;
-    flex: 1;
-}
-.add-button {
-    background-color: #0061ff;
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s;
-    white-space: nowrap;
-    margin-left: 15px;
-}
-.add-button:hover {
-    background-color: #0052d6;
-}
-.no-results, .no-sessions {
-    text-align: center;
-    padding: 20px;
-    color: #666;
-    font-style: italic;
-}
-
-/* Spanish Subtitle Headers - Column Alignment */
-.section-subtitles {
-    display: grid;
-    grid-template-columns: 2fr 1fr 0.7fr 0.7fr 0.7fr 1fr;
-    gap: 10px;
-    margin-bottom: 15px;
-    border-bottom: 1px solid #e0e0e0;
-    padding-bottom: 10px;
-    align-items: center;
-}
-
-.section-subtitle {
-    color: #0061ff;
-    font-size: 1.2rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    position: relative;
-    padding-bottom: 8px;
-    text-align: left;
-}
-
-.section-subtitle:after {
-    content: '';
-    position: absolute;
-    width: 40px;
-    height: 3px;
-    background-color: #0061ff;
-    bottom: 0;
-    left: 0;
-    border-radius: 2px;
-}
-
-/* Ensure the last subtitle (Acciones) is aligned to the right */
-.section-subtitle:last-child {
-    text-align: right;
-}
-.section-subtitle:last-child:after {
-    left: auto;
-    right: 0;
 }
 
 .xp-success-box {
@@ -568,17 +313,17 @@
 }
 
 .xp-reward-button.completed {
-    background-color: #2e7d32; /* Darker green */
+    background-color: #2e7d32;
     cursor: default;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 .completed-text {
-    font-size: 0.8rem; /* Smaller text size for completed state */
-    line-height: 1; /* Improve vertical alignment */
-    text-align: center; /* Center the text */
-    display: block; /* Make it a block element for better centering */
+    font-size: 0.8rem;
+    line-height: 1;
+    text-align: center;
+    display: block;
 }
 
 /* Responsive adjustments */
@@ -587,23 +332,9 @@
         grid-template-columns: 2fr 1fr 0.5fr 0.5fr 0.5fr 0.5fr;
         font-size: 14px;
     }
-    .exercise-item {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    .exercise-info {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 5px;
-    }
-    .add-button {
-        margin-left: 0;
-        margin-top: 10px;
-        align-self: flex-end;
-    }
     .xp-success-box {
         position: fixed;
-        top: 80px; /* Changed from 30px to lower the popup */
+        top: 80px;
         right: 30px;
         background-color: #4CAF50;
         color: white;
@@ -618,13 +349,6 @@
         animation: slideInRight 0.5s forwards, fadeOut 0.5s 3.5s forwards;
         min-width: 250px;
         max-width: 320px;
-    }
-    .section-subtitles {
-        grid-template-columns: 2fr 1fr 0.5fr 0.5fr 0.5fr 0.5fr;
-        font-size: 14px;
-    }
-    .section-subtitle {
-        font-size: 1rem;
     }
 }
 
@@ -670,62 +394,6 @@
         right: 20px;
         max-width: none;
     }
-    .section-subtitles {
-        display: none; /* Hide on very small screens as we'll show labels inline */
-    }
 }
 
-/* Fireworks animation */
-.fireworks-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 9999;
-    overflow: hidden;
-}
-
-.firework {
-    position: absolute;
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background-color: transparent;
-    box-shadow:
-            0 0 10px 2px rgba(255, 200, 0, 0.9),
-            0 0 20px 5px rgba(255, 130, 0, 0.7),
-            0 0 30px 10px rgba(255, 0, 0, 0.5);
-    animation: firework-explosion 1s ease-out forwards;
-    transform-origin: center;
-}
-
-@keyframes firework-explosion {
-    0% {
-        transform: scale(0);
-        opacity: 1;
-    }
-    20% {
-        opacity: 1;
-    }
-    100% {
-        transform: scale(15);
-        opacity: 0;
-    }
-}
-
-/* Add different colors for variety */
-.firework:nth-child(3n) {
-    box-shadow:
-            0 0 10px 2px rgba(0, 255, 200, 0.9),
-            0 0 20px 5px rgba(0, 200, 255, 0.7),
-            0 0 30px 10px rgba(0, 100, 255, 0.5);
-}
-
-.firework:nth-child(3n+1) {
-    box-shadow:
-            0 0 10px 2px rgba(255, 0, 200, 0.9),
-            0 0 20px 5px rgba(200, 0, 255, 0.7),
-            0 0 30px 10px rgba(100, 0, 255, 0.5);
-}
+/* Confetti effect (replacing fireworks) */

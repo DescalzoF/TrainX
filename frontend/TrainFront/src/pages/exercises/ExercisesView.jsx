@@ -56,6 +56,9 @@ const ExerciseView = () => {
 
                     // If we got a valid response, proceed with these values
                     await fetchExercises(response.data.caminoFitnessId, response.data.levelId, axiosConfig);
+
+                    // Also fetch completed exercises status if API supports it
+                    await fetchCompletedExercises(axiosConfig);
                 } else {
                     throw new Error("Formato de respuesta inválido");
                 }
@@ -95,6 +98,26 @@ const ExerciseView = () => {
         return caminoMap[id] || "otro";
     };
 
+    // Add a function to fetch already completed exercises
+    const fetchCompletedExercises = async (axiosConfig) => {
+        try {
+            // This is a placeholder - implement the endpoint for getting completed exercises
+            const response = await axios.get(`http://localhost:8080/api/exercises/completed`, axiosConfig);
+
+            if (response.data && Array.isArray(response.data)) {
+                // Convert the array of completed exercise IDs to an object for easier lookup
+                const completedMap = {};
+                response.data.forEach(exerciseId => {
+                    completedMap[exerciseId] = true;
+                });
+                setCompletedExercises(completedMap);
+            }
+        } catch (err) {
+            console.warn("Error fetching completed exercises:", err);
+            // Continue with empty completed exercises - non-critical error
+        }
+    };
+
     const fetchExercises = async (caminoFitnessId, levelId, axiosConfig) => {
         if (!caminoFitnessId || !levelId) {
             throw new Error(`Datos incompletos: caminoFitnessId=${caminoFitnessId}, levelId=${levelId}`);
@@ -109,10 +132,10 @@ const ExerciseView = () => {
         console.log("Ejercicios obtenidos:", response.data);
 
         if (Array.isArray(response.data)) {
-            // Add XP rewards to each exercise
+            // Add XP rewards to each exercise - fixed to 50XP as requested
             const exercisesWithXP = response.data.map(exercise => ({
                 ...exercise,
-                xpFitnessReward: calculateXpReward(exercise, userDetails)
+                xpFitnessReward: 50 // Fixed to 50XP as requested
             }));
             setExercises(exercisesWithXP);
         } else {
@@ -123,27 +146,6 @@ const ExerciseView = () => {
         setLoading(false);
     };
 
-    // Calculate XP reward based on exercise difficulty and user level
-    const calculateXpReward = (exercise, userDetails) => {
-        // Base XP for any exercise
-        const baseXp = 50;
-
-        // Additional XP based on difficulty
-        let difficultyMultiplier = 1;
-        if (exercise.difficulty) {
-            if (exercise.difficulty.toLowerCase() === 'intermedio') {
-                difficultyMultiplier = 1.5;
-            } else if (exercise.difficulty.toLowerCase() === 'avanzado') {
-                difficultyMultiplier = 2;
-            } else if (exercise.difficulty.toLowerCase() === 'profesional') {
-                difficultyMultiplier = 2.5;
-            }
-        }
-
-        // Return calculated XP (round to nearest 10)
-        return Math.round((baseXp * difficultyMultiplier) / 10) * 10;
-    };
-
     const completeExercise = async (exerciseId) => {
         try {
             // Only proceed if the exercise hasn't been completed yet
@@ -151,12 +153,25 @@ const ExerciseView = () => {
                 return;
             }
 
-            // IMPORTANT: Create a new object to update the state correctly
-            const updatedCompletedExercises = { ...completedExercises };
-            updatedCompletedExercises[exerciseId] = true;
+            // Get the token from localStorage
+            const token = localStorage.getItem("jwtToken") || localStorage.getItem("token");
+            if (!token) {
+                console.error("No token found");
+                return;
+            }
 
-            // Update the state with the new object
-            setCompletedExercises(updatedCompletedExercises);
+            // Get the user ID from userDetails or currentUser
+            const userId = userDetails?.userId || currentUser?.id;
+            if (!userId) {
+                console.error("No user ID found");
+                return;
+            }
+
+            // Mark this specific exercise as completed in state
+            setCompletedExercises(prev => ({
+                ...prev,
+                [exerciseId]: true
+            }));
 
             // Trigger confetti effect
             confetti({
@@ -193,6 +208,44 @@ const ExerciseView = () => {
                 }, 4000);
             }
 
+            // Send the completed exercise data to the backend
+            try {
+                // First, call the XP fitness endpoint to add XP
+                const xpResponse = await axios.put(
+                    `http://localhost:8080/api/xpfitness/${userId}/addXp/50`,
+                    {},  // Empty body as we're passing values in the URL
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                        }
+                    }
+                );
+
+                console.log("XP actualizado exitosamente:", xpResponse.data);
+
+                // Then log the exercise completion (if you have an endpoint for it)
+                await axios.post(
+                    `http://localhost:8080/api/exercises/complete`,
+                    {
+                        userId: userId,
+                        exerciseId: exerciseId,
+                        xpFitnessReward: 50 // Fixed at 50XP
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                        }
+                    }
+                );
+
+                console.log(`Ejercicio ${exerciseId} completado y XP actualizado en el backend`);
+            } catch (apiError) {
+                console.error("Error al actualizar XP en el backend:", apiError);
+                // Still keep the UI state as completed even if backend update fails
+            }
+
         } catch (err) {
             console.error('Error al completar el ejercicio:', err);
         }
@@ -209,6 +262,8 @@ const ExerciseView = () => {
 
             if (err.response.status === 401) {
                 setError("No estás autenticado. Por favor, inicia sesión nuevamente.");
+            } else if (err.response.status === 403) {
+                setError("No tienes permisos para acceder a este recurso.");
             } else if (err.response.status === 404) {
                 setError("No se encontró el recurso solicitado. Verifica las rutas API.");
             } else {
