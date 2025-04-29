@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useXP } from '../../contexts/XPContext';
 import './Progress.css';
 
-// Icon components
+// Componentes de iconos
 const TrophyIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
@@ -38,7 +38,7 @@ function Progress() {
     const [userProgress, setUserProgress] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // States for progress photos
+    // Estados para fotos de progreso
     const photoKeys = ['photoOne', 'photoTwo', 'photoThree', 'photoFour', 'photoFive'];
     const [previews, setPreviews] = useState({
         photoOne: '', photoTwo: '', photoThree: '', photoFour: '', photoFive: ''
@@ -47,15 +47,15 @@ function Progress() {
         photoOne: null, photoTwo: null, photoThree: null, photoFour: null, photoFive: null
     });
 
-    // Fetch existing progress (photos + stats)
+    // Obtener progreso existente (fotos + estadísticas)
     useEffect(() => {
-        // Fetch photos
+        // Obtener fotos
         axios.get('/api/progress/me')
             .then(res => setPreviews(res.data))
-            .catch(err => console.error('Error fetching progress photos:', err));
+            .catch(err => console.error('Error al obtener fotos de progreso:', err));
     }, []);
 
-    // Handle file selection & preview
+    // Manejar selección de archivo y vista previa
     const handleFileChange = (e, key) => {
         const file = e.target.files[0];
         if (file) {
@@ -68,7 +68,7 @@ function Progress() {
         }
     };
 
-    // Submit new photos
+    // Enviar nuevas fotos
     const handlePhotoSubmit = (e) => {
         e.preventDefault();
         const dto = photoKeys.reduce((acc, key) => {
@@ -77,11 +77,11 @@ function Progress() {
         }, {});
 
         axios.put('/api/progress/update', dto)
-            .then(() => alert('Photos updated successfully!'))
-            .catch(err => console.error('Error updating photos:', err));
+            .then(() => alert('¡Fotos actualizadas exitosamente!'))
+            .catch(err => console.error('Error al actualizar fotos:', err));
     };
 
-    // Fetch XP-based stats
+    // Obtener estadísticas basadas en XP
     useEffect(() => {
         if (!xp && loading) {
             refreshXP();
@@ -98,63 +98,63 @@ function Progress() {
             totalReps,
             totalSets,
             recentAchievements: [
-                { id: 1, name: 'First Workout', date: new Date().toISOString().split('T')[0] },
-                { id: 2, name: 'Weekly Streak', date: new Date().toISOString().split('T')[0] }
+                { id: 1, name: 'Primer Entrenamiento', date: new Date().toISOString().split('T')[0] },
+                { id: 2, name: 'Racha Semanal', date: new Date().toISOString().split('T')[0] }
             ],
             monthlyStats: [
-                { month: 'January', workouts: Math.round(xpPoints * 0.1) },
-                { month: 'February', workouts: Math.round(xpPoints * 0.15) },
-                { month: 'March', workouts: Math.round(xpPoints * 0.25) },
-                { month: 'April', workouts: Math.round(xpPoints * 0.5) }
+                { month: 'Enero', workouts: Math.round(xpPoints * 0.1) },
+                { month: 'Febrero', workouts: Math.round(xpPoints * 0.15) },
+                { month: 'Marzo', workouts: Math.round(xpPoints * 0.25) },
+                { month: 'Abril', workouts: Math.round(xpPoints * 0.5) }
             ]
         });
         setLoading(false);
     }, [xp, refreshXP, loading]);
 
-    if (loading) return <div className="progress-loading">Loading your fitness data...</div>;
+    if (loading) return <div className="progress-loading">Cargando tus datos de fitness...</div>;
 
     const maxWorkoutValue = Math.max(...userProgress.monthlyStats.map(s => s.workouts));
 
     return (
         <div className="progress-container">
             <div className="page-title" style={{ paddingTop: '70px' }}>
-                <h1>FITNESS TRACKER PRO</h1>
-                <p>Track your progress and achieve your fitness goals</p>
+                <h1>SEGUIMIENTO DE FITNESS PRO</h1>
+                <p>Monitorea tu progreso y alcanza tus objetivos de fitness</p>
             </div>
-            {/* Overview cards */}
+            {/* Tarjetas de resumen */}
             <div className="progress-overview">
                 <div className="progress-card xp-card">
                     <div className="panel-icon"><LightningIcon /></div>
-                    <h3>Total Experience Points</h3>
+                    <h3>Puntos de Experiencia Totales</h3>
                     <p className="progress-number">{userProgress.xpPoints}</p>
-                    <p className="progress-label">{xp?.levelName ? `Current Level: ${xp.levelName}` : 'Keep it up!'}</p>
+                    <p className="progress-label">{xp?.levelName ? `Nivel Actual: ${xp.levelName}` : '¡Sigue así!'}</p>
                 </div>
                 <div className="progress-card">
-                    <h3>Total Workouts</h3>
+                    <h3>Entrenamientos Totales</h3>
                     <p className="progress-number">{userProgress.totalWorkouts}</p>
-                    <p className="progress-label">Sessions Completed</p>
+                    <p className="progress-label">Sesiones Completadas</p>
                 </div>
                 <div className="progress-card">
-                    <h3>Exercises Completed</h3>
+                    <h3>Ejercicios Completados</h3>
                     <p className="progress-number">{userProgress.completedExercises}</p>
-                    <p className="progress-label">Total Exercises</p>
+                    <p className="progress-label">Ejercicios Totales</p>
                 </div>
                 <div className="progress-card">
-                    <h3>Total Repetitions</h3>
+                    <h3>Repeticiones Totales</h3>
                     <p className="progress-number">{userProgress.totalReps}</p>
-                    <p className="progress-label">Reps Performed</p>
+                    <p className="progress-label">Repeticiones Realizadas</p>
                 </div>
                 <div className="progress-card">
-                    <h3>Total Sets</h3>
+                    <h3>Series Totales</h3>
                     <p className="progress-number">{userProgress.totalSets}</p>
-                    <p className="progress-label">Sets Completed</p>
+                    <p className="progress-label">Series Completadas</p>
                 </div>
             </div>
 
-            {/* Details section */}
+            {/* Sección de detalles */}
             <div className="progress-details">
                 <div className="achievements-section">
-                    <div className="panel-header"><div className="panel-icon"><TrophyIcon /></div><h2>Recent Achievements</h2></div>
+                    <div className="panel-header"><div className="panel-icon"><TrophyIcon /></div><h2>Logros Recientes</h2></div>
                     <ul className="achievements-list">
                         {userProgress.recentAchievements.map(a => (
                             <li key={a.id} className="achievement-item">
@@ -165,7 +165,7 @@ function Progress() {
                     </ul>
                 </div>
                 <div className="monthly-stats">
-                    <div className="panel-header"><div className="panel-icon"><ChartIcon /></div><h2>Monthly Progress</h2></div>
+                    <div className="panel-header"><div className="panel-icon"><ChartIcon /></div><h2>Progreso Mensual</h2></div>
                     <div className="stats-graph">
                         {userProgress.monthlyStats.map((stat, i) => (
                             <div key={i} className="stat-bar-container">
@@ -177,13 +177,13 @@ function Progress() {
                     </div>
                 </div>
             </div>
-            {/* Upload section */}
+            {/* Sección de carga */}
             <div className="progress-upload-section">
-                <h2>Upload Progress Photos</h2>
+                <h2>Subir Fotos de Progreso</h2>
                 <form onSubmit={handlePhotoSubmit} className="upload-form">
                     {photoKeys.map(key => (
                         <div key={key} className="photo-input-container">
-                            {previews[key] && <img src={previews[key]} alt="Preview" className="photo-preview" />}
+                            {previews[key] && <img src={previews[key]} alt="Vista previa" className="photo-preview" />}
                             <input
                                 type="file"
                                 accept="image/*"
@@ -191,7 +191,7 @@ function Progress() {
                             />
                         </div>
                     ))}
-                    <button type="submit" className="upload-button">Save Photos</button>
+                    <button type="submit" className="upload-button">Guardar Fotos</button>
                 </form>
             </div>
         </div>
