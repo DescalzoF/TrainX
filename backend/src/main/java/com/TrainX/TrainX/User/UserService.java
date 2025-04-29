@@ -2,6 +2,7 @@ package com.TrainX.TrainX.User;
 
 import com.TrainX.TrainX.caminoFitness.CaminoFitnessEntity;
 import com.TrainX.TrainX.caminoFitness.CaminoFitnessService;
+import com.TrainX.TrainX.jwt.dtos.UserXpWithLevelDTO;
 import com.TrainX.TrainX.level.LevelEntity;
 import com.TrainX.TrainX.level.LevelService;
 import com.TrainX.TrainX.xpFitness.XpFitnessEntity;
@@ -140,6 +141,11 @@ public class UserService {
 
         user.setLevel(level);
         userRepository.save(user);
+    }
+
+    @Transactional(readOnly = true)
+    public UserXpWithLevelDTO getUserXpWithLevel(Long userId) {
+        return userRepository.getUserXpWithLevel(userId);
     }
 
 }

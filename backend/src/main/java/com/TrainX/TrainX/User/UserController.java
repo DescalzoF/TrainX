@@ -2,6 +2,7 @@ package com.TrainX.TrainX.User;
 
 import com.TrainX.TrainX.caminoFitness.CaminoFitnessEntity;
 import com.TrainX.TrainX.caminoFitness.CaminoFitnessService;
+import com.TrainX.TrainX.jwt.dtos.UserXpWithLevelDTO;
 import com.TrainX.TrainX.level.LevelEntity;
 import com.TrainX.TrainX.level.LevelRepository;
 import com.TrainX.TrainX.xpFitness.XpFitnessService; // Importa el servicio de XP Fitness
@@ -220,6 +221,15 @@ public class UserController {
             MessageResponse messageResponse = new MessageResponse("Error retrieving user profile: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(messageResponse);
         }
+    }
+
+    @GetMapping("/{userId}/xp-level")
+    public ResponseEntity<UserXpWithLevelDTO> getUserXpWithLevel(@PathVariable Long userId) {
+        UserXpWithLevelDTO userXpWithLevel = userService.getUserXpWithLevel(userId);
+        if (userXpWithLevel != null) {
+            return ResponseEntity.ok(userXpWithLevel);
+        }
+        return ResponseEntity.notFound().build();
     }
 
 }

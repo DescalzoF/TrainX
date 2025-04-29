@@ -2,68 +2,48 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import './XPBar.css';
 import { useAuth } from '../../contexts/AuthContext';
+import { useXP } from '../../contexts/XPContext.jsx'; // We'll create this context
 
 function XPBar() {
     const { isLoggedIn, currentUser } = useAuth();
+    const { xp, subscribeToXPChanges } = useXP(); // Use the XP context
     const [levelInfo, setLevelInfo] = useState({
-        currentXP: 0,
-        levelName: 'Principiante', // Default to Principiante if no data
-        levelMinXP: 0,
-        levelMaxXP: 100,
+        totalXp: 0,
+        nameLevel: 'Principiante',
+        xpMin: 0,
+        xpMax: 100,
         progressPercentage: 0
     });
     const [loading, setLoading] = useState(true);
 
+    // Fetch initial XP data
     useEffect(() => {
         const fetchLevelInfo = async () => {
             if (isLoggedIn && currentUser) {
                 try {
                     setLoading(true);
 
-                    // First, get the user's XP fitness info
-                    const xpResponse = await axios.get(`/api/xpfitness/${currentUser.id}`, {
+                    const response = await axios.get(`http://localhost:8080/api/users/${currentUser.id}/xp-level`, {
                         headers: {
                             Authorization: `Bearer ${localStorage.getItem('token')}`
                         }
                     });
 
-                    if (xpResponse.data) {
-                        const totalXp = xpResponse.data.totalXp;
+                    if (response.data) {
+                        const { totalXp, nameLevel, xpMin, xpMax, progressPercentage } = response.data;
 
-                        // Then, get the user's level information
-                        const levelResponse = await axios.get(`/api/users/${currentUser.id}/level`, {
-                            headers: {
-                                Authorization: `Bearer ${localStorage.getItem('token')}`
-                            }
+                        setLevelInfo({
+                            totalXp: totalXp || 0,
+                            nameLevel: nameLevel || 'Principiante',
+                            xpMin: xpMin || 0,
+                            xpMax: xpMax || 100,
+                            progressPercentage: progressPercentage || 0
                         });
-
-                        if (levelResponse.data) {
-                            const { levelName, levelMinXP, levelMaxXP } = levelResponse.data;
-
-                            // Calculate progress percentage based on current XP within level range
-                            const currentLevelXP = totalXp - levelMinXP;
-                            const levelXPRange = levelMaxXP - levelMinXP;
-                            const progressPercentage = Math.min(
-                                Math.max(
-                                    (currentLevelXP / levelXPRange) * 100,
-                                    0
-                                ),
-                                100
-                            );
-
-                            setLevelInfo({
-                                currentXP: totalXp,
-                                levelName: levelName || 'Principiante',
-                                levelMinXP: levelMinXP || 0,
-                                levelMaxXP: levelMaxXP || 100,
-                                progressPercentage
-                            });
-                        }
                     }
 
                     setLoading(false);
                 } catch (error) {
-                    console.error('Error fetching XP or level information:', error);
+                    console.error('Error fetching XP and level information:', error);
                     setLoading(false);
                 }
             }
@@ -72,15 +52,89 @@ function XPBar() {
         fetchLevelInfo();
     }, [isLoggedIn, currentUser]);
 
+    // Listen for XP changes
+    useEffect(() => {
+        if (!isLoggedIn || !currentUser) return;
+
+        // Subscribe to XP changes
+        const unsubscribe = subscribeToXPChanges((newXpData) => {
+            // Update level info when XP changes
+            setLevelInfo(prevInfo => {
+                // Calculate new progress within the level
+                const newTotalXp = newXpData.totalXp;
+                const newXpInLevel = newTotalXp - prevInfo.xpMin;
+                const levelRange = prevInfo.xpMax - prevInfo.xpMin;
+                const newProgressPercentage = Math.min(100, Math.max(0, (newXpInLevel / levelRange) * 100));
+
+                // Check if we need to update level info (if we leveled up)
+                if (newTotalXp >= prevInfo.xpMax) {
+                    // We should fetch the updated level info from the server
+                    fetchUpdatedLevelInfo(currentUser.id);
+                    return prevInfo; // Return previous state until we get the new level info
+                }
+
+                // Just update the XP and progress within the current level
+                return {
+                    ...prevInfo,
+                    totalXp: newTotalXp,
+                    progressPercentage: newProgressPercentage
+                };
+            });
+        });
+
+        // Cleanup subscription on unmount
+        return () => unsubscribe();
+    }, [isLoggedIn, currentUser, subscribeToXPChanges]);
+
+    // Function to fetch updated level info when leveling up
+    const fetchUpdatedLevelInfo = async (userId) => {
+        try {
+            const response = await axios.get(`http://localhost:8080/api/users/${userId}/xp-level`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+
+            if (response.data) {
+                const { totalXp, nameLevel, xpMin, xpMax, progressPercentage } = response.data;
+                setLevelInfo({
+                    totalXp: totalXp || 0,
+                    nameLevel: nameLevel || 'Principiante',
+                    xpMin: xpMin || 0,
+                    xpMax: xpMax || 100,
+                    progressPercentage: progressPercentage || 0
+                });
+            }
+        } catch (error) {
+            console.error('Error fetching updated level information:', error);
+        }
+    };
+
+    // Watch for XP changes from the context
+    useEffect(() => {
+        if (xp && xp.totalXp !== levelInfo.totalXp) {
+            // Update the level info with the new XP
+            setLevelInfo(prevInfo => {
+                const newXpInLevel = xp.totalXp - prevInfo.xpMin;
+                const levelRange = prevInfo.xpMax - prevInfo.xpMin;
+                const newProgressPercentage = Math.min(100, Math.max(0, (newXpInLevel / levelRange) * 100));
+
+                return {
+                    ...prevInfo,
+                    totalXp: xp.totalXp,
+                    progressPercentage: newProgressPercentage
+                };
+            });
+        }
+    }, [xp]);
+
     if (!isLoggedIn || loading) {
         return null;
     }
 
-    // Calculate the values to display, defaulting to 0 for any NaN values
-    const currentDisplay = isNaN(levelInfo.currentXP - levelInfo.levelMinXP) ? 0 : (levelInfo.currentXP - levelInfo.levelMinXP);
-    const maxDisplay = isNaN(levelInfo.levelMaxXP - levelInfo.levelMinXP) ? 100 : (levelInfo.levelMaxXP - levelInfo.levelMinXP);
-
-    // Ensure progress percentage is a valid number
+    // Calculate the values to display, showing current XP within the level
+    const currentDisplay = isNaN(levelInfo.totalXp - levelInfo.xpMin) ? 0 : (levelInfo.totalXp - levelInfo.xpMin);
+    const maxDisplay = isNaN(levelInfo.xpMax - levelInfo.xpMin) ? 100 : (levelInfo.xpMax - levelInfo.xpMin);
     const progressWidth = isNaN(levelInfo.progressPercentage) ? 0 : levelInfo.progressPercentage;
 
     return (
@@ -96,7 +150,7 @@ function XPBar() {
                 </div>
             </div>
             <div className="level-indicator">
-                <span>{levelInfo.levelName}</span>
+                <span>{levelInfo.nameLevel}</span>
             </div>
         </div>
     );

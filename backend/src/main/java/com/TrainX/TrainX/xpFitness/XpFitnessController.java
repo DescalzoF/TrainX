@@ -40,5 +40,6 @@ public class XpFitnessController {
         }
         return new ResponseEntity<>(xpFitness, HttpStatus.CREATED);
     }
+
 }
 

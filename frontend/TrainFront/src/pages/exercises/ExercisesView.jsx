@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import "./ExercisesView.css";
 import confetti from 'canvas-confetti';
+import caminoFitness from "../CaminoFitness/CaminoFitness.jsx";
+import {useAuth} from "../../contexts/AuthContext.jsx";
 
 const ExerciseView = () => {
     const [exercises, setExercises] = useState([]);
@@ -16,6 +18,9 @@ const ExerciseView = () => {
     const [selectedSessionForAdd, setSelectedSessionForAdd] = useState(null);
     const [muscleGroups, setMuscleGroups] = useState([]);
     const [completedExercises, setCompletedExercises] = useState({});
+
+    const { currentUser } = useAuth();
+    const username = currentUser?.username || "Usuario";
 
     useEffect(() => {
         // Fetch user data on component mount
@@ -703,7 +708,7 @@ const ExerciseView = () => {
 
     return (
         <div className="exercises-view-container">
-            <h1>Mi Programa de Entrenamiento</h1>
+            <h1> Programa de Entrenamiento de {username} </h1>
 
             {/* Sessions generation section */}
             <div className="generate-section">
@@ -721,7 +726,9 @@ const ExerciseView = () => {
             <div className="content-container">
                 {/* Sessions panel */}
                 <div className="sessions-panel">
-                    <h2>Tus Sesiones de Entrenamiento</h2>
+
+
+                    <h3>Tus Sesiones de Entrenamiento</h3>
 
                     {Array.isArray(sessions) && sessions.length > 0 ? (
                         <div className="sessions-list">
