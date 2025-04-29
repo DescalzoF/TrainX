@@ -11,24 +11,35 @@ export const XPProvider = ({ children }) => {
     const { currentUser, isLoggedIn } = useAuth();
     const [listeners, setListeners] = useState([]);
 
-    // Fetch initial XP data
+    // Reset XP data on user change to prevent showing previous user's XP
     useEffect(() => {
-        if (isLoggedIn && currentUser) {
+        // Reset XP when user changes or logs out
+        setXP(null);
+
+        // Only fetch XP if there is a logged in user
+        if (isLoggedIn && currentUser?.id) {
             fetchUserXP();
         }
-    }, [isLoggedIn, currentUser]);
+    }, [isLoggedIn, currentUser?.id]); // Add currentUser.id as specific dependency
 
     // Function to fetch user XP
     const fetchUserXP = useCallback(async () => {
-        if (!currentUser?.id) return;
+        if (!currentUser?.id) {
+            // Clear XP if no user ID
+            setXP(null);
+            return;
+        }
 
         try {
             const token = localStorage.getItem('token') || localStorage.getItem('jwtToken');
 
             if (!token) {
                 console.error('No authentication token found');
+                setXP(null);
                 return;
             }
+
+            console.log(`Fetching XP for user ID: ${currentUser.id}`);
 
             const response = await axios.get(`http://localhost:8080/api/users/${currentUser.id}/xp-level`, {
                 headers: {
@@ -37,15 +48,20 @@ export const XPProvider = ({ children }) => {
             });
 
             if (response.data) {
+                console.log(`XP data received:`, response.data);
                 setXP(response.data);
 
-                // Notify all listeners
+                // Notify all listeners about new XP data
                 listeners.forEach(listener => listener(response.data));
+            } else {
+                console.warn('No XP data received from API');
+                setXP(null);
             }
         } catch (error) {
             console.error('Error fetching XP data:', error);
+            setXP(null);
         }
-    }, [currentUser, listeners]);
+    }, [currentUser]);
 
     // Function to update XP
     const updateXP = useCallback(async (xpAmount) => {
@@ -58,6 +74,8 @@ export const XPProvider = ({ children }) => {
                 console.error('No authentication token found');
                 return;
             }
+
+            console.log(`Updating XP for user ID: ${currentUser.id} with amount: ${xpAmount}`);
 
             // Call the API to add XP
             await axios.put(

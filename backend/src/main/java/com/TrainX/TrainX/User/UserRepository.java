@@ -25,4 +25,5 @@ public interface UserRepository extends JpaRepository<UserEntity,Long> {
             "WHERE u.id = :userId")
     UserXpWithLevelDTO getUserXpWithLevel(@Param("userId") Long userId);
 
+
 }

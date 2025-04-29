@@ -299,7 +299,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/burpees-modificados",
-                60L
+                50L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -311,7 +311,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/sprints-10m",
-                55L
+                50L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -335,7 +335,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/escaladores",
-                55L
+                50L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -358,7 +358,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/estocadas-estaticas",
-                55L
+                50L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -382,7 +382,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/superman",
-                45L
+                50L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -394,7 +394,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/skipping-alto",
-                55L
+                50L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -406,7 +406,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/plancha-frontal",
-                45L
+                50L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -435,7 +435,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/burpees-completos",
-                75L
+                50L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -446,8 +446,7 @@ public class DataInitializer {
                 3,
                 camino,
                 intermedio,
-                "https://youtu.be/sprints-20m",
-                70L
+                "https://youtu.be/sprints-20m", 50L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -459,7 +458,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/saltos-cajon",
-                80L
+                50L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -471,7 +470,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/flexiones-explosivas",
-                75L
+                50L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -483,7 +482,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/sentadillas-salto",
-                75L
+                50L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -495,7 +494,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/mountain-climbers",
-                65L
+                50L
         ));
         ejerciciosIntermedio.add(new ExerciseEntity(
                 "Flexiones con palmada",
@@ -506,7 +505,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/flexiones-palmada",
-                80L
+                50L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -518,7 +517,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/estocadas-saltadas",
-                75L
+                50L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -530,7 +529,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/dominadas",
-                70L
+                50L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -542,7 +541,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/fondos-paralelas",
-                75L
+                50L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -554,7 +553,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/russian-twist",
-                65L
+                50L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -566,7 +565,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/wall-balls",
-                80L
+                50L
         ));
 
         exerciseRepository.saveAll(ejerciciosIntermedio);
@@ -583,7 +582,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/burpees-dominadas",
-                100L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -595,7 +594,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/sprints-cambio",
-                90L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -607,7 +606,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/box-jumps-unilateral",
-                95L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -619,7 +618,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/muscle-ups",
-                100L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -631,7 +630,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/pistol-squats",
-                90L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -643,7 +642,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/doble-salto-cuerda",
-                85L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -655,7 +654,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/box-jumps-rotacion",
-                95L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -667,7 +666,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/archer-pushups",
-                90L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -679,7 +678,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/lsit-pullups",
-                95L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -691,7 +690,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/ladder-drills",
-                85L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -703,7 +702,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/dragon-flags",
-                100L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -715,7 +714,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/burpee-barra",
-                95L
+                50L
         ));
 
         exerciseRepository.saveAll(ejerciciosAvanzado);
@@ -732,7 +731,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/devil-press",
-                120L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -744,7 +743,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/sprints-400m",
-                130L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -756,7 +755,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/handstand-pushups",
-                120L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -768,7 +767,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/plyo-dips",
-                110L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -780,7 +779,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/shuttle-runs",
-                120L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -792,7 +791,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/clean-jerk",
-                130L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -804,7 +803,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/slow-muscle-up",
-                125L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -816,7 +815,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/thrusters",
-                120L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -828,7 +827,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/obstacle-circuit",
-                150L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -840,7 +839,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/snatch",
-                140L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -852,7 +851,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/plank-targets",
-                110L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -864,7 +863,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/depth-jumps",
-                130L
+                50L
         ));
 
 
@@ -944,7 +943,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/bodyweight-squat",
-                45L
+                50L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -968,7 +967,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/shoulder-press-db",
-                45L
+                50L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -980,7 +979,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/db-row",
-                45L
+                50L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -992,7 +991,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/calf-raises",
-                40L
+                50L
         ));
 
         // Nuevos ejercicios para principiante
@@ -1005,7 +1004,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/knee-pushups",
-                40L
+                50L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -1017,7 +1016,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/bicep-curl",
-                45L
+                50L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -1029,7 +1028,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/tricep-extension",
-                45L
+                50L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -1041,7 +1040,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/glute-bridge",
-                40L
+                50L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -1065,7 +1064,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/superman-exercise",
-                40L
+                50L
         ));
 
         exerciseRepository.saveAll(ejerciciosPrincipiante);
@@ -1082,7 +1081,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/bench-press",
-                75L
+                50L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -1094,7 +1093,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/back-squat",
-                80L
+                50L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -1106,7 +1105,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/deadlift",
-                85L
+                50L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -1118,7 +1117,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/ohp-press",
-                75L
+                50L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -1130,7 +1129,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/pull-ups",
-                80L
+                50L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -1142,7 +1141,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/dips",
-                75L
+                50L
         ));
 
         // Nuevos ejercicios para intermedio
@@ -1155,7 +1154,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/hip-thrust",
-                80L
+                50L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -1167,7 +1166,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/t-bar-row",
-                75L
+                50L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -1179,7 +1178,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/decline-bench",
-                75L
+                50L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -1191,7 +1190,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/barbell-curl",
-                70L
+                50L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -1203,7 +1202,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/tricep-pushdown",
-                70L
+                50L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -1215,7 +1214,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/lateral-raises",
-                65L
+                50L
         ));
 
         exerciseRepository.saveAll(ejerciciosIntermedio);
@@ -1232,7 +1231,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/incline-bench",
-                90L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -1244,7 +1243,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/front-squat",
-                95L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -1256,7 +1255,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/sumo-deadlift",
-                100L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -1268,7 +1267,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/close-grip-bench",
-                85L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -1280,7 +1279,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/pendlay-row",
-                90L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -1292,7 +1291,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/barbell-lunge",
-                90L
+                50L
         ));
 
         // Nuevos ejercicios para avanzado
@@ -1305,7 +1304,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/incline-db-press",
-                85L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -1317,7 +1316,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/weighted-pullups",
-                95L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -1329,7 +1328,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/single-leg-hip-thrust",
-                90L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -1341,7 +1340,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/lying-tricep-extension",
-                85L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -1353,7 +1352,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/face-pull",
-                80L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -1365,7 +1364,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/arnold-press",
-                85L
+                50L
         ));
 
         exerciseRepository.saveAll(ejerciciosAvanzado);
@@ -1382,7 +1381,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/pause-bench",
-                110L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -1394,7 +1393,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/olympic-squat",
-                120L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -1406,7 +1405,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/rack-pulls",
-                115L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -1418,7 +1417,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/push-press",
-                120L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -1430,7 +1429,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/power-snatch",
-                130L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -1442,7 +1441,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/good-morning",
-                110L
+                50L
         ));
 
         // Nuevos ejercicios para pro
@@ -1455,7 +1454,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/clean-and-jerk",
-                140L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -1467,7 +1466,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/band-bench-press",
-                125L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -1479,7 +1478,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/jump-squat",
-                120L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -1491,7 +1490,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/weighted-dips",
-                120L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -1503,7 +1502,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/single-leg-rdl",
-                115L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -1515,7 +1514,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/viking-press",
-                125L
+                50L
         ));
 
         exerciseRepository.saveAll(ejerciciosPro);
@@ -1547,7 +1546,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/bicep-curl",
-                45L
+                50L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -1571,7 +1570,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/db-bench-press",
-                55L
+                50L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -1583,7 +1582,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/tricep-extension",
-                45L
+                50L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -1607,7 +1606,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/lateral-raise",
-                40L
+                50L
         ));
 
         // Añadir 6 ejercicios más para principiante
@@ -1620,7 +1619,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/dumbbell-squat",
-                55L
+                50L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -1632,7 +1631,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/one-arm-row",
-                48L
+                50L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -1644,7 +1643,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/dumbbell-lunge",
-                52L
+                50L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -1656,7 +1655,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/dumbbell-fly",
-                47L
+                50L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -1668,7 +1667,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/front-raise",
-                43L
+                50L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -1680,7 +1679,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/hammer-curl",
-                46L
+                50L
         ));
 
         exerciseRepository.saveAll(ejerciciosPrincipiante);
@@ -1697,7 +1696,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/incline-bench",
-                70L
+                50L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -1709,7 +1708,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/barbell-curl",
-                65L
+                50L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -1733,7 +1732,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/seated-row",
-                75L
+                50L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -1745,7 +1744,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/bulgarian-squat",
-                70L
+                50L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -1757,7 +1756,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/face-pull",
-                65L
+                50L
         ));
 
         // Añadir 6 ejercicios más para intermedio
@@ -1770,7 +1769,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/military-press",
-                75L
+                50L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -1782,7 +1781,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/assisted-dips",
-                70L
+                50L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -1794,7 +1793,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/leg-press",
-                80L
+                50L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -1818,7 +1817,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/scott-curl",
-                68L
+                50L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -1830,7 +1829,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/leg-extension",
-                70L
+                50L
         ));
 
         exerciseRepository.saveAll(ejerciciosIntermedio);
@@ -1847,7 +1846,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/decline-bench",
-                85L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -1859,7 +1858,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/preacher-curl",
-                80L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -1871,7 +1870,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/skull-crusher",
-                80L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -1883,7 +1882,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/lat-pulldown",
-                90L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -1895,7 +1894,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/hack-squat",
-                90L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -1907,7 +1906,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/cable-fly",
-                85L
+                50L
         ));
 
         // Añadir 6 ejercicios más para avanzado
@@ -1920,7 +1919,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/pause-bench",
-                95L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -1932,7 +1931,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/pendlay-row",
-                90L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -1944,7 +1943,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/walking-lunge",
-                88L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -1956,7 +1955,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/21s-curl",
-                82L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -1968,7 +1967,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/pull-ups",
-                95L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -1980,7 +1979,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/arnold-press",
-                85L
+                50L
         ));
 
         exerciseRepository.saveAll(ejerciciosAvanzado);
@@ -1997,7 +1996,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/concentration-curl",
-                100L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -2009,7 +2008,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/band-bench",
-                110L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -2021,7 +2020,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/overhead-extension",
-                100L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -2033,7 +2032,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/dumbbell-pullover",
-                105L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -2045,7 +2044,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/high-leg-press",
-                110L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -2057,7 +2056,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/weighted-pullup",
-                120L
+                50L
         ));
 
         // Añadir 6 ejercicios más para nivel pro
@@ -2070,7 +2069,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/front-squat",
-                115L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -2082,7 +2081,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/t-bar-row",
-                110L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -2094,7 +2093,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/chain-bench",
-                120L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -2106,7 +2105,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/romanian-deadlift",
-                115L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -2118,7 +2117,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/behind-neck-press",
-                105L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -2130,7 +2129,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/weighted-dips",
-                125L
+                50L
         ));
 
         exerciseRepository.saveAll(ejerciciosPro);
@@ -2174,7 +2173,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/mountain-climber",
-                45L
+                50L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -2186,7 +2185,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/kb-swing",
-                55L
+                50L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -2210,7 +2209,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/shoulder-tap",
-                45L
+                50L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -2222,7 +2221,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/box-jump",
-                55L
+                50L
         ));
 
         // Nuevos ejercicios para Principiante
@@ -2247,7 +2246,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/jumping-jacks",
-                40L
+                50L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -2259,7 +2258,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/shoulder-press",
-                45L
+                50L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -2283,7 +2282,7 @@ public class DataInitializer {
                 camino,
                 principiante,
                 "https://youtu.be/forearm-plank",
-                40L
+                50L
         ));
 
         ejerciciosPrincipiante.add(new ExerciseEntity(
@@ -2312,7 +2311,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/thruster",
-                75L
+                50L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -2324,7 +2323,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/clean-press",
-                80L
+                50L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -2336,7 +2335,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/jump-burpee",
-                75L
+                50L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -2348,7 +2347,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/wall-ball",
-                70L
+                50L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -2360,7 +2359,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/kb-row-twist",
-                75L
+                50L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -2372,7 +2371,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/battle-ropes",
-                80L
+                50L
         ));
 
         // Nuevos ejercicios para Intermedio
@@ -2385,7 +2384,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/mixed-grip-pullup",
-                80L
+                50L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -2397,7 +2396,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/farmers-walk",
-                70L
+                50L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -2409,7 +2408,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/kb-snatch",
-                80L
+                50L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -2421,7 +2420,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/rotating-jump-squat",
-                75L
+                50L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -2433,7 +2432,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/parallel-dips",
-                75L
+                50L
         ));
 
         ejerciciosIntermedio.add(new ExerciseEntity(
@@ -2445,7 +2444,7 @@ public class DataInitializer {
                 camino,
                 intermedio,
                 "https://youtu.be/overhead-lunge",
-                75L
+                50L
         ));
 
         exerciseRepository.saveAll(ejerciciosIntermedio);
@@ -2462,7 +2461,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/devil-press",
-                95L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -2474,7 +2473,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/kb-complex",
-                100L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -2486,7 +2485,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/box-jump-burpee",
-                90L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -2498,7 +2497,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/man-makers",
-                95L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -2510,7 +2509,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/muscle-up",
-                100L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -2522,7 +2521,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/sandbag-clean",
-                90L
+                50L
         ));
 
         // Nuevos ejercicios para Avanzado
@@ -2535,7 +2534,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/kb-pistol-squat",
-                95L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -2547,7 +2546,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/toes-to-bar",
-                90L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -2559,7 +2558,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/bar-muscle-up",
-                100L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -2571,7 +2570,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/handstand-walk",
-                100L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -2583,7 +2582,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/clean-jerk",
-                95L
+                50L
         ));
 
         ejerciciosAvanzado.add(new ExerciseEntity(
@@ -2595,7 +2594,7 @@ public class DataInitializer {
                 camino,
                 avanzado,
                 "https://youtu.be/l-sit-dips",
-                95L
+                50L
         ));
 
         exerciseRepository.saveAll(ejerciciosAvanzado);
@@ -2612,7 +2611,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/hspu",
-                110L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -2624,7 +2623,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/ring-muscle-up",
-                120L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -2636,7 +2635,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/snatch",
-                125L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -2648,7 +2647,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/tgu",
-                115L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -2660,7 +2659,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/pistol-squat",
-                115L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -2672,7 +2671,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/rope-climb",
-                130L
+                50L
         ));
 
         // Nuevos ejercicios para Pro
@@ -2685,7 +2684,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/freestanding-hspu",
-                130L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -2697,7 +2696,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/pegboard",
-                125L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -2709,7 +2708,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/iron-cross",
-                135L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -2721,7 +2720,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/legless-rope",
-                135L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -2733,7 +2732,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/back-lever",
-                120L
+                50L
         ));
 
         ejerciciosPro.add(new ExerciseEntity(
@@ -2745,7 +2744,7 @@ public class DataInitializer {
                 camino,
                 pro,
                 "https://youtu.be/one-arm-pullup",
-                140L
+                50L
         ));
 
         exerciseRepository.saveAll(ejerciciosPro);

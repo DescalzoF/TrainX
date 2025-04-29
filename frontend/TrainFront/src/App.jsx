@@ -14,6 +14,7 @@ import ForgotPassword from './pages/auth/ForgotPassword/ForgotPassword.jsx';
 import ResetPassword from './pages/auth/ResetPassword/ResetPassword.jsx';
 import ExercisesView from './pages/exercises/ExercisesView.jsx';
 import Gimnasios from './pages/gimnasios/Gimnasios.jsx';
+import Progress from './pages/progress/Progress.jsx'; // Import the Progress component
 import './App.css';
 
 const ProtectedRoute = ({ children }) => {
@@ -127,6 +128,16 @@ function AppContent() {
                         element={
                             <ProtectedRoute>
                                 <ExercisesView />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    {/* Progress route */}
+                    <Route
+                        path="/progress"
+                        element={
+                            <ProtectedRoute>
+                                <Progress />
                             </ProtectedRoute>
                         }
                     />

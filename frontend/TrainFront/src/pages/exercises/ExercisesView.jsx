@@ -10,16 +10,40 @@ const ExerciseView = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [userDetails, setUserDetails] = useState(null);
-    const [completedExercises, setCompletedExercises] = useState({});
+    // IMPORTANT: Keep track of completed exercises with explicit ID keys
+    const [completedExerciseIds, setCompletedExerciseIds] = useState({});
 
     const { currentUser } = useAuth();
     const { updateXP, refreshXP } = useXP();
     const username = currentUser?.username || "Usuario";
 
+    // Debug completed exercises
     useEffect(() => {
-        // Fetch user data on component mount
+        console.log("Current completedExerciseIds:", completedExerciseIds);
+    }, [completedExerciseIds]);
+
+    // Reset everything when user changes and force XP refresh
+    useEffect(() => {
+        // Reset state when user changes
+        setCompletedExerciseIds({});
+        setExercises([]);
+        setUserDetails(null);
+        setError(null);
+
+        // Only proceed if we have a user
+        if (!currentUser?.id) {
+            setLoading(false);
+            return;
+        }
+
+        setLoading(true);
+
+        // Force refresh XP to get the current user's XP data
+        refreshXP();
+
+        // Fetch user data
         fetchUserData();
-    }, []);
+    }, [currentUser, refreshXP]);
 
     const fetchUserData = async () => {
         try {
@@ -31,6 +55,10 @@ const ExerciseView = () => {
                 setLoading(false);
                 return;
             }
+
+            // Reset any previous state if not already reset
+            setExercises([]);
+            setUserDetails(null);
 
             // Configuración para todas las solicitudes axios
             const axiosConfig = {
@@ -60,7 +88,7 @@ const ExerciseView = () => {
                     await fetchExercises(response.data.caminoFitnessId, response.data.levelId, axiosConfig);
 
                     // Also fetch completed exercises status if API supports it
-                    await fetchCompletedExercises(axiosConfig);
+                    await fetchCompletedExercises(axiosConfig, response.data.userId || currentUser?.id);
                 } else {
                     throw new Error("Formato de respuesta inválido");
                 }
@@ -74,10 +102,12 @@ const ExerciseView = () => {
                         levelId,
                         caminoFitnessName: getCaminoNameById(caminoFitnessId),
                         levelName: levelId,
+                        userId: currentUser?.id // Ensure we have userId in fallback data
                     };
 
                     setUserDetails(fallbackUserDetails);
                     await fetchExercises(caminoFitnessId, levelId, axiosConfig);
+                    await fetchCompletedExercises(axiosConfig, currentUser?.id);
                 } else {
                     throw new Error("No se pudo obtener la información del camino fitness y nivel.");
                 }
@@ -100,23 +130,37 @@ const ExerciseView = () => {
         return caminoMap[id] || "otro";
     };
 
-    // Add a function to fetch already completed exercises
-    const fetchCompletedExercises = async (axiosConfig) => {
+    // Updated to accept explicit userId parameter and fix state management
+    const fetchCompletedExercises = async (axiosConfig, userId) => {
         try {
-            // This is a placeholder - implement the endpoint for getting completed exercises
-            const response = await axios.get(`http://localhost:8080/api/exercises/completed`, axiosConfig);
+            // Make sure we have a valid user ID
+            if (!userId) {
+                console.warn("No user ID provided for completed exercises fetch");
+                setCompletedExerciseIds({});
+                return;
+            }
+
+            // Add user ID as a query parameter to ensure we get the correct user's completed exercises
+            const response = await axios.get(`http://localhost:8080/api/exercises/completed?userId=${userId}`, axiosConfig);
 
             if (response.data && Array.isArray(response.data)) {
                 // Convert the array of completed exercise IDs to an object for easier lookup
                 const completedMap = {};
                 response.data.forEach(exerciseId => {
-                    completedMap[exerciseId] = true;
+                    // Make sure we're using strings as keys for consistency
+                    completedMap[String(exerciseId)] = true;
                 });
-                setCompletedExercises(completedMap);
+                console.log("Setting completed exercises from API:", completedMap);
+                setCompletedExerciseIds(completedMap);
+            } else {
+                // Clear completed exercises if none found
+                console.log("No completed exercises found, setting to empty object");
+                setCompletedExerciseIds({});
             }
         } catch (err) {
             console.warn("Error fetching completed exercises:", err);
             // Continue with empty completed exercises - non-critical error
+            setCompletedExerciseIds({});
         }
     };
 
@@ -137,8 +181,12 @@ const ExerciseView = () => {
             // Add XP rewards to each exercise - fixed to 50XP as requested
             const exercisesWithXP = response.data.map(exercise => ({
                 ...exercise,
+                // Ensure ID is a string to match with completedExercises keys
+                id: String(exercise.id),
                 xpFitnessReward: 50 // Fixed to 50XP as requested
             }));
+
+            console.log("Exercise IDs:", exercisesWithXP.map(ex => ex.id));
             setExercises(exercisesWithXP);
         } else {
             console.warn("La respuesta no es un array:", response.data);
@@ -150,8 +198,14 @@ const ExerciseView = () => {
 
     const completeExercise = async (exerciseId) => {
         try {
+            // CRITICAL FIX: Ensure exerciseId is a string for consistent comparison
+            exerciseId = String(exerciseId);
+
+            console.log(`Attempting to complete exercise ${exerciseId}`);
+            console.log(`Current completedExerciseIds:`, completedExerciseIds);
+
             // Only proceed if the exercise hasn't been completed yet
-            if (completedExercises[exerciseId]) {
+            if (completedExerciseIds[exerciseId]) {
                 console.log(`Ejercicio ${exerciseId} ya fue completado anteriormente`);
                 return;
             }
@@ -170,11 +224,14 @@ const ExerciseView = () => {
                 return;
             }
 
-            // Mark this specific exercise as completed in state
-            setCompletedExercises(prev => ({
-                ...prev,
-                [exerciseId]: true
-            }));
+            // CRITICAL FIX: Create new state object and set just this exercise as completed
+            const newCompletedExercises = { ...completedExerciseIds };
+            newCompletedExercises[exerciseId] = true;
+
+            // Set the state with just this one exercise marked as completed
+            setCompletedExerciseIds(newCompletedExercises);
+
+            console.log(`Updated completedExerciseIds to:`, newCompletedExercises);
 
             // Trigger confetti effect
             confetti({
@@ -199,7 +256,7 @@ const ExerciseView = () => {
                 // Refresh XP to ensure the XPBar gets updated
                 refreshXP();
 
-                // Optionally log that this exercise was completed
+                // Register this specific exercise as completed in the backend
                 try {
                     await axios.post(
                         `http://localhost:8080/api/exercises/complete`,
@@ -223,11 +280,9 @@ const ExerciseView = () => {
             } catch (apiError) {
                 console.error("Error al actualizar XP en el backend:", apiError);
                 // Revert the completed state if the XP update failed
-                setCompletedExercises(prev => {
-                    const newState = {...prev};
-                    delete newState[exerciseId];
-                    return newState;
-                });
+                const updatedState = { ...completedExerciseIds };
+                delete updatedState[exerciseId];
+                setCompletedExerciseIds(updatedState);
                 alert("Error al actualizar XP. Por favor intenta nuevamente.");
             }
 
@@ -348,51 +403,59 @@ const ExerciseView = () => {
                                 </div>
 
                                 {exercises && exercises.length > 0 ? (
-                                    exercises.map((exercise, idx) => (
-                                        <div className="table-row" key={`exercise-${exercise.id || idx}`}>
-                                            <div className="col-exercise">
-                                                <strong>{exercise.name || 'Ejercicio Desconocido'}</strong>
-                                            </div>
-                                            <div className="col-description">
-                                                <p className="exercise-description">{exercise.description || ''}</p>
-                                            </div>
-                                            <div className="col-reps">12</div>
-                                            <div className="col-sets">3</div>
-                                            <div className="col-weight">
-                                                <input
-                                                    type="number"
-                                                    min="0"
-                                                    step="0.5"
-                                                    defaultValue="0"
-                                                />
-                                            </div>
-                                            <div className="col-xp">
-                                                <button
-                                                    className={`xp-reward-button ${completedExercises[exercise.id] ? 'completed' : ''}`}
-                                                    onClick={() => completeExercise(exercise.id)}
-                                                    disabled={completedExercises[exercise.id]}
-                                                >
-                                                    {completedExercises[exercise.id] ? (
-                                                        <span className="completed-text">✓ Completado</span>
-                                                    ) : (
-                                                        `+${exercise.xpFitnessReward || 0} XP`
-                                                    )}
-                                                </button>
-                                            </div>
-                                            <div className="col-actions">
-                                                {exercise.videoUrl && (
-                                                    <a
-                                                        href={exercise.videoUrl}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="video-link"
+                                    exercises.map((exercise, idx) => {
+                                        // CRITICAL FIX: Ensure consistent ID format and strict equality check
+                                        const exerciseId = String(exercise.id);
+                                        // CRITICAL FIX: Ensure only THIS exercise is marked as completed
+                                        const isCompleted = completedExerciseIds[exerciseId] === true;
+
+                                        return (
+                                            <div className="table-row" key={`exercise-${exerciseId || idx}`}>
+                                                <div className="col-exercise">
+                                                    <strong>{exercise.name || 'Ejercicio Desconocido'}</strong>
+                                                </div>
+                                                <div className="col-description">
+                                                    <p className="exercise-description">{exercise.description || ''}</p>
+                                                </div>
+                                                <div className="col-reps">12</div>
+                                                <div className="col-sets">3</div>
+                                                <div className="col-weight">
+                                                    <input
+                                                        type="number"
+                                                        min="0"
+                                                        step="0.5"
+                                                        defaultValue="0"
+                                                    />
+                                                </div>
+                                                <div className="col-xp">
+                                                    <button
+                                                        className={`xp-reward-button ${isCompleted ? 'completed' : ''}`}
+                                                        onClick={() => completeExercise(exerciseId)}
+                                                        disabled={isCompleted}
+                                                        data-exercise-id={exerciseId}
                                                     >
-                                                        <i className="fa fa-youtube-play"></i> Video
-                                                    </a>
-                                                )}
+                                                        {isCompleted ? (
+                                                            <span className="completed-text">✓ Completado</span>
+                                                        ) : (
+                                                            `+${exercise.xpFitnessReward || 0} XP`
+                                                        )}
+                                                    </button>
+                                                </div>
+                                                <div className="col-actions">
+                                                    {exercise.videoUrl && (
+                                                        <a
+                                                            href={exercise.videoUrl}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="video-link"
+                                                        >
+                                                            <i className="fa fa-youtube-play"></i> Video
+                                                        </a>
+                                                    )}
+                                                </div>
                                             </div>
-                                        </div>
-                                    ))
+                                        );
+                                    })
                                 ) : (
                                     <div className="table-row">
                                         <div style={{ padding: '20px', textAlign: 'center' }}>No se encontraron ejercicios</div>

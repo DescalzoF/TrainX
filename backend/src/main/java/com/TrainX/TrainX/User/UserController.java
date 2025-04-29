@@ -5,7 +5,6 @@ import com.TrainX.TrainX.caminoFitness.CaminoFitnessService;
 import com.TrainX.TrainX.jwt.dtos.UserXpWithLevelDTO;
 import com.TrainX.TrainX.level.LevelEntity;
 import com.TrainX.TrainX.level.LevelRepository;
-import com.TrainX.TrainX.xpFitness.XpFitnessService; // Importa el servicio de XP Fitness
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -231,6 +230,7 @@ public class UserController {
         }
         return ResponseEntity.notFound().build();
     }
+
 
 }
 

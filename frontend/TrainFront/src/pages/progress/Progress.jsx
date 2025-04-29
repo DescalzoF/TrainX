@@ -1,275 +1,185 @@
-import { useState, useEffect } from 'react';
-import {
-    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-    LineChart, Line
-} from 'recharts';
+import React, { useState, useEffect } from 'react';
+import { useXP } from '../../contexts/XPContext';
+import './Progress.css';
 
-export default function ProgressPage() {
-    const [progressData, setProgressData] = useState({
-        currentWeek: {
-            totalWeight: 0,
-            totalReps: 0,
-            totalSets: 0,
-            totalXP: 0,
-            dailyProgress: []
-        },
-        currentMonth: {
-            totalWeight: 0,
-            totalReps: 0,
-            totalSets: 0,
-            totalXP: 0,
-            weeklyProgress: []
-        }
-    });
+// Icon components
+const TrophyIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+        <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+        <path d="M4 22h16"></path>
+        <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+        <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+        <path d="M9 2v7.5"></path>
+        <path d="M15 2v7.5"></path>
+        <path d="M12 2v10"></path>
+        <path d="M6 8h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2Z"></path>
+    </svg>
+);
 
-    const [userId, setUserId] = useState(1); // Default user ID, should be replaced with actual logged-in user ID
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [activeTab, setActiveTab] = useState('week');
+const ChartIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M3 3v18h18"></path>
+        <path d="M18 17V9"></path>
+        <path d="M13 17V5"></path>
+        <path d="M8 17v-3"></path>
+    </svg>
+);
 
+const LightningIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+    </svg>
+);
+
+function Progress() {
+    const { xp, refreshXP } = useXP();
+    const [userProgress, setUserProgress] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    // Use XP data to calculate progress metrics
     useEffect(() => {
-        // Fetch user's progress data
-        const fetchProgressData = async () => {
-            setIsLoading(true);
-            try {
-                // Real API calls
-                const weeklyResponse = await fetch(`/api/progress/weekly/${userId}`);
-                const monthlyResponse = await fetch(`/api/progress/monthly/${userId}`);
+        // If XP is not available yet, try refreshing
+        if (!xp && loading) {
+            refreshXP();
+            return;
+        }
 
-                if (!weeklyResponse.ok || !monthlyResponse.ok) {
-                    throw new Error('Failed to fetch progress data');
+        // Extract XP points from the XP context
+        const xpPoints = xp?.totalXp || 0;
+
+        // Calculate derived metrics based on XP points
+        const totalExercises = Math.round(xpPoints / 50);
+        const totalReps = totalExercises * 12;
+        const totalSets = totalExercises * 3;
+
+        // Create progress object with calculated values
+        const progressData = {
+            xpPoints: xpPoints,
+            totalWorkouts: Math.round(xpPoints / 100), // Estimate based on XP
+            completedExercises: totalExercises,
+            totalReps: totalReps,
+            totalSets: totalSets,
+            recentAchievements: [
+                {
+                    id: 1,
+                    name: "First Workout",
+                    date: new Date().toISOString().split('T')[0]
+                },
+                {
+                    id: 2,
+                    name: "Weekly Streak",
+                    date: new Date().toISOString().split('T')[0]
                 }
-
-                const weekData = await weeklyResponse.json();
-                const monthData = await monthlyResponse.json();
-
-                setProgressData({
-                    currentWeek: weekData,
-                    currentMonth: monthData
-                });
-
-            } catch (err) {
-                setError('Failed to load progress data');
-                console.error(err);
-
-                // Fallback to mock data if API fails
-                const mockWeekData = generateMockWeekData();
-                const mockMonthData = generateMockMonthData();
-
-                setProgressData({
-                    currentWeek: mockWeekData,
-                    currentMonth: mockMonthData
-                });
-            } finally {
-                setIsLoading(false);
-            }
+            ],
+            monthlyStats: [
+                { month: "January", workouts: Math.round(xpPoints * 0.1) },
+                { month: "February", workouts: Math.round(xpPoints * 0.15) },
+                { month: "March", workouts: Math.round(xpPoints * 0.25) },
+                { month: "April", workouts: Math.round(xpPoints * 0.5) }
+            ]
         };
 
-        fetchProgressData();
-    }, [userId]);
+        setUserProgress(progressData);
+        setLoading(false);
+    }, [xp, refreshXP, loading]);
 
-    // Mock data generator functions
-    function generateMockWeekData() {
-        const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-        const dailyProgress = days.map(day => {
-            const workoutDone = Math.random() > 0.3; // 70% chance of workout on any day
-            return {
-                day,
-                weight: workoutDone ? Math.floor(Math.random() * 1000) + 500 : 0, // 500-1500kg
-                reps: workoutDone ? Math.floor(Math.random() * 100) + 50 : 0, // 50-150 reps
-                sets: workoutDone ? Math.floor(Math.random() * 15) + 5 : 0, // 5-20 sets
-                xp: workoutDone ? Math.floor(Math.random() * 200) + 50 : 0, // 50-250 XP
-            };
-        });
-
-        // Calculate totals
-        const totals = dailyProgress.reduce((acc, day) => {
-            return {
-                totalWeight: acc.totalWeight + day.weight,
-                totalReps: acc.totalReps + day.reps,
-                totalSets: acc.totalSets + day.sets,
-                totalXP: acc.totalXP + day.xp
-            };
-        }, { totalWeight: 0, totalReps: 0, totalSets: 0, totalXP: 0 });
-
-        return {
-            ...totals,
-            dailyProgress
-        };
+    // Show loading state while waiting for XP data
+    if (loading) {
+        return <div className="progress-loading">Loading your fitness data...</div>;
     }
 
-    function generateMockMonthData() {
-        const weeks = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
-        const weeklyProgress = weeks.map(week => {
-            return {
-                week,
-                weight: Math.floor(Math.random() * 4000) + 2000, // 2000-6000kg
-                reps: Math.floor(Math.random() * 400) + 200, // 200-600 reps
-                sets: Math.floor(Math.random() * 60) + 20, // 20-80 sets
-                xp: Math.floor(Math.random() * 800) + 200, // 200-1000 XP
-            };
-        });
-
-        // Calculate monthly totals
-        const totals = weeklyProgress.reduce((acc, week) => {
-            return {
-                totalWeight: acc.totalWeight + week.weight,
-                totalReps: acc.totalReps + week.reps,
-                totalSets: acc.totalSets + week.sets,
-                totalXP: acc.totalXP + week.xp
-            };
-        }, { totalWeight: 0, totalReps: 0, totalSets: 0, totalXP: 0 });
-
-        return {
-            ...totals,
-            weeklyProgress
-        };
-    }
-
-    if (isLoading) return <div className="loading-container">Loading progress data...</div>;
-    if (error) return <div className="error-message">{error}</div>;
-
-    const { currentWeek, currentMonth } = progressData;
+    // Calculate max workout value for graph scaling
+    const maxWorkoutValue = Math.max(...userProgress.monthlyStats.map(stat => stat.workouts));
 
     return (
-        <div className="progress-page">
-            <h1 className="page-title">Your Fitness Progress</h1>
+        <div className="progress-container">
+            <div className="page-title" style={{ paddingTop: "70px" }}>
+                <h1>FITNESS TRACKER PRO</h1>
+                <p>Track your progress and achieve your fitness goals</p>
+            </div>
 
-            {/* Toggle between week and month views */}
-            <div className="tab-container">
-                <div className="tab-buttons">
-                    <button
-                        className={`tab-button ${activeTab === 'week' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('week')}
-                    >
-                        This Week
-                    </button>
-                    <button
-                        className={`tab-button ${activeTab === 'month' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('month')}
-                    >
-                        This Month
-                    </button>
+            <div className="progress-overview">
+                <div className="progress-card xp-card">
+                    <div className="panel-icon">
+                        <LightningIcon />
+                    </div>
+                    <h3>Total Experience Points</h3>
+                    <p className="progress-number">{userProgress.xpPoints}</p>
+                    <p className="progress-label">
+                        {xp?.levelName ? `Current Level: ${xp.levelName}` : 'Keep it up! You\'re doing great!'}
+                    </p>
+                </div>
+
+                <div className="progress-card">
+                    <h3>Total Workouts</h3>
+                    <p className="progress-number">{userProgress.totalWorkouts}</p>
+                    <p className="progress-label">Sessions Completed</p>
+                </div>
+
+                <div className="progress-card">
+                    <h3>Exercises Completed</h3>
+                    <p className="progress-number">{userProgress.completedExercises}</p>
+                    <p className="progress-label">Total Exercises</p>
+                </div>
+
+                <div className="progress-card">
+                    <h3>Total Repetitions</h3>
+                    <p className="progress-number">{userProgress.totalReps}</p>
+                    <p className="progress-label">Reps Performed</p>
+                </div>
+
+                <div className="progress-card">
+                    <h3>Total Sets</h3>
+                    <p className="progress-number">{userProgress.totalSets}</p>
+                    <p className="progress-label">Sets Completed</p>
                 </div>
             </div>
 
-            {/* Summary Stats */}
-            <div className="stats-grid">
-                {/* Total Weight */}
-                <div className="stat-card">
-                    <h3 className="stat-title">Total Weight</h3>
-                    <p className="stat-value weight-value">
-                        {activeTab === 'week' ? currentWeek.totalWeight : currentMonth.totalWeight} kg
-                    </p>
-                </div>
-
-                {/* Total Reps */}
-                <div className="stat-card">
-                    <h3 className="stat-title">Total Reps</h3>
-                    <p className="stat-value reps-value">
-                        {activeTab === 'week' ? currentWeek.totalReps : currentMonth.totalReps}
-                    </p>
-                </div>
-
-                {/* Total Sets */}
-                <div className="stat-card">
-                    <h3 className="stat-title">Total Sets</h3>
-                    <p className="stat-value sets-value">
-                        {activeTab === 'week' ? currentWeek.totalSets : currentMonth.totalSets}
-                    </p>
-                </div>
-
-                {/* Total XP */}
-                <div className="stat-card">
-                    <h3 className="stat-title">Total XP</h3>
-                    <p className="stat-value xp-value">
-                        {activeTab === 'week' ? currentWeek.totalXP : currentMonth.totalXP} XP
-                    </p>
-                </div>
-            </div>
-
-            {/* Charts */}
-            <div className="charts-grid">
-                {/* Weight Progress Chart */}
-                <div className="chart-card">
-                    <h3 className="chart-title">Weight Lifted</h3>
-                    <div className="chart-container">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart
-                                data={activeTab === 'week' ? currentWeek.dailyProgress : currentMonth.weeklyProgress}
-                                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                            >
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey={activeTab === 'week' ? 'day' : 'week'} />
-                                <YAxis />
-                                <Tooltip />
-                                <Legend />
-                                <Bar dataKey="weight" fill="#3b82f6" />
-                            </BarChart>
-                        </ResponsiveContainer>
+            <div className="progress-details">
+                <div className="achievements-section">
+                    <div className="panel-header">
+                        <div className="panel-icon">
+                            <TrophyIcon />
+                        </div>
+                        <h2>Recent Achievements</h2>
                     </div>
+                    <ul className="achievements-list">
+                        {userProgress.recentAchievements.map(achievement => (
+                            <li key={achievement.id} className="achievement-item">
+                                <span className="achievement-name">
+                                    <span className="achievement-badge"></span>
+                                    {achievement.name}
+                                </span>
+                                <span className="achievement-date">{achievement.date}</span>
+                            </li>
+                        ))}
+                    </ul>
                 </div>
 
-                {/* XP Progress Chart */}
-                <div className="chart-card">
-                    <h3 className="chart-title">XP Earned</h3>
-                    <div className="chart-container">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <LineChart
-                                data={activeTab === 'week' ? currentWeek.dailyProgress : currentMonth.weeklyProgress}
-                                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                            >
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey={activeTab === 'week' ? 'day' : 'week'} />
-                                <YAxis />
-                                <Tooltip />
-                                <Legend />
-                                <Line type="monotone" dataKey="xp" stroke="#f97316" strokeWidth={2} />
-                            </LineChart>
-                        </ResponsiveContainer>
+                <div className="monthly-stats">
+                    <div className="panel-header">
+                        <div className="panel-icon">
+                            <ChartIcon />
+                        </div>
+                        <h2>Monthly Progress</h2>
                     </div>
-                </div>
-
-                {/* Reps Progress Chart */}
-                <div className="chart-card">
-                    <h3 className="chart-title">Repetitions</h3>
-                    <div className="chart-container">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart
-                                data={activeTab === 'week' ? currentWeek.dailyProgress : currentMonth.weeklyProgress}
-                                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                            >
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey={activeTab === 'week' ? 'day' : 'week'} />
-                                <YAxis />
-                                <Tooltip />
-                                <Legend />
-                                <Bar dataKey="reps" fill="#10b981" />
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </div>
-                </div>
-
-                {/* Sets Progress Chart */}
-                <div className="chart-card">
-                    <h3 className="chart-title">Sets Completed</h3>
-                    <div className="chart-container">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart
-                                data={activeTab === 'week' ? currentWeek.dailyProgress : currentMonth.weeklyProgress}
-                                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                            >
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey={activeTab === 'week' ? 'day' : 'week'} />
-                                <YAxis />
-                                <Tooltip />
-                                <Legend />
-                                <Bar dataKey="sets" fill="#8b5cf6" />
-                            </BarChart>
-                        </ResponsiveContainer>
+                    <div className="stats-graph">
+                        {userProgress.monthlyStats.map((stat, index) => (
+                            <div key={index} className="stat-bar-container">
+                                <span className="stat-value">{stat.workouts}</span>
+                                <div
+                                    className="stat-bar"
+                                    style={{ height: `${(stat.workouts / maxWorkoutValue) * 180}px` }}
+                                ></div>
+                                <span className="stat-month">{stat.month.substring(0, 3)}</span>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </div>
         </div>
     );
 }
+
+export default Progress;
