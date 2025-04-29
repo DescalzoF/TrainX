@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import "./ExercisesView.css";
 import confetti from 'canvas-confetti';
-import {useAuth} from "../../contexts/AuthContext.jsx";
+import { useAuth } from "../../contexts/AuthContext.jsx";
+import { useXP } from "../../contexts/XPContext.jsx";
 
 const ExerciseView = () => {
     const [exercises, setExercises] = useState([]);
@@ -12,6 +13,7 @@ const ExerciseView = () => {
     const [completedExercises, setCompletedExercises] = useState({});
 
     const { currentUser } = useAuth();
+    const { updateXP, refreshXP } = useXP();
     const username = currentUser?.username || "Usuario";
 
     useEffect(() => {
@@ -150,6 +152,7 @@ const ExerciseView = () => {
         try {
             // Only proceed if the exercise hasn't been completed yet
             if (completedExercises[exerciseId]) {
+                console.log(`Ejercicio ${exerciseId} ya fue completado anteriormente`);
                 return;
             }
 
@@ -186,69 +189,70 @@ const ExerciseView = () => {
             });
 
             // Show XP success notification
-            const exerciseData = exercises.find(e => e.id === exerciseId);
+            showXpNotification(50);
 
-            if (exerciseData) {
-                // Create and add success notification to DOM
-                const xpPoints = exerciseData.xpFitnessReward || 0;
-                const successBox = document.createElement('div');
-                successBox.className = 'xp-success-box';
-                successBox.innerHTML = `
-                <div class="xp-success-icon">🏆</div>
-                <div class="xp-success-content">
-                    <div class="xp-success-title">¡Ejercicio completado!</div>
-                    <div class="xp-success-message">XP recompensado: <span class="xp-points">+${xpPoints}</span></div>
-                </div>
-                `;
-                document.body.appendChild(successBox);
-
-                // Remove the notification after animation completes
-                setTimeout(() => {
-                    document.body.removeChild(successBox);
-                }, 4000);
-            }
-
-            // Send the completed exercise data to the backend
             try {
-                // First, call the XP fitness endpoint to add XP
-                const xpResponse = await axios.put(
-                    `http://localhost:8080/api/xpfitness/${userId}/addXp/50`,
-                    {},  // Empty body as we're passing values in the URL
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                            'Content-Type': 'application/json',
+                // Use the XP context to update XP
+                await updateXP(50);
+                console.log(`XP actualizado exitosamente para ejercicio ${exerciseId}`);
+
+                // Refresh XP to ensure the XPBar gets updated
+                refreshXP();
+
+                // Optionally log that this exercise was completed
+                try {
+                    await axios.post(
+                        `http://localhost:8080/api/exercises/complete`,
+                        {
+                            userId: userId,
+                            exerciseId: exerciseId,
+                            xpFitnessReward: 50
+                        },
+                        {
+                            headers: {
+                                Authorization: `Bearer ${token}`,
+                                'Content-Type': 'application/json',
+                            }
                         }
-                    }
-                );
-
-                console.log("XP actualizado exitosamente:", xpResponse.data);
-
-                // Then log the exercise completion (if you have an endpoint for it)
-                await axios.post(
-                    `http://localhost:8080/api/exercises/complete`,
-                    {
-                        userId: userId,
-                        exerciseId: exerciseId,
-                        xpFitnessReward: 50 // Fixed at 50XP
-                    },
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                            'Content-Type': 'application/json',
-                        }
-                    }
-                );
-
-                console.log(`Ejercicio ${exerciseId} completado y XP actualizado en el backend`);
+                    );
+                    console.log(`Ejercicio ${exerciseId} registrado como completado en el backend`);
+                } catch (logError) {
+                    console.warn("Error al registrar ejercicio como completado:", logError);
+                    // Not critical if this fails - the XP was already awarded
+                }
             } catch (apiError) {
                 console.error("Error al actualizar XP en el backend:", apiError);
-                // Still keep the UI state as completed even if backend update fails
+                // Revert the completed state if the XP update failed
+                setCompletedExercises(prev => {
+                    const newState = {...prev};
+                    delete newState[exerciseId];
+                    return newState;
+                });
+                alert("Error al actualizar XP. Por favor intenta nuevamente.");
             }
 
         } catch (err) {
             console.error('Error al completar el ejercicio:', err);
         }
+    };
+
+    const showXpNotification = (xpAmount) => {
+        // Create and add success notification to DOM
+        const successBox = document.createElement('div');
+        successBox.className = 'xp-success-box';
+        successBox.innerHTML = `
+        <div class="xp-success-icon">🏆</div>
+        <div class="xp-success-content">
+            <div class="xp-success-title">¡Ejercicio completado!</div>
+            <div class="xp-success-message">XP recompensado: <span class="xp-points">+${xpAmount}</span></div>
+        </div>
+        `;
+        document.body.appendChild(successBox);
+
+        // Remove the notification after animation completes
+        setTimeout(() => {
+            document.body.removeChild(successBox);
+        }, 4000);
     };
 
     const handleError = (err) => {

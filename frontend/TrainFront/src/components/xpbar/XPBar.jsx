@@ -1,17 +1,16 @@
 import { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
 import './XPBar.css';
 import { useAuth } from '../../contexts/AuthContext';
 import { useXP } from '../../contexts/XPContext.jsx';
 
 function XPBar() {
     const { isLoggedIn, currentUser } = useAuth();
-    const { xp, subscribeToXPChanges } = useXP();
+    const { xp, refreshXP, subscribeToXPChanges } = useXP();
     const [totalXp, setTotalXp] = useState(0);
     const [loading, setLoading] = useState(true);
     const [leveledUp, setLeveledUp] = useState(false);
-    const updateIntervalRef = useRef(null);
     const [animatedXP, setAnimatedXP] = useState(0);
+    const updateIntervalRef = useRef(null);
 
     // Define the level ranges directly in the component
     const LEVEL_RANGES = [
@@ -46,55 +45,31 @@ function XPBar() {
         };
     };
 
-    // Fetch only the total XP from the backend
+    // Initial loading and setup of periodic refresh
     useEffect(() => {
-        const fetchTotalXP = async () => {
-            if (isLoggedIn && currentUser) {
-                try {
-                    setLoading(true);
-                    const response = await axios.get(`http://localhost:8080/api/users/${currentUser.id}/xp-level`, {
-                        headers: {
-                            Authorization: `Bearer ${localStorage.getItem('token')}`
-                        }
-                    });
+        if (isLoggedIn && currentUser) {
+            setLoading(true);
 
-                    // We only care about the totalXp value from the response
-                    if (response.data && response.data.totalXp !== undefined) {
-                        const newTotalXp = response.data.totalXp || 0;
-                        setTotalXp(newTotalXp);
-                        setAnimatedXP(newTotalXp);
+            // Fetch XP immediately
+            refreshXP().then(() => {
+                setLoading(false);
+            }).catch(error => {
+                console.error('Error fetching initial XP:', error);
+                setLoading(false);
+            });
 
-                        // Check if we leveled up (based on our previous knowledge)
-                        const previousLevel = calculateLevelInfo(totalXp);
-                        const newLevel = calculateLevelInfo(newTotalXp);
-                        if (previousLevel.name !== newLevel.name && totalXp > 0) {
-                            setLeveledUp(true);
-                            console.log(`Level up! New level: ${newLevel.name}`);
-                            // You could add a notification/animation here
-                            setTimeout(() => setLeveledUp(false), 3000);
-                        }
-                    }
-                    setLoading(false);
-                } catch (error) {
-                    console.error('Error fetching XP information:', error);
-                    setLoading(false);
-                }
-            }
-        };
-
-        fetchTotalXP();
-
-        // Setup interval for periodic XP updates
-        updateIntervalRef.current = setInterval(() => {
-            fetchTotalXP();
-        }, 10000); // Refresh every 10 seconds
+            // Setup interval for periodic XP updates
+            updateIntervalRef.current = setInterval(() => {
+                refreshXP();
+            }, 10000); // Refresh every 10 seconds
+        }
 
         return () => {
             if (updateIntervalRef.current) {
                 clearInterval(updateIntervalRef.current);
             }
         };
-    }, [isLoggedIn, currentUser]);
+    }, [isLoggedIn, currentUser, refreshXP]);
 
     // Listen for XP changes from the XP context
     useEffect(() => {
@@ -126,22 +101,27 @@ function XPBar() {
 
     // Watch for direct XP changes from the context
     useEffect(() => {
-        if (xp && xp.totalXp !== undefined && xp.totalXp !== totalXp) {
+        if (xp && xp.totalXp !== undefined) {
             const newTotalXp = xp.totalXp;
 
-            // Check if we leveled up
-            const previousLevel = calculateLevelInfo(totalXp);
-            const newLevel = calculateLevelInfo(newTotalXp);
+            // Only process if the XP actually changed
+            if (newTotalXp !== totalXp) {
+                // Check if we leveled up
+                const previousLevel = calculateLevelInfo(totalXp);
+                const newLevel = calculateLevelInfo(newTotalXp);
 
-            if (previousLevel.name !== newLevel.name && totalXp > 0) {
-                setLeveledUp(true);
-                console.log(`Level up! New level: ${newLevel.name}`);
-                // You could add a notification/animation here
-                setTimeout(() => setLeveledUp(false), 3000);
+                if (previousLevel.name !== newLevel.name && totalXp > 0) {
+                    setLeveledUp(true);
+                    console.log(`Level up! New level: ${newLevel.name}`);
+                    // You could add a notification/animation here
+                    setTimeout(() => setLeveledUp(false), 3000);
+                }
+
+                setTotalXp(newTotalXp);
+                setAnimatedXP(newTotalXp);
+
+                console.log(`XP Bar updated: ${totalXp} -> ${newTotalXp}`);
             }
-
-            setTotalXp(newTotalXp);
-            setAnimatedXP(newTotalXp);
         }
     }, [xp, totalXp]);
 
@@ -153,7 +133,7 @@ function XPBar() {
     const levelInfo = calculateLevelInfo(animatedXP);
 
     return (
-        <div className="xp-bar-container">
+        <div className={`xp-bar-container ${leveledUp ? 'level-up-animation' : ''}`}>
             <div className="xp-bar-wrapper">
                 <div
                     className="xp-bar-fill"

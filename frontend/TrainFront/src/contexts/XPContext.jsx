@@ -1,120 +1,116 @@
-import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from './AuthContext';
 
-// Create the context
+// Create XP context
 const XPContext = createContext();
 
-// Custom hook to use the XP context
-export function useXP() {
-    return useContext(XPContext);
-}
-
-// XP Provider component
-export function XPProvider({ children }) {
-    const { isLoggedIn, currentUser } = useAuth();
+// Create XP provider component
+export const XPProvider = ({ children }) => {
     const [xp, setXP] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const { currentUser, isLoggedIn } = useAuth();
     const [listeners, setListeners] = useState([]);
 
     // Fetch initial XP data
     useEffect(() => {
         if (isLoggedIn && currentUser) {
-            fetchXP();
-        } else {
-            setXP(null);
-            setLoading(false);
+            fetchUserXP();
         }
     }, [isLoggedIn, currentUser]);
 
-    // Function to fetch XP data
-    const fetchXP = async () => {
+    // Function to fetch user XP
+    const fetchUserXP = useCallback(async () => {
+        if (!currentUser?.id) return;
+
         try {
-            setLoading(true);
+            const token = localStorage.getItem('token') || localStorage.getItem('jwtToken');
+
+            if (!token) {
+                console.error('No authentication token found');
+                return;
+            }
+
             const response = await axios.get(`http://localhost:8080/api/users/${currentUser.id}/xp-level`, {
                 headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`
+                    Authorization: `Bearer ${token}`
                 }
             });
 
-            const xpData = response.data;
-            setXP(xpData);
-            setLoading(false);
+            if (response.data) {
+                setXP(response.data);
 
-            // Notify listeners of XP change
-            notifyListeners(xpData);
+                // Notify all listeners
+                listeners.forEach(listener => listener(response.data));
+            }
         } catch (error) {
             console.error('Error fetching XP data:', error);
-            setLoading(false);
         }
-    };
+    }, [currentUser, listeners]);
 
     // Function to update XP
-    const updateXP = async (xpAmount) => {
-        if (!isLoggedIn || !currentUser) return;
+    const updateXP = useCallback(async (xpAmount) => {
+        if (!currentUser?.id) return;
 
         try {
-            // First update locally for immediate feedback
-            const updatedXP = {
-                ...xp,
-                totalXp: xp.totalXp + xpAmount
-            };
-            setXP(updatedXP);
+            const token = localStorage.getItem('token') || localStorage.getItem('jwtToken');
 
-            // Notify listeners of XP change
-            notifyListeners(updatedXP);
+            if (!token) {
+                console.error('No authentication token found');
+                return;
+            }
 
-            // Then save to server
-            await axios.post(
-                `http://localhost:8080/api/users/${currentUser.id}/add-xp`,
-                { xpAmount },
+            // Call the API to add XP
+            await axios.put(
+                `http://localhost:8080/api/xpfitness/${currentUser.id}/addXp/${xpAmount}`,
+                {},
                 {
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
                     }
                 }
             );
 
-            // If the user might have leveled up, fetch the updated data
-            if (updatedXP.totalXp >= updatedXP.xpMax) {
-                fetchXP();
-            }
+            // After updating, fetch the latest XP data
+            await fetchUserXP();
         } catch (error) {
             console.error('Error updating XP:', error);
-            // Revert to original XP if update fails
-            fetchXP();
+            throw error; // Rethrow to allow error handling in the component
         }
-    };
-
-    // Function to notify listeners of XP changes
-    const notifyListeners = (xpData) => {
-        listeners.forEach(listener => listener(xpData));
-    };
+    }, [currentUser, fetchUserXP]);
 
     // Function to subscribe to XP changes
-    const subscribeToXPChanges = useCallback((callback) => {
-        setListeners(prev => [...prev, callback]);
+    const subscribeToXPChanges = useCallback((listener) => {
+        setListeners(prevListeners => [...prevListeners, listener]);
 
         // Return unsubscribe function
         return () => {
-            setListeners(prev => prev.filter(listener => listener !== callback));
+            setListeners(prevListeners =>
+                prevListeners.filter(l => l !== listener)
+            );
         };
     }, []);
 
-    // Value to provide to consumers
-    const value = {
+    // Context value
+    const contextValue = {
         xp,
-        loading,
         updateXP,
-        fetchXP,
+        refreshXP: fetchUserXP,
         subscribeToXPChanges
     };
 
     return (
-        <XPContext.Provider value={value}>
+        <XPContext.Provider value={contextValue}>
             {children}
         </XPContext.Provider>
     );
-}
+};
 
-export default XPContext;
+// Custom hook to use the XP context
+export const useXP = () => {
+    const context = useContext(XPContext);
+    if (!context) {
+        throw new Error('useXP must be used within an XPProvider');
+    }
+    return context;
+};
