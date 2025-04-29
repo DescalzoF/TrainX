@@ -1,156 +1,171 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './XPBar.css';
 import { useAuth } from '../../contexts/AuthContext';
-import { useXP } from '../../contexts/XPContext.jsx'; // We'll create this context
+import { useXP } from '../../contexts/XPContext.jsx';
 
 function XPBar() {
     const { isLoggedIn, currentUser } = useAuth();
-    const { xp, subscribeToXPChanges } = useXP(); // Use the XP context
-    const [levelInfo, setLevelInfo] = useState({
-        totalXp: 0,
-        nameLevel: 'Principiante',
-        xpMin: 0,
-        xpMax: 100,
-        progressPercentage: 0
-    });
+    const { xp, subscribeToXPChanges } = useXP();
+    const [totalXp, setTotalXp] = useState(0);
     const [loading, setLoading] = useState(true);
+    const [leveledUp, setLeveledUp] = useState(false);
+    const updateIntervalRef = useRef(null);
+    const [animatedXP, setAnimatedXP] = useState(0);
 
-    // Fetch initial XP data
+    // Define the level ranges directly in the component
+    const LEVEL_RANGES = [
+        { name: 'Principiante', min: 0, max: 1000 },
+        { name: 'Intermedio', min: 1000, max: 3000 },
+        { name: 'Avanzado', min: 3000, max: 6000 },
+        { name: 'Pro', min: 6000, max: 10000 },
+        { name: 'Pro+', min: 10000, max: 15000 },
+        { name: 'Maestro', min: 15000, max: 30000 }
+    ];
+
+    // Calculate level info based on total XP
+    const calculateLevelInfo = (xpAmount) => {
+        // Find the appropriate level range
+        const level = LEVEL_RANGES.find(range =>
+            xpAmount >= range.min && xpAmount < range.max
+        ) || LEVEL_RANGES[LEVEL_RANGES.length - 1]; // Default to highest level if beyond all ranges
+
+        // Calculate progress within the level
+        const xpInLevel = xpAmount - level.min;
+        const levelRange = level.max - level.min;
+        const progressPercentage = Math.min(100, Math.max(0, (xpInLevel / levelRange) * 100));
+
+        return {
+            name: level.name,
+            min: level.min,
+            max: level.max,
+            currentXp: xpAmount, // Store the full XP amount
+            xpInLevel,
+            levelRange,
+            progressPercentage
+        };
+    };
+
+    // Fetch only the total XP from the backend
     useEffect(() => {
-        const fetchLevelInfo = async () => {
+        const fetchTotalXP = async () => {
             if (isLoggedIn && currentUser) {
                 try {
                     setLoading(true);
-
                     const response = await axios.get(`http://localhost:8080/api/users/${currentUser.id}/xp-level`, {
                         headers: {
                             Authorization: `Bearer ${localStorage.getItem('token')}`
                         }
                     });
 
-                    if (response.data) {
-                        const { totalXp, nameLevel, xpMin, xpMax, progressPercentage } = response.data;
+                    // We only care about the totalXp value from the response
+                    if (response.data && response.data.totalXp !== undefined) {
+                        const newTotalXp = response.data.totalXp || 0;
+                        setTotalXp(newTotalXp);
+                        setAnimatedXP(newTotalXp);
 
-                        setLevelInfo({
-                            totalXp: totalXp || 0,
-                            nameLevel: nameLevel || 'Principiante',
-                            xpMin: xpMin || 0,
-                            xpMax: xpMax || 100,
-                            progressPercentage: progressPercentage || 0
-                        });
+                        // Check if we leveled up (based on our previous knowledge)
+                        const previousLevel = calculateLevelInfo(totalXp);
+                        const newLevel = calculateLevelInfo(newTotalXp);
+                        if (previousLevel.name !== newLevel.name && totalXp > 0) {
+                            setLeveledUp(true);
+                            console.log(`Level up! New level: ${newLevel.name}`);
+                            // You could add a notification/animation here
+                            setTimeout(() => setLeveledUp(false), 3000);
+                        }
                     }
-
                     setLoading(false);
                 } catch (error) {
-                    console.error('Error fetching XP and level information:', error);
+                    console.error('Error fetching XP information:', error);
                     setLoading(false);
                 }
             }
         };
 
-        fetchLevelInfo();
+        fetchTotalXP();
+
+        // Setup interval for periodic XP updates
+        updateIntervalRef.current = setInterval(() => {
+            fetchTotalXP();
+        }, 10000); // Refresh every 10 seconds
+
+        return () => {
+            if (updateIntervalRef.current) {
+                clearInterval(updateIntervalRef.current);
+            }
+        };
     }, [isLoggedIn, currentUser]);
 
-    // Listen for XP changes
+    // Listen for XP changes from the XP context
     useEffect(() => {
         if (!isLoggedIn || !currentUser) return;
 
-        // Subscribe to XP changes
         const unsubscribe = subscribeToXPChanges((newXpData) => {
-            // Update level info when XP changes
-            setLevelInfo(prevInfo => {
-                // Calculate new progress within the level
+            if (newXpData && newXpData.totalXp !== undefined) {
                 const newTotalXp = newXpData.totalXp;
-                const newXpInLevel = newTotalXp - prevInfo.xpMin;
-                const levelRange = prevInfo.xpMax - prevInfo.xpMin;
-                const newProgressPercentage = Math.min(100, Math.max(0, (newXpInLevel / levelRange) * 100));
 
-                // Check if we need to update level info (if we leveled up)
-                if (newTotalXp >= prevInfo.xpMax) {
-                    // We should fetch the updated level info from the server
-                    fetchUpdatedLevelInfo(currentUser.id);
-                    return prevInfo; // Return previous state until we get the new level info
+                // Check if we leveled up
+                const previousLevel = calculateLevelInfo(totalXp);
+                const newLevel = calculateLevelInfo(newTotalXp);
+
+                if (previousLevel.name !== newLevel.name && totalXp > 0) {
+                    setLeveledUp(true);
+                    console.log(`Level up! New level: ${newLevel.name}`);
+                    // You could add a notification/animation here
+                    setTimeout(() => setLeveledUp(false), 3000);
                 }
 
-                // Just update the XP and progress within the current level
-                return {
-                    ...prevInfo,
-                    totalXp: newTotalXp,
-                    progressPercentage: newProgressPercentage
-                };
-            });
+                setTotalXp(newTotalXp);
+                setAnimatedXP(newTotalXp);
+            }
         });
 
         // Cleanup subscription on unmount
         return () => unsubscribe();
-    }, [isLoggedIn, currentUser, subscribeToXPChanges]);
+    }, [isLoggedIn, currentUser, totalXp, subscribeToXPChanges]);
 
-    // Function to fetch updated level info when leveling up
-    const fetchUpdatedLevelInfo = async (userId) => {
-        try {
-            const response = await axios.get(`http://localhost:8080/api/users/${userId}/xp-level`, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`
-                }
-            });
-
-            if (response.data) {
-                const { totalXp, nameLevel, xpMin, xpMax, progressPercentage } = response.data;
-                setLevelInfo({
-                    totalXp: totalXp || 0,
-                    nameLevel: nameLevel || 'Principiante',
-                    xpMin: xpMin || 0,
-                    xpMax: xpMax || 100,
-                    progressPercentage: progressPercentage || 0
-                });
-            }
-        } catch (error) {
-            console.error('Error fetching updated level information:', error);
-        }
-    };
-
-    // Watch for XP changes from the context
+    // Watch for direct XP changes from the context
     useEffect(() => {
-        if (xp && xp.totalXp !== levelInfo.totalXp) {
-            // Update the level info with the new XP
-            setLevelInfo(prevInfo => {
-                const newXpInLevel = xp.totalXp - prevInfo.xpMin;
-                const levelRange = prevInfo.xpMax - prevInfo.xpMin;
-                const newProgressPercentage = Math.min(100, Math.max(0, (newXpInLevel / levelRange) * 100));
+        if (xp && xp.totalXp !== undefined && xp.totalXp !== totalXp) {
+            const newTotalXp = xp.totalXp;
 
-                return {
-                    ...prevInfo,
-                    totalXp: xp.totalXp,
-                    progressPercentage: newProgressPercentage
-                };
-            });
+            // Check if we leveled up
+            const previousLevel = calculateLevelInfo(totalXp);
+            const newLevel = calculateLevelInfo(newTotalXp);
+
+            if (previousLevel.name !== newLevel.name && totalXp > 0) {
+                setLeveledUp(true);
+                console.log(`Level up! New level: ${newLevel.name}`);
+                // You could add a notification/animation here
+                setTimeout(() => setLeveledUp(false), 3000);
+            }
+
+            setTotalXp(newTotalXp);
+            setAnimatedXP(newTotalXp);
         }
-    }, [xp]);
+    }, [xp, totalXp]);
 
     if (!isLoggedIn || loading) {
         return null;
     }
 
-    // Calculate the values to display, showing current XP within the level
-    const currentDisplay = isNaN(levelInfo.totalXp - levelInfo.xpMin) ? 0 : (levelInfo.totalXp - levelInfo.xpMin);
-    const maxDisplay = isNaN(levelInfo.xpMax - levelInfo.xpMin) ? 100 : (levelInfo.xpMax - levelInfo.xpMin);
-    const progressWidth = isNaN(levelInfo.progressPercentage) ? 0 : levelInfo.progressPercentage;
+    // Calculate current level info
+    const levelInfo = calculateLevelInfo(animatedXP);
 
     return (
         <div className="xp-bar-container">
             <div className="xp-bar-wrapper">
                 <div
                     className="xp-bar-fill"
-                    style={{ width: `${progressWidth}%` }}
+                    style={{ width: `${levelInfo.progressPercentage}%` }}
                 ></div>
                 <div className="xp-numbers">
-                    <span>{currentDisplay}</span>
-                    <span>/{maxDisplay}</span>
+                    <span>{levelInfo.currentXp}</span>
+                    <span>/{levelInfo.max} XP</span>
                 </div>
             </div>
             <div className="level-indicator">
-                <span>{levelInfo.nameLevel}</span>
+                {levelInfo.name}
             </div>
         </div>
     );
