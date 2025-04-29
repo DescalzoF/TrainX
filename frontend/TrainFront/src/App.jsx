@@ -7,6 +7,7 @@ import HomeLoggedIn from './pages/HomeLoggedIn/HomeLoggedIn.jsx';
 import HomeNotLoggedIn from './pages/HomeNotLoggedIn/HomeNotLoggedIn.jsx';
 import Perfil from './pages/perfil/Perfil.jsx';
 import { AuthProvider, useAuth } from './contexts/AuthContext.jsx';
+import { XPProvider } from './contexts/XPContext.jsx'; // Import the XPProvider
 import CaminoFitness from './pages/CaminoFitness/CaminoFitness.jsx';
 import CaminoFitnessAdmin from './pages/CaminoFitness/CaminoFitnessAdmin.jsx';
 import ForgotPassword from './pages/auth/ForgotPassword/ForgotPassword.jsx';
@@ -155,7 +156,9 @@ function App() {
     return (
         <Router>
             <AuthProvider>
-                <AppContent />
+                <XPProvider> {/* Add the XPProvider here */}
+                    <AppContent />
+                </XPProvider>
             </AuthProvider>
         </Router>
     );

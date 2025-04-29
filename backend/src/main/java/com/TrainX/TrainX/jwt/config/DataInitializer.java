@@ -192,7 +192,7 @@ public class DataInitializer {
 
         // NIVEL PRINCIPIANTE (6 placeholders, xpReward = 50)
         List<ExerciseEntity> ejerciciosPrincipiante = new ArrayList<>();
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 11; i++) {
             ejerciciosPrincipiante.add(new ExerciseEntity(
                     "",    // name vacío
                     "",    // description vacío
@@ -209,7 +209,7 @@ public class DataInitializer {
 
         // NIVEL INTERMEDIO (6 placeholders, xpReward = 75)
         List<ExerciseEntity> ejerciciosIntermedio = new ArrayList<>();
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 11; i++) {
             ejerciciosIntermedio.add(new ExerciseEntity(
                     "Piernas",
                     "Piernas",
@@ -226,7 +226,7 @@ public class DataInitializer {
 
         // NIVEL AVANZADO (6 placeholders, xpReward = 100)
         List<ExerciseEntity> ejerciciosAvanzado = new ArrayList<>();
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 11; i++) {
             ejerciciosAvanzado.add(new ExerciseEntity(
                     "Piernas",
                     "Piernas",
@@ -243,7 +243,7 @@ public class DataInitializer {
 
         // NIVEL PRO (6 placeholders, xpReward = 125)
         List<ExerciseEntity> ejerciciosPro = new ArrayList<>();
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 11; i++) {
             ejerciciosPro.add(new ExerciseEntity(
                     "Piernas",
                     "Piernas",
@@ -349,6 +349,77 @@ public class DataInitializer {
                 "https://youtu.be/saltos-laterales",
                 50L
         ));
+        ejerciciosPrincipiante.add(new ExerciseEntity(
+                "Estocadas estáticas",
+                "Con una pierna adelante y otra atrás, baja el cuerpo manteniendo la rodilla delantera en ángulo de 90 grados, luego sube.",
+                "Piernas, Glúteos",
+                3,
+                10,
+                camino,
+                principiante,
+                "https://youtu.be/estocadas-estaticas",
+                55L
+        ));
+
+        ejerciciosPrincipiante.add(new ExerciseEntity(
+                "Flexiones de rodillas",
+                "Realiza flexiones con las rodillas apoyadas en el suelo, manteniendo la espalda recta durante todo el movimiento.",
+                "Pecho, Tríceps",
+                3,
+                12,
+                camino,
+                principiante,
+                "https://youtu.be/flexiones-rodillas",
+                50L
+        ));
+
+        ejerciciosPrincipiante.add(new ExerciseEntity(
+                "Superman",
+                "Acostado boca abajo, eleva simultáneamente brazos y piernas del suelo, manteniendo la posición por 2 segundos.",
+                "Espalda baja, Glúteos",
+                3,
+                12,
+                camino,
+                principiante,
+                "https://youtu.be/superman",
+                45L
+        ));
+
+        ejerciciosPrincipiante.add(new ExerciseEntity(
+                "Skipping alto",
+                "Corre en el lugar levantando las rodillas lo más alto posible en un ritmo rápido y constante.",
+                "Piernas, Cardio",
+                3,
+                30,
+                camino,
+                principiante,
+                "https://youtu.be/skipping-alto",
+                55L
+        ));
+
+        ejerciciosPrincipiante.add(new ExerciseEntity(
+                "Plancha frontal",
+                "Mantén la posición de plancha apoyando antebrazos y puntas de los pies, con el cuerpo alineado.",
+                "Core, Hombros",
+                3,
+                30,
+                camino,
+                principiante,
+                "https://youtu.be/plancha-frontal",
+                45L
+        ));
+
+        ejerciciosPrincipiante.add(new ExerciseEntity(
+                "Sentadillas básicas",
+                "Con los pies separados al ancho de hombros, baja como si fueras a sentarte manteniendo el pecho elevado.",
+                "Piernas, Glúteos",
+                3,
+                15,
+                camino,
+                principiante,
+                "https://youtu.be/sentadillas-basicas",
+                50L
+        ));
 
         exerciseRepository.saveAll(ejerciciosPrincipiante);
 
@@ -425,6 +496,77 @@ public class DataInitializer {
                 intermedio,
                 "https://youtu.be/mountain-climbers",
                 65L
+        ));
+        ejerciciosIntermedio.add(new ExerciseEntity(
+                "Flexiones con palmada",
+                "Realiza una flexión explosiva con suficiente impulso para dar una palmada antes de volver a apoyar las manos.",
+                "Pecho, Tríceps, Potencia",
+                3,
+                8,
+                camino,
+                intermedio,
+                "https://youtu.be/flexiones-palmada",
+                80L
+        ));
+
+        ejerciciosIntermedio.add(new ExerciseEntity(
+                "Estocadas saltadas",
+                "Desde posición de estocada, salta y cambia la posición de las piernas en el aire, aterrizando en estocada con la otra pierna adelante.",
+                "Piernas, Glúteos, Cardio",
+                3,
+                10,
+                camino,
+                intermedio,
+                "https://youtu.be/estocadas-saltadas",
+                75L
+        ));
+
+        ejerciciosIntermedio.add(new ExerciseEntity(
+                "Dominadas",
+                "Colgado de una barra, eleva tu cuerpo hasta que la barbilla supere la barra utilizando la fuerza de la espalda y brazos.",
+                "Espalda, Bíceps",
+                3,
+                8,
+                camino,
+                intermedio,
+                "https://youtu.be/dominadas",
+                70L
+        ));
+
+        ejerciciosIntermedio.add(new ExerciseEntity(
+                "Fondos en paralelas",
+                "Con las manos apoyadas en barras paralelas, baja y sube el cuerpo flexionando y extendiendo los codos.",
+                "Tríceps, Pecho",
+                3,
+                10,
+                camino,
+                intermedio,
+                "https://youtu.be/fondos-paralelas",
+                75L
+        ));
+
+        ejerciciosIntermedio.add(new ExerciseEntity(
+                "Russian twist",
+                "Sentado con piernas elevadas, gira el torso de lado a lado tocando el suelo con las manos a cada lado.",
+                "Core, Oblicuos",
+                3,
+                20,
+                camino,
+                intermedio,
+                "https://youtu.be/russian-twist",
+                65L
+        ));
+
+        ejerciciosIntermedio.add(new ExerciseEntity(
+                "Wall balls",
+                "Realiza una sentadilla completa con una pelota medicinal y al subir, lanza la pelota a un punto alto en la pared.",
+                "Piernas, Hombros, Coordinación",
+                3,
+                15,
+                camino,
+                intermedio,
+                "https://youtu.be/wall-balls",
+                80L
         ));
 
         exerciseRepository.saveAll(ejerciciosIntermedio);
@@ -504,6 +646,78 @@ public class DataInitializer {
                 85L
         ));
 
+        ejerciciosAvanzado.add(new ExerciseEntity(
+                "Saltos pliométricos a cajón con rotación",
+                "Salta sobre un cajón y al bajar, rota 180 grados antes de saltar nuevamente al cajón.",
+                "Piernas, Coordinación",
+                3,
+                8,
+                camino,
+                avanzado,
+                "https://youtu.be/box-jumps-rotacion",
+                95L
+        ));
+
+        ejerciciosAvanzado.add(new ExerciseEntity(
+                "Flexiones archer",
+                "Realiza flexiones con un brazo extendido lateralmente mientras el otro soporta el peso, alternando brazos.",
+                "Pecho, Tríceps, Hombros",
+                3,
+                6,
+                camino,
+                avanzado,
+                "https://youtu.be/archer-pushups",
+                90L
+        ));
+
+        ejerciciosAvanzado.add(new ExerciseEntity(
+                "Dominadas L-sit",
+                "Realiza dominadas manteniendo las piernas extendidas al frente paralelas al suelo durante todo el movimiento.",
+                "Espalda, Core, Bíceps",
+                3,
+                5,
+                camino,
+                avanzado,
+                "https://youtu.be/lsit-pullups",
+                95L
+        ));
+
+        ejerciciosAvanzado.add(new ExerciseEntity(
+                "Shuttle runs con escalera de agilidad",
+                "Realiza patrones de pies rápidos a través de una escalera de agilidad y sprints cortos entre segmentos.",
+                "Agilidad, Coordinación, Cardio",
+                4,
+                2,
+                camino,
+                avanzado,
+                "https://youtu.be/ladder-drills",
+                85L
+        ));
+
+        ejerciciosAvanzado.add(new ExerciseEntity(
+                "Dragon flags",
+                "Acostado con soporte en los hombros, eleva el cuerpo recto y bájalo lentamente sin tocar el suelo.",
+                "Core, Espalda baja",
+                3,
+                6,
+                camino,
+                avanzado,
+                "https://youtu.be/dragon-flags",
+                100L
+        ));
+
+        ejerciciosAvanzado.add(new ExerciseEntity(
+                "Burpee a barra",
+                "Realiza un burpee completo y al levantarte, salta para agarrar una barra alta y vuelve a descender.",
+                "Full body",
+                3,
+                10,
+                camino,
+                avanzado,
+                "https://youtu.be/burpee-barra",
+                95L
+        ));
+
         exerciseRepository.saveAll(ejerciciosAvanzado);
 
         // NIVEL PRO
@@ -580,6 +794,79 @@ public class DataInitializer {
                 "https://youtu.be/clean-jerk",
                 130L
         ));
+
+        ejerciciosPro.add(new ExerciseEntity(
+                "Muscle up transición lenta",
+                "Realiza un muscle up controlando cada fase del movimiento, especialmente la transición entre tirar y empujar.",
+                "Espalda, Pecho, Tríceps, Core",
+                3,
+                5,
+                camino,
+                pro,
+                "https://youtu.be/slow-muscle-up",
+                125L
+        ));
+
+        ejerciciosPro.add(new ExerciseEntity(
+                "Thrusters con peso",
+                "Combina una sentadilla frontal con press de hombros en un solo movimiento fluido usando barra o mancuernas.",
+                "Piernas, Hombros, Core",
+                4,
+                10,
+                camino,
+                pro,
+                "https://youtu.be/thrusters",
+                120L
+        ));
+
+        ejerciciosPro.add(new ExerciseEntity(
+                "Circuito de obstáculos de alta intensidad",
+                "Completa un circuito de 5-6 obstáculos combinando movimientos de salto, escalada, equilibrio y arrastre.",
+                "Full body, Resistencia",
+                3,
+                1,
+                camino,
+                pro,
+                "https://youtu.be/obstacle-circuit",
+                150L
+        ));
+
+        ejerciciosPro.add(new ExerciseEntity(
+                "Snatch",
+                "Levanta una barra desde el suelo hasta por encima de la cabeza en un solo movimiento explosivo.",
+                "Full body, Potencia",
+                4,
+                5,
+                camino,
+                pro,
+                "https://youtu.be/snatch",
+                140L
+        ));
+
+        ejerciciosPro.add(new ExerciseEntity(
+                "Planchas con tocando objetivos laterales",
+                "En posición de plancha alta, alterna el toque de objetivos colocados a los lados con cada mano.",
+                "Core, Hombros, Coordinación",
+                3,
+                10,
+                camino,
+                pro,
+                "https://youtu.be/plank-targets",
+                110L
+        ));
+
+        ejerciciosPro.add(new ExerciseEntity(
+                "Saltos en caja con rebote mínimo",
+                "Salta de una caja alta, aterriza y rebota inmediatamente a otra caja con tiempo mínimo de contacto con el suelo.",
+                "Piernas, Potencia, Explosividad",
+                4,
+                8,
+                camino,
+                pro,
+                "https://youtu.be/depth-jumps",
+                130L
+        ));
+
 
         exerciseRepository.saveAll(ejerciciosPro);
     }
@@ -708,6 +995,79 @@ public class DataInitializer {
                 40L
         ));
 
+        // Nuevos ejercicios para principiante
+        ejerciciosPrincipiante.add(new ExerciseEntity(
+                "Flexiones de rodillas",
+                "Apoya las rodillas y manos en el suelo, baja el pecho hacia el suelo flexionando los codos y luego empuja hacia arriba.",
+                "Pecho, Tríceps",
+                3,
+                12,
+                camino,
+                principiante,
+                "https://youtu.be/knee-pushups",
+                40L
+        ));
+
+        ejerciciosPrincipiante.add(new ExerciseEntity(
+                "Curl de bíceps con mancuernas",
+                "De pie con mancuernas a los lados, flexiona los codos para levantar las pesas hacia los hombros.",
+                "Bíceps",
+                3,
+                12,
+                camino,
+                principiante,
+                "https://youtu.be/bicep-curl",
+                45L
+        ));
+
+        ejerciciosPrincipiante.add(new ExerciseEntity(
+                "Extensiones de tríceps con mancuerna",
+                "Sentado o de pie, sostén una mancuerna con ambas manos sobre la cabeza y baja doblando los codos antes de extender.",
+                "Tríceps",
+                3,
+                12,
+                camino,
+                principiante,
+                "https://youtu.be/tricep-extension",
+                45L
+        ));
+
+        ejerciciosPrincipiante.add(new ExerciseEntity(
+                "Puente de glúteos",
+                "Acostado boca arriba con rodillas flexionadas, eleva las caderas apretando los glúteos y baja lentamente.",
+                "Glúteos, Isquiotibiales",
+                3,
+                15,
+                camino,
+                principiante,
+                "https://youtu.be/glute-bridge",
+                40L
+        ));
+
+        ejerciciosPrincipiante.add(new ExerciseEntity(
+                "Plancha frontal",
+                "Apóyate en antebrazos y puntas de los pies, manteniendo el cuerpo en línea recta y el core contraído.",
+                "Core, Hombros",
+                3,
+                30,
+                camino,
+                principiante,
+                "https://youtu.be/front-plank",
+                50L
+        ));
+
+        ejerciciosPrincipiante.add(new ExerciseEntity(
+                "Superman",
+                "Acostado boca abajo, eleva simultáneamente brazos y piernas manteniendo la posición brevemente.",
+                "Espalda baja, Glúteos",
+                3,
+                12,
+                camino,
+                principiante,
+                "https://youtu.be/superman-exercise",
+                40L
+        ));
+
         exerciseRepository.saveAll(ejerciciosPrincipiante);
 
         // NIVEL INTERMEDIO
@@ -783,6 +1143,79 @@ public class DataInitializer {
                 intermedio,
                 "https://youtu.be/dips",
                 75L
+        ));
+
+        // Nuevos ejercicios para intermedio
+        ejerciciosIntermedio.add(new ExerciseEntity(
+                "Hip thrust con barra",
+                "Siéntate en el suelo con la espalda apoyada en un banco y una barra sobre las caderas, eleva las caderas empujando con los glúteos.",
+                "Glúteos, Isquiotibiales",
+                4,
+                10,
+                camino,
+                intermedio,
+                "https://youtu.be/hip-thrust",
+                80L
+        ));
+
+        ejerciciosIntermedio.add(new ExerciseEntity(
+                "Remo en T con barra",
+                "Inclínate hacia adelante sosteniendo una barra, mantén la espalda plana y jala la barra hacia el abdomen.",
+                "Espalda media, Romboides, Trapecios",
+                4,
+                8,
+                camino,
+                intermedio,
+                "https://youtu.be/t-bar-row",
+                75L
+        ));
+
+        ejerciciosIntermedio.add(new ExerciseEntity(
+                "Press de banca declinado",
+                "Similar al press de banca pero en un banco declinado para enfatizar la parte inferior del pecho.",
+                "Pecho inferior, Tríceps",
+                4,
+                8,
+                camino,
+                intermedio,
+                "https://youtu.be/decline-bench",
+                75L
+        ));
+
+        ejerciciosIntermedio.add(new ExerciseEntity(
+                "Curl con barra",
+                "De pie sosteniendo una barra con agarre supino, flexiona los codos para levantar la barra hacia los hombros.",
+                "Bíceps, Antebrazos",
+                3,
+                10,
+                camino,
+                intermedio,
+                "https://youtu.be/barbell-curl",
+                70L
+        ));
+
+        ejerciciosIntermedio.add(new ExerciseEntity(
+                "Extensiones de tríceps en polea",
+                "De pie frente a una polea alta, sujeta la cuerda y empuja hacia abajo extendiendo completamente los codos.",
+                "Tríceps",
+                3,
+                12,
+                camino,
+                intermedio,
+                "https://youtu.be/tricep-pushdown",
+                70L
+        ));
+
+        ejerciciosIntermedio.add(new ExerciseEntity(
+                "Elevaciones laterales",
+                "De pie con mancuernas a los lados, eleva los brazos lateralmente hasta la altura de los hombros.",
+                "Deltoides medios",
+                3,
+                12,
+                camino,
+                intermedio,
+                "https://youtu.be/lateral-raises",
+                65L
         ));
 
         exerciseRepository.saveAll(ejerciciosIntermedio);
@@ -862,6 +1295,79 @@ public class DataInitializer {
                 90L
         ));
 
+        // Nuevos ejercicios para avanzado
+        ejerciciosAvanzado.add(new ExerciseEntity(
+                "Press inclinado con mancuernas",
+                "Acostado en un banco inclinado, empuja mancuernas desde los hombros hasta la extensión completa de los brazos.",
+                "Pecho superior, Hombros, Tríceps",
+                4,
+                8,
+                camino,
+                avanzado,
+                "https://youtu.be/incline-db-press",
+                85L
+        ));
+
+        ejerciciosAvanzado.add(new ExerciseEntity(
+                "Dominadas lastradas",
+                "Dominadas con peso adicional sujeto al cuerpo mediante un cinturón o entre las piernas.",
+                "Espalda, Bíceps",
+                4,
+                6,
+                camino,
+                avanzado,
+                "https://youtu.be/weighted-pullups",
+                95L
+        ));
+
+        ejerciciosAvanzado.add(new ExerciseEntity(
+                "Hip thrust unilateral",
+                "Similar al hip thrust pero ejecutado con una sola pierna para mayor intensidad.",
+                "Glúteos, Estabilizadores",
+                3,
+                8,
+                camino,
+                avanzado,
+                "https://youtu.be/single-leg-hip-thrust",
+                90L
+        ));
+
+        ejerciciosAvanzado.add(new ExerciseEntity(
+                "Extensiones de tríceps con barra en banco",
+                "Acostado en un banco sosteniendo una barra sobre la cabeza, baja la barra detrás de la cabeza y luego extiende los brazos.",
+                "Tríceps",
+                4,
+                8,
+                camino,
+                avanzado,
+                "https://youtu.be/lying-tricep-extension",
+                85L
+        ));
+
+        ejerciciosAvanzado.add(new ExerciseEntity(
+                "Face pull",
+                "De pie frente a una polea alta, jala la cuerda hacia la cara separando los brazos al final del movimiento.",
+                "Hombros posteriores, Rotadores externos",
+                3,
+                12,
+                camino,
+                avanzado,
+                "https://youtu.be/face-pull",
+                80L
+        ));
+
+        ejerciciosAvanzado.add(new ExerciseEntity(
+                "Press Arnold",
+                "Sentado con mancuernas, comienza con mancuernas frente al pecho, gíralas mientras presionas hacia arriba.",
+                "Hombros, Rotadores",
+                3,
+                10,
+                camino,
+                avanzado,
+                "https://youtu.be/arnold-press",
+                85L
+        ));
+
         exerciseRepository.saveAll(ejerciciosAvanzado);
 
         // NIVEL PRO
@@ -937,6 +1443,79 @@ public class DataInitializer {
                 pro,
                 "https://youtu.be/good-morning",
                 110L
+        ));
+
+        // Nuevos ejercicios para pro
+        ejerciciosPro.add(new ExerciseEntity(
+                "Clean & Jerk",
+                "Levantamiento olímpico completo: cargar la barra desde el suelo hasta los hombros y luego impulsarla sobre la cabeza.",
+                "Full body",
+                5,
+                3,
+                camino,
+                pro,
+                "https://youtu.be/clean-and-jerk",
+                140L
+        ));
+
+        ejerciciosPro.add(new ExerciseEntity(
+                "Press de banca con bandas",
+                "Press de banca con bandas elásticas en los extremos de la barra para aumentar la resistencia en la parte superior del movimiento.",
+                "Pecho, Tríceps",
+                5,
+                4,
+                camino,
+                pro,
+                "https://youtu.be/band-bench-press",
+                125L
+        ));
+
+        ejerciciosPro.add(new ExerciseEntity(
+                "Sentadillas con salto y barra",
+                "Sentadilla con barra seguida de un salto explosivo, usado para desarrollar potencia.",
+                "Cuádriceps, Glúteos, Potencia",
+                4,
+                5,
+                camino,
+                pro,
+                "https://youtu.be/jump-squat",
+                120L
+        ));
+
+        ejerciciosPro.add(new ExerciseEntity(
+                "Fondos lastrados",
+                "Fondos en paralelas con peso adicional sujeto al cuerpo.",
+                "Pecho, Tríceps",
+                4,
+                6,
+                camino,
+                pro,
+                "https://youtu.be/weighted-dips",
+                120L
+        ));
+
+        ejerciciosPro.add(new ExerciseEntity(
+                "Peso muerto rumano a una pierna",
+                "Variación unilateral del peso muerto rumano que requiere mayor equilibrio y activación de estabilizadores.",
+                "Isquiotibiales, Glúteos, Equilibrio",
+                4,
+                6,
+                camino,
+                pro,
+                "https://youtu.be/single-leg-rdl",
+                115L
+        ));
+
+        ejerciciosPro.add(new ExerciseEntity(
+                "Viking press",
+                "Press de hombros con implemento especial o improvisado que permite mayor peso y estabilidad.",
+                "Hombros, Tríceps, Core",
+                4,
+                5,
+                camino,
+                pro,
+                "https://youtu.be/viking-press",
+                125L
         ));
 
         exerciseRepository.saveAll(ejerciciosPro);
@@ -1031,6 +1610,79 @@ public class DataInitializer {
                 40L
         ));
 
+        // Añadir 6 ejercicios más para principiante
+        ejerciciosPrincipiante.add(new ExerciseEntity(
+                "Sentadillas con mancuernas",
+                "De pie con mancuernas a los costados, flexiona las rodillas y caderas como si te sentaras en una silla invisible.",
+                "Cuádriceps, Glúteos",
+                3,
+                12,
+                camino,
+                principiante,
+                "https://youtu.be/dumbbell-squat",
+                55L
+        ));
+
+        ejerciciosPrincipiante.add(new ExerciseEntity(
+                "Remo con mancuerna a una mano",
+                "Con una rodilla y mano apoyadas en un banco, levanta la mancuerna con la mano libre en un movimiento de remo.",
+                "Espalda media, Dorsales",
+                3,
+                12,
+                camino,
+                principiante,
+                "https://youtu.be/one-arm-row",
+                48L
+        ));
+
+        ejerciciosPrincipiante.add(new ExerciseEntity(
+                "Zancadas con mancuernas",
+                "De pie con mancuernas a los costados, da un paso adelante flexionando ambas rodillas hasta formar ángulos de 90 grados.",
+                "Cuádriceps, Glúteos, Isquiotibiales",
+                3,
+                10,
+                camino,
+                principiante,
+                "https://youtu.be/dumbbell-lunge",
+                52L
+        ));
+
+        ejerciciosPrincipiante.add(new ExerciseEntity(
+                "Aperturas con mancuernas",
+                "Acostado en un banco plano con mancuernas extendidas sobre el pecho, bájalas abriendo los brazos en arco.",
+                "Pecho, Pectorales",
+                3,
+                12,
+                camino,
+                principiante,
+                "https://youtu.be/dumbbell-fly",
+                47L
+        ));
+
+        ejerciciosPrincipiante.add(new ExerciseEntity(
+                "Elevaciones frontales",
+                "De pie con mancuernas frente a los muslos, eleva una mancuerna a la vez hasta la altura del hombro.",
+                "Hombros frontales",
+                3,
+                12,
+                camino,
+                principiante,
+                "https://youtu.be/front-raise",
+                43L
+        ));
+
+        ejerciciosPrincipiante.add(new ExerciseEntity(
+                "Curl martillo",
+                "Similar al curl de bíceps pero con las mancuernas en posición neutra (pulgar hacia arriba).",
+                "Bíceps, Braquial",
+                3,
+                12,
+                camino,
+                principiante,
+                "https://youtu.be/hammer-curl",
+                46L
+        ));
+
         exerciseRepository.saveAll(ejerciciosPrincipiante);
 
         // NIVEL INTERMEDIO
@@ -1106,6 +1758,79 @@ public class DataInitializer {
                 intermedio,
                 "https://youtu.be/face-pull",
                 65L
+        ));
+
+        // Añadir 6 ejercicios más para intermedio
+        ejerciciosIntermedio.add(new ExerciseEntity(
+                "Press militar con barra",
+                "De pie con una barra al nivel de los hombros, empuja hacia arriba hasta extender completamente los brazos.",
+                "Hombros, Tríceps",
+                4,
+                8,
+                camino,
+                intermedio,
+                "https://youtu.be/military-press",
+                75L
+        ));
+
+        ejerciciosIntermedio.add(new ExerciseEntity(
+                "Fondos en máquina asistida",
+                "Apoyado en las barras paralelas, baja el cuerpo flexionando los codos y luego empuja hacia arriba.",
+                "Pecho, Tríceps",
+                3,
+                10,
+                camino,
+                intermedio,
+                "https://youtu.be/assisted-dips",
+                70L
+        ));
+
+        ejerciciosIntermedio.add(new ExerciseEntity(
+                "Prensa de piernas",
+                "Sentado en la máquina con pies en la plataforma, empuja alejando el peso y luego controla el regreso.",
+                "Cuádriceps, Glúteos",
+                4,
+                12,
+                camino,
+                intermedio,
+                "https://youtu.be/leg-press",
+                80L
+        ));
+
+        ejerciciosIntermedio.add(new ExerciseEntity(
+                "Jalón al pecho con agarre cerrado",
+                "Similar al jalón al pecho pero con las manos más juntas para enfatizar la parte baja de los dorsales.",
+                "Dorsales, Bíceps",
+                3,
+                12,
+                camino,
+                intermedio,
+                "https://youtu.be/close-grip-pulldown",
+                72L
+        ));
+
+        ejerciciosIntermedio.add(new ExerciseEntity(
+                "Curl de bíceps en banco Scott",
+                "Curl de bíceps con los brazos apoyados en el banco Scott para aislar el movimiento.",
+                "Bíceps",
+                3,
+                10,
+                camino,
+                intermedio,
+                "https://youtu.be/scott-curl",
+                68L
+        ));
+
+        ejerciciosIntermedio.add(new ExerciseEntity(
+                "Extensión de cuádriceps en máquina",
+                "Sentado en la máquina, extiende las piernas elevando el peso con la parte frontal de las piernas.",
+                "Cuádriceps",
+                3,
+                12,
+                camino,
+                intermedio,
+                "https://youtu.be/leg-extension",
+                70L
         ));
 
         exerciseRepository.saveAll(ejerciciosIntermedio);
@@ -1185,6 +1910,79 @@ public class DataInitializer {
                 85L
         ));
 
+        // Añadir 6 ejercicios más para avanzado
+        ejerciciosAvanzado.add(new ExerciseEntity(
+                "Press de banca con parada",
+                "Press de banca tradicional pero con una pausa de 2 segundos en el punto más bajo.",
+                "Pecho, Tríceps, Fuerza",
+                4,
+                6,
+                camino,
+                avanzado,
+                "https://youtu.be/pause-bench",
+                95L
+        ));
+
+        ejerciciosAvanzado.add(new ExerciseEntity(
+                "Remo Pendlay",
+                "Remo con barra desde el suelo, manteniendo la espalda paralela al suelo durante todo el movimiento.",
+                "Espalda media, Trapecios",
+                4,
+                8,
+                camino,
+                avanzado,
+                "https://youtu.be/pendlay-row",
+                90L
+        ));
+
+        ejerciciosAvanzado.add(new ExerciseEntity(
+                "Zancadas caminando con barra",
+                "Caminando con una barra en los hombros, realiza zancadas alternando las piernas.",
+                "Cuádriceps, Glúteos, Core",
+                3,
+                10,
+                camino,
+                avanzado,
+                "https://youtu.be/walking-lunge",
+                88L
+        ));
+
+        ejerciciosAvanzado.add(new ExerciseEntity(
+                "Curl 21s",
+                "Serie de curls dividida en tres partes: 7 repeticiones en la mitad inferior del movimiento, 7 en la mitad superior y 7 completas.",
+                "Bíceps",
+                3,
+                21,
+                camino,
+                avanzado,
+                "https://youtu.be/21s-curl",
+                82L
+        ));
+
+        ejerciciosAvanzado.add(new ExerciseEntity(
+                "Pull-ups",
+                "Dominadas con el cuerpo suspendido de una barra, jalando hasta que la barbilla supere la barra.",
+                "Dorsales, Bíceps",
+                4,
+                8,
+                camino,
+                avanzado,
+                "https://youtu.be/pull-ups",
+                95L
+        ));
+
+        ejerciciosAvanzado.add(new ExerciseEntity(
+                "Press de hombros Arnold",
+                "Press de hombros con rotación de las mancuernas desde una posición de supinación a pronación.",
+                "Hombros, Deltoides, Tríceps",
+                4,
+                10,
+                camino,
+                avanzado,
+                "https://youtu.be/arnold-press",
+                85L
+        ));
+
         exerciseRepository.saveAll(ejerciciosAvanzado);
 
         // NIVEL PRO
@@ -1260,6 +2058,79 @@ public class DataInitializer {
                 pro,
                 "https://youtu.be/weighted-pullup",
                 120L
+        ));
+
+        // Añadir 6 ejercicios más para nivel pro
+        ejerciciosPro.add(new ExerciseEntity(
+                "Sentadilla frontal con barra",
+                "Sentadilla con la barra apoyada en los hombros delanteros, manteniendo el torso más erguido.",
+                "Cuádriceps, Core, Espalda baja",
+                4,
+                6,
+                camino,
+                pro,
+                "https://youtu.be/front-squat",
+                115L
+        ));
+
+        ejerciciosPro.add(new ExerciseEntity(
+                "Remo en T con barra",
+                "Inclinado hacia adelante con barra entre las piernas, rema levantando la barra hasta el abdomen.",
+                "Espalda media, Lumbares",
+                4,
+                8,
+                camino,
+                pro,
+                "https://youtu.be/t-bar-row",
+                110L
+        ));
+
+        ejerciciosPro.add(new ExerciseEntity(
+                "Press de banca con cadenas",
+                "Press de banca con cadenas que añaden resistencia progresiva a medida que subes la barra.",
+                "Pecho, Fuerza explosiva",
+                5,
+                5,
+                camino,
+                pro,
+                "https://youtu.be/chain-bench",
+                120L
+        ));
+
+        ejerciciosPro.add(new ExerciseEntity(
+                "Peso muerto rumano",
+                "Con barra frente a los muslos, flexiona las caderas manteniendo las piernas casi extendidas.",
+                "Isquiotibiales, Glúteos, Espalda baja",
+                4,
+                6,
+                camino,
+                pro,
+                "https://youtu.be/romanian-deadlift",
+                115L
+        ));
+
+        ejerciciosPro.add(new ExerciseEntity(
+                "Press de hombros con barra por detrás",
+                "Press militar con la barra iniciando detrás del cuello, requiere gran movilidad en hombros.",
+                "Hombros, Tríceps",
+                4,
+                8,
+                camino,
+                pro,
+                "https://youtu.be/behind-neck-press",
+                105L
+        ));
+
+        ejerciciosPro.add(new ExerciseEntity(
+                "Fondos en paralelas con peso",
+                "Fondos en barras paralelas con peso adicional sujeto a la cintura.",
+                "Pecho inferior, Tríceps, Hombros",
+                4,
+                6,
+                camino,
+                pro,
+                "https://youtu.be/weighted-dips",
+                125L
         ));
 
         exerciseRepository.saveAll(ejerciciosPro);
@@ -1354,6 +2225,79 @@ public class DataInitializer {
                 55L
         ));
 
+        // Nuevos ejercicios para Principiante
+        ejerciciosPrincipiante.add(new ExerciseEntity(
+                "Sentadilla con mancuerna",
+                "Realiza una sentadilla sosteniendo una mancuerna frente al pecho con ambas manos.",
+                "Piernas, Glúteos, Core",
+                3,
+                12,
+                camino,
+                principiante,
+                "https://youtu.be/goblet-squat",
+                50L
+        ));
+
+        ejerciciosPrincipiante.add(new ExerciseEntity(
+                "Jumping jacks",
+                "Salta abriendo piernas y brazos simultáneamente y vuelve a la posición inicial.",
+                "Cardio, Full body",
+                3,
+                30,
+                camino,
+                principiante,
+                "https://youtu.be/jumping-jacks",
+                40L
+        ));
+
+        ejerciciosPrincipiante.add(new ExerciseEntity(
+                "Press de hombros con mancuernas",
+                "Desde posición de pie, eleva las mancuernas por encima de la cabeza y vuelve a la posición inicial.",
+                "Hombros, Brazos",
+                3,
+                12,
+                camino,
+                principiante,
+                "https://youtu.be/shoulder-press",
+                45L
+        ));
+
+        ejerciciosPrincipiante.add(new ExerciseEntity(
+                "Sentadilla con salto suave",
+                "Realiza una sentadilla y al subir haz un pequeño salto controlado.",
+                "Piernas, Cardio",
+                3,
+                15,
+                camino,
+                principiante,
+                "https://youtu.be/squat-jump-light",
+                50L
+        ));
+
+        ejerciciosPrincipiante.add(new ExerciseEntity(
+                "Plancha baja",
+                "Aguanta la posición de plancha apoyando los antebrazos en el suelo.",
+                "Core, Estabilidad",
+                3,
+                30,
+                camino,
+                principiante,
+                "https://youtu.be/forearm-plank",
+                40L
+        ));
+
+        ejerciciosPrincipiante.add(new ExerciseEntity(
+                "Peso muerto con mancuernas",
+                "Inclina el torso hacia adelante manteniendo la espalda recta mientras sostienes mancuernas que bajan cerca de las piernas.",
+                "Espalda baja, Isquiotibiales, Glúteos",
+                3,
+                12,
+                camino,
+                principiante,
+                "https://youtu.be/dumbbell-deadlift",
+                50L
+        ));
+
         exerciseRepository.saveAll(ejerciciosPrincipiante);
 
         // NIVEL INTERMEDIO
@@ -1429,6 +2373,79 @@ public class DataInitializer {
                 intermedio,
                 "https://youtu.be/battle-ropes",
                 80L
+        ));
+
+        // Nuevos ejercicios para Intermedio
+        ejerciciosIntermedio.add(new ExerciseEntity(
+                "Pull-ups con agarre mixto",
+                "Dominadas con un agarre en pronación y otro en supinación para trabajar diferentes partes de la espalda.",
+                "Espalda, Brazos",
+                3,
+                8,
+                camino,
+                intermedio,
+                "https://youtu.be/mixed-grip-pullup",
+                80L
+        ));
+
+        ejerciciosIntermedio.add(new ExerciseEntity(
+                "Farmer's walk",
+                "Camina una distancia predeterminada sosteniendo pesos pesados en ambas manos.",
+                "Full body, Agarre, Core",
+                3,
+                40,
+                camino,
+                intermedio,
+                "https://youtu.be/farmers-walk",
+                70L
+        ));
+
+        ejerciciosIntermedio.add(new ExerciseEntity(
+                "Kettlebell snatch",
+                "Levanta una kettlebell desde el suelo hasta arriba de la cabeza en un movimiento fluido y explosivo.",
+                "Piernas, Hombros, Core",
+                4,
+                10,
+                camino,
+                intermedio,
+                "https://youtu.be/kb-snatch",
+                80L
+        ));
+
+        ejerciciosIntermedio.add(new ExerciseEntity(
+                "Jump squat con rotación",
+                "Realiza una sentadilla con salto añadiendo una rotación de 180 grados en el aire.",
+                "Piernas, Core, Coordinación",
+                3,
+                12,
+                camino,
+                intermedio,
+                "https://youtu.be/rotating-jump-squat",
+                75L
+        ));
+
+        ejerciciosIntermedio.add(new ExerciseEntity(
+                "Dips en paralelas",
+                "Fondos en barras paralelas para trabajar tríceps y pecho.",
+                "Tríceps, Pecho, Hombros",
+                3,
+                10,
+                camino,
+                intermedio,
+                "https://youtu.be/parallel-dips",
+                75L
+        ));
+
+        ejerciciosIntermedio.add(new ExerciseEntity(
+                "Overhead walking lunge",
+                "Zancadas caminando mientras sostienes una pesa por encima de la cabeza.",
+                "Piernas, Core, Estabilidad",
+                3,
+                16,
+                camino,
+                intermedio,
+                "https://youtu.be/overhead-lunge",
+                75L
         ));
 
         exerciseRepository.saveAll(ejerciciosIntermedio);
@@ -1508,6 +2525,79 @@ public class DataInitializer {
                 90L
         ));
 
+        // Nuevos ejercicios para Avanzado
+        ejerciciosAvanzado.add(new ExerciseEntity(
+                "Pistol squat con kettlebell",
+                "Sentadilla a una pierna sosteniendo una kettlebell frente al pecho.",
+                "Piernas, Core, Equilibrio",
+                3,
+                6,
+                camino,
+                avanzado,
+                "https://youtu.be/kb-pistol-squat",
+                95L
+        ));
+
+        ejerciciosAvanzado.add(new ExerciseEntity(
+                "Toes to bar",
+                "Colgado de una barra, lleva los pies a tocar la barra mediante una flexión de cadera.",
+                "Core, Brazos",
+                4,
+                10,
+                camino,
+                avanzado,
+                "https://youtu.be/toes-to-bar",
+                90L
+        ));
+
+        ejerciciosAvanzado.add(new ExerciseEntity(
+                "Bar muscle up",
+                "Transición explosiva de una dominada a un fondo sobre la barra.",
+                "Full body, Potencia",
+                3,
+                5,
+                camino,
+                avanzado,
+                "https://youtu.be/bar-muscle-up",
+                100L
+        ));
+
+        ejerciciosAvanzado.add(new ExerciseEntity(
+                "Handstand walk",
+                "Caminar en posición de pino utilizando solo las manos como apoyo.",
+                "Hombros, Core, Equilibrio",
+                3,
+                10,
+                camino,
+                avanzado,
+                "https://youtu.be/handstand-walk",
+                100L
+        ));
+
+        ejerciciosAvanzado.add(new ExerciseEntity(
+                "Clean and jerk",
+                "Levantar una barra desde el suelo hasta los hombros y luego impulsarla sobre la cabeza con un split.",
+                "Full body, Potencia",
+                4,
+                5,
+                camino,
+                avanzado,
+                "https://youtu.be/clean-jerk",
+                95L
+        ));
+
+        ejerciciosAvanzado.add(new ExerciseEntity(
+                "Ring dips con L-sit",
+                "Fondos en anillas manteniendo las piernas extendidas horizontalmente frente a ti.",
+                "Pecho, Tríceps, Core",
+                3,
+                8,
+                camino,
+                avanzado,
+                "https://youtu.be/l-sit-dips",
+                95L
+        ));
+
         exerciseRepository.saveAll(ejerciciosAvanzado);
 
         // NIVEL PRO
@@ -1583,6 +2673,79 @@ public class DataInitializer {
                 pro,
                 "https://youtu.be/rope-climb",
                 130L
+        ));
+
+        // Nuevos ejercicios para Pro
+        ejerciciosPro.add(new ExerciseEntity(
+                "Handstand push ups sin apoyo",
+                "Flexiones de brazos en posición invertida sin apoyo en la pared.",
+                "Hombros, Core, Equilibrio",
+                3,
+                5,
+                camino,
+                pro,
+                "https://youtu.be/freestanding-hspu",
+                130L
+        ));
+
+        ejerciciosPro.add(new ExerciseEntity(
+                "Pegboard ascent",
+                "Escalar un tablero perforado usando clavijas que se insertan en los agujeros.",
+                "Brazos, Espalda, Coordinación",
+                3,
+                4,
+                camino,
+                pro,
+                "https://youtu.be/pegboard",
+                125L
+        ));
+
+        ejerciciosPro.add(new ExerciseEntity(
+                "Ring Iron Cross",
+                "Sostener el cuerpo suspendido en anillas con los brazos extendidos horizontalmente.",
+                "Hombros, Pecho, Core",
+                3,
+                3,
+                camino,
+                pro,
+                "https://youtu.be/iron-cross",
+                135L
+        ));
+
+        ejerciciosPro.add(new ExerciseEntity(
+                "Legless rope climb",
+                "Escalar una cuerda usando únicamente la fuerza de los brazos sin ayuda de las piernas.",
+                "Brazos, Espalda, Agarre",
+                3,
+                2,
+                camino,
+                pro,
+                "https://youtu.be/legless-rope",
+                135L
+        ));
+
+        ejerciciosPro.add(new ExerciseEntity(
+                "Back lever",
+                "Sostener el cuerpo horizontal boca abajo suspendido de una barra o anillas.",
+                "Full body, Core",
+                3,
+                10,
+                camino,
+                pro,
+                "https://youtu.be/back-lever",
+                120L
+        ));
+
+        ejerciciosPro.add(new ExerciseEntity(
+                "One arm pull-up",
+                "Dominada completa usando solamente un brazo.",
+                "Espalda, Brazos, Core",
+                3,
+                3,
+                camino,
+                pro,
+                "https://youtu.be/one-arm-pullup",
+                140L
         ));
 
         exerciseRepository.saveAll(ejerciciosPro);
