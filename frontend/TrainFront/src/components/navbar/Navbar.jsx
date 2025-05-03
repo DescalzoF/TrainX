@@ -68,9 +68,16 @@ function Navbar() {
                 if (hasChosenCaminoFitness()) {
                     const caminoId = getCurrentCaminoFitnessId();
                     navigate(`/camino/${caminoId}/level/principiante`);
-                    return;
+                }
+                return;
+            }
+
+            if (path === '/progress') {
+                if (!hasChosenCaminoFitness()) {
+                    return; // Stay on the same page if camino not chosen
                 }
             }
+
             navigate(path);
         }
     };

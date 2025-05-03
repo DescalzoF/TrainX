@@ -1,0 +1,683 @@
+import React, { useState, useEffect } from 'react';
+import {
+    FaPlus,
+    FaTimes,
+    FaStar,
+    FaRegStar,
+    FaStarHalfAlt,
+    FaDumbbell,
+    FaMapMarkerAlt,
+    FaEdit,
+    FaTrash,
+    FaSearch
+} from 'react-icons/fa';
+import { IoLocationSharp } from 'react-icons/io5';
+import { HiLocationMarker } from 'react-icons/hi';
+import './AdminGymManagement.css';
+
+const AdminGymManagement = ({ mapInstance, updateGyms, userLocation, defaultLocation }) => {
+    const [showAddForm, setShowAddForm] = useState(false);
+    const [editingGym, setEditingGym] = useState(null);
+    const [adminGyms, setAdminGyms] = useState([]);
+    const [newGym, setNewGym] = useState({
+        name: '',
+        vicinity: '',
+        rating: 0,
+        lat: '',
+        lng: ''
+    });
+    const [formErrors, setFormErrors] = useState({});
+    const [selectedLocation, setSelectedLocation] = useState(null);
+    const [mapMarker, setMapMarker] = useState(null);
+    const [ratingHover, setRatingHover] = useState(0);
+    const [previewImage, setPreviewImage] = useState('');
+    const [showGymList, setShowGymList] = useState(false);
+
+    // Load admin gyms from localStorage on component mount
+    useEffect(() => {
+        const storedGyms = localStorage.getItem('adminGyms');
+        if (storedGyms) {
+            try {
+                const parsedGyms = JSON.parse(storedGyms);
+                setAdminGyms(parsedGyms);
+            } catch (error) {
+                console.error("Failed to parse stored gyms:", error);
+            }
+        }
+    }, []);
+
+    // Toggle form visibility
+    const toggleAddForm = () => {
+        // If we were editing, clear editing state
+        if (editingGym) {
+            setEditingGym(null);
+        }
+
+        setShowAddForm(!showAddForm);
+
+        // Reset form state when opening
+        if (!showAddForm) {
+            setNewGym({
+                name: '',
+                vicinity: '',
+                rating: 0,
+                lat: userLocation ? userLocation.lat.toFixed(6) : '',
+                lng: userLocation ? userLocation.lng.toFixed(6) : ''
+            });
+            setFormErrors({});
+            setPreviewImage('');
+
+            // Enable map click listener
+            if (mapInstance) {
+                mapInstance.once('click', handleMapClick);
+            }
+        } else {
+            // Remove marker when closing form
+            if (mapMarker) {
+                mapMarker.remove();
+                setMapMarker(null);
+            }
+        }
+    };
+
+    // Toggle gym list visibility
+    const toggleGymList = () => {
+        setShowGymList(!showGymList);
+    };
+
+    // Start editing a gym
+    const startEditing = (gym) => {
+        setEditingGym(gym);
+        setShowAddForm(true);
+        setShowGymList(false);
+
+        // Populate form with gym data
+        setNewGym({
+            name: gym.name,
+            vicinity: gym.vicinity,
+            rating: gym.rating || 0,
+            lat: gym.geometry.location.lat.toFixed(6),
+            lng: gym.geometry.location.lng.toFixed(6)
+        });
+
+        setPreviewImage(gym.image || '');
+
+        // Add marker to the map
+        if (mapMarker) {
+            mapMarker.remove();
+        }
+
+        // Add marker at gym location
+        if (typeof L !== 'undefined' && mapInstance) {
+            const editMarker = L.marker(
+                [gym.geometry.location.lat, gym.geometry.location.lng],
+                {
+                    icon: L.divIcon({
+                        className: 'admin-marker-icon',
+                        html: '<div class="admin-pin"><div class="admin-pin-inner"><i class="fa fa-dumbbell"></i></div></div>',
+                        iconSize: [40, 40],
+                        iconAnchor: [20, 40]
+                    })
+                }
+            ).addTo(mapInstance);
+
+            setMapMarker(editMarker);
+
+            // Show popup on marker
+            editMarker.bindPopup(`<div class="popup-preview">
+                <strong>${gym.name}</strong>
+                <p>${gym.vicinity}</p>
+            </div>`).openPopup();
+
+            // Center map on gym
+            mapInstance.setView([gym.geometry.location.lat, gym.geometry.location.lng], 15);
+
+            // Enable map click listener for updating location
+            mapInstance.once('click', handleMapClick);
+        }
+    };
+
+    // Delete a gym
+    const deleteGym = (gymId) => {
+        // Confirm before deleting
+        if (!window.confirm('¿Estás seguro que deseas eliminar este gimnasio?')) {
+            return;
+        }
+
+        // Filter out the deleted gym
+        const updatedGyms = adminGyms.filter(gym => gym.place_id !== gymId);
+
+        // Update state and localStorage
+        setAdminGyms(updatedGyms);
+        localStorage.setItem('adminGyms', JSON.stringify(updatedGyms));
+
+        // Update parent component
+        updateGyms(updatedGyms);
+    };
+
+    // Handle map click to select location
+    const handleMapClick = (e) => {
+        const { lat, lng } = e.latlng;
+
+        // Update form with selected coordinates
+        setNewGym({
+            ...newGym,
+            lat: lat.toFixed(6),
+            lng: lng.toFixed(6)
+        });
+
+        setSelectedLocation({ lat, lng });
+
+        // Add marker to the map
+        if (mapMarker) {
+            mapMarker.remove();
+        }
+
+        // Make sure L is defined before using it
+        if (typeof L !== 'undefined') {
+            // Create a new marker with a custom icon for admin-added gyms
+            const newMarker = L.marker([lat, lng], {
+                icon: L.divIcon({
+                    className: 'admin-marker-icon',
+                    html: '<div class="admin-pin"><div class="admin-pin-inner"><i class="fa fa-dumbbell"></i></div></div>',
+                    iconSize: [40, 40],
+                    iconAnchor: [20, 40]
+                })
+            }).addTo(mapInstance);
+
+            setMapMarker(newMarker);
+
+            // Show popup on marker
+            newMarker.bindPopup(`<div class="popup-preview">
+                <strong>${newGym.name || 'Nuevo Gimnasio'}</strong>
+                <p>${newGym.vicinity || 'Dirección no establecida'}</p>
+            </div>`).openPopup();
+        }
+
+        // Re-enable click listener for changing location
+        if (mapInstance) {
+            mapInstance.once('click', handleMapClick);
+        }
+    };
+
+    // Update marker popup when gym name or address changes
+    useEffect(() => {
+        if (mapMarker && (newGym.name || newGym.vicinity)) {
+            mapMarker.getPopup()?.setContent(`<div class="popup-preview">
+                <strong>${newGym.name || 'Nuevo Gimnasio'}</strong>
+                <p>${newGym.vicinity || 'Dirección no establecida'}</p>
+            </div>`);
+        }
+    }, [newGym.name, newGym.vicinity, mapMarker]);
+
+    // Handle input changes
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setNewGym({ ...newGym, [name]: value });
+
+        // Clear error for this field when user starts typing
+        if (formErrors[name]) {
+            setFormErrors({ ...formErrors, [name]: null });
+        }
+    };
+
+    // Use current location
+    const useCurrentLocation = () => {
+        if (userLocation && mapInstance && typeof L !== 'undefined') {
+            setNewGym({
+                ...newGym,
+                lat: userLocation.lat.toFixed(6),
+                lng: userLocation.lng.toFixed(6)
+            });
+
+            setSelectedLocation(userLocation);
+
+            // Update marker
+            if (mapMarker) {
+                mapMarker.remove();
+            }
+
+            const newMarker = L.marker([userLocation.lat, userLocation.lng], {
+                icon: L.divIcon({
+                    className: 'admin-marker-icon',
+                    html: '<div class="admin-pin"><div class="admin-pin-inner"><i class="fa fa-dumbbell"></i></div></div>',
+                    iconSize: [40, 40],
+                    iconAnchor: [20, 40]
+                })
+            }).addTo(mapInstance);
+
+            setMapMarker(newMarker);
+
+            // Show popup on marker
+            newMarker.bindPopup(`<div class="popup-preview">
+                <strong>${newGym.name || 'Nuevo Gimnasio'}</strong>
+                <p>${newGym.vicinity || 'Dirección no establecida'}</p>
+            </div>`).openPopup();
+        }
+    };
+
+    // Handle star rating click
+    const handleRatingClick = (rating) => {
+        setNewGym({ ...newGym, rating });
+
+        // Clear error for rating when user sets it explicitly
+        if (formErrors.rating) {
+            setFormErrors({ ...formErrors, rating: null });
+        }
+    };
+
+    // Handle rating hover
+    const handleRatingHover = (rating) => {
+        setRatingHover(rating);
+    };
+
+    // Reset rating hover when mouse leaves
+    const handleRatingLeave = () => {
+        setRatingHover(0);
+    };
+
+    // Get star icon based on value and current rating
+    const getStarIcon = (position) => {
+        const value = ratingHover || newGym.rating;
+
+        if (value >= position) {
+            return <FaStar className="star-icon filled" />;
+        } else if (value >= position - 0.5) {
+            return <FaStarHalfAlt className="star-icon half-filled" />;
+        } else {
+            return <FaRegStar className="star-icon" />;
+        }
+    };
+
+    // Handle file input change
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setPreviewImage(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    // Validate form
+    const validateForm = () => {
+        const errors = {};
+
+        if (!newGym.name.trim()) {
+            errors.name = 'El nombre es obligatorio';
+        }
+
+        if (!newGym.vicinity.trim()) {
+            errors.vicinity = 'La dirección es obligatoria';
+        }
+
+        if (!newGym.lat || isNaN(parseFloat(newGym.lat))) {
+            errors.lat = 'Latitud inválida';
+        }
+
+        if (!newGym.lng || isNaN(parseFloat(newGym.lng))) {
+            errors.lng = 'Longitud inválida';
+        }
+
+        setFormErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
+    // Handle form submission for both adding and editing
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+        if (!validateForm()) {
+            return;
+        }
+
+        // Prepare gym data
+        const gymData = {
+            name: newGym.name,
+            vicinity: newGym.vicinity,
+            rating: parseFloat(newGym.rating) || null,
+            user_ratings_total: 1, // Admin rating
+            geometry: {
+                location: {
+                    lat: parseFloat(newGym.lat),
+                    lng: parseFloat(newGym.lng)
+                }
+            },
+            isAdminAdded: true,  // Flag to identify admin-added gyms
+            image: previewImage || null
+        };
+
+        let updatedGyms = [...adminGyms];
+
+        if (editingGym) {
+            // Update existing gym
+            gymData.place_id = editingGym.place_id; // Keep the same ID
+
+            // Find index of gym being edited
+            const gymIndex = updatedGyms.findIndex(gym => gym.place_id === editingGym.place_id);
+
+            if (gymIndex !== -1) {
+                updatedGyms[gymIndex] = gymData;
+            }
+
+            setEditingGym(null); // Clear editing state
+        } else {
+            // Create new gym
+            gymData.place_id = `admin-${Date.now()}`; // Generate unique ID
+            updatedGyms.push(gymData);
+        }
+
+        // Update state
+        setAdminGyms(updatedGyms);
+
+        // Save to localStorage
+        localStorage.setItem('adminGyms', JSON.stringify(updatedGyms));
+
+        // Update parent component
+        updateGyms(updatedGyms);
+
+        // Reset form and close
+        setNewGym({
+            name: '',
+            vicinity: '',
+            rating: 0,
+            lat: '',
+            lng: ''
+        });
+
+        setShowAddForm(false);
+        setPreviewImage('');
+
+        // Remove marker
+        if (mapMarker) {
+            mapMarker.remove();
+            setMapMarker(null);
+        }
+    };
+
+    // Render gym list
+    const renderGymList = () => {
+        if (!showGymList || adminGyms.length === 0) {
+            return null;
+        }
+
+        return (
+            <div className="admin-gym-list">
+                <div className="admin-list-header">
+                    <h3>Gimnasios Administrados</h3>
+                    <button className="close-list-button" onClick={toggleGymList}>
+                        <FaTimes />
+                    </button>
+                </div>
+                <div className="admin-gym-items">
+                    {adminGyms.map(gym => (
+                        <div key={gym.place_id} className="admin-gym-item">
+                            <div className="gym-details">
+                                {gym.image && (
+                                    <div className="gym-image-thumbnail">
+                                        <img src={gym.image} alt={gym.name} />
+                                    </div>
+                                )}
+                                <div className="gym-info">
+                                    <h4>{gym.name}</h4>
+                                    <p>{gym.vicinity}</p>
+                                    <div className="gym-rating">
+                                        {gym.rating && (
+                                            <>
+                                                {Array(5).fill().map((_, i) => {
+                                                    if (i < Math.floor(gym.rating)) {
+                                                        return <FaStar key={i} className="star-icon filled small" />;
+                                                    } else if (i < Math.ceil(gym.rating) && !Number.isInteger(gym.rating)) {
+                                                        return <FaStarHalfAlt key={i} className="star-icon half-filled small" />;
+                                                    } else {
+                                                        return <FaRegStar key={i} className="star-icon small" />;
+                                                    }
+                                                })}
+                                                <span className="rating-value small">
+                                                    {gym.rating.toFixed(1)}/5
+                                                </span>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="gym-actions">
+                                <button
+                                    className="edit-gym-button"
+                                    onClick={() => startEditing(gym)}
+                                    title="Editar gimnasio"
+                                >
+                                    <FaEdit />
+                                </button>
+                                <button
+                                    className="delete-gym-button"
+                                    onClick={() => deleteGym(gym.place_id)}
+                                    title="Eliminar gimnasio"
+                                >
+                                    <FaTrash />
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
+    };
+
+    return (
+        <div className="admin-gym-management">
+            <div className="admin-buttons-container">
+                {!showAddForm && (
+                    <>
+                        <button
+                            className="admin-add-button"
+                            onClick={toggleAddForm}
+                        >
+                            <FaPlus /> Agregar Gimnasio
+                        </button>
+                        {adminGyms.length > 0 && (
+                            <button
+                                className="admin-manage-button"
+                                onClick={toggleGymList}
+                            >
+                                <FaDumbbell /> Administrar Gimnasios ({adminGyms.length})
+                            </button>
+                        )}
+                    </>
+                )}
+            </div>
+
+            {/* Removed the duplicated search and location buttons here */}
+
+            {showAddForm && (
+                <div className="admin-form-container">
+                    <div className="admin-form-header">
+                        <FaDumbbell className="form-icon" />
+                        <h3>{editingGym ? 'Editar Gimnasio' : 'Agregar Nuevo Gimnasio'}</h3>
+                    </div>
+
+                    <form onSubmit={handleSubmit} className="admin-gym-form">
+                        <div className="form-columns">
+                            <div className="form-column">
+                                <div className="form-group">
+                                    <label htmlFor="name">
+                                        <span className="label-text">Nombre del Gimnasio</span>
+                                        <span className="required-indicator">*</span>
+                                    </label>
+                                    <div className="input-wrapper">
+                                        <input
+                                            type="text"
+                                            id="name"
+                                            name="name"
+                                            placeholder="Ej: PowerFit Gym"
+                                            value={newGym.name}
+                                            onChange={handleInputChange}
+                                            className={formErrors.name ? 'error' : ''}
+                                        />
+                                    </div>
+                                    {formErrors.name && <span className="error-message">{formErrors.name}</span>}
+                                </div>
+
+                                <div className="form-group">
+                                    <label htmlFor="vicinity">
+                                        <span className="label-text">Dirección</span>
+                                        <span className="required-indicator">*</span>
+                                    </label>
+                                    <div className="input-wrapper">
+                                        <IoLocationSharp className="input-icon" />
+                                        <input
+                                            type="text"
+                                            id="vicinity"
+                                            name="vicinity"
+                                            placeholder="Ej: Av. Corrientes 1234, CABA"
+                                            value={newGym.vicinity}
+                                            onChange={handleInputChange}
+                                            className={formErrors.vicinity ? 'error' : ''}
+                                        />
+                                    </div>
+                                    {formErrors.vicinity && <span className="error-message">{formErrors.vicinity}</span>}
+                                </div>
+
+                                <div className="form-group">
+                                    <label htmlFor="rating">Calificación</label>
+                                    <div className="star-rating-container" onMouseLeave={handleRatingLeave}>
+                                        {[1, 2, 3, 4, 5].map((star) => (
+                                            <span
+                                                key={star}
+                                                className="star-wrapper"
+                                                onClick={() => handleRatingClick(star)}
+                                                onMouseEnter={() => handleRatingHover(star)}
+                                            >
+                                                {getStarIcon(star)}
+                                            </span>
+                                        ))}
+                                        <span className="rating-value">
+                                            {ratingHover || newGym.rating || 0}/5
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="form-row">
+                                    <div className="form-group half-width">
+                                        <label htmlFor="lat">
+                                            <span className="label-text">Latitud</span>
+                                            <span className="required-indicator">*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id="lat"
+                                            name="lat"
+                                            value={newGym.lat}
+                                            onChange={handleInputChange}
+                                            className={formErrors.lat ? 'error' : ''}
+                                        />
+                                        {formErrors.lat && <span className="error-message">{formErrors.lat}</span>}
+                                    </div>
+
+                                    <div className="form-group half-width">
+                                        <label htmlFor="lng">
+                                            <span className="label-text">Longitud</span>
+                                            <span className="required-indicator">*</span>
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id="lng"
+                                            name="lng"
+                                            value={newGym.lng}
+                                            onChange={handleInputChange}
+                                            className={formErrors.lng ? 'error' : ''}
+                                        />
+                                        {formErrors.lng && <span className="error-message">{formErrors.lng}</span>}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="form-column">
+                                <div className="location-help-card">
+                                    <div className="card-header">
+                                        <HiLocationMarker className="location-icon" />
+                                        <h4>Ubicación del Gimnasio</h4>
+                                    </div>
+                                    <div className="card-content">
+                                        <p>Selecciona la ubicación exacta del gimnasio haciendo clic en el mapa, o usa uno de los siguientes métodos:</p>
+                                        <button
+                                            type="button"
+                                            className="location-button"
+                                            onClick={useCurrentLocation}
+                                            disabled={!userLocation}
+                                        >
+                                            <FaMapMarkerAlt /> Usar mi ubicación actual
+                                        </button>
+
+                                        <div className="location-tip">
+                                            <strong>Tip:</strong> Puedes hacer zoom en el mapa para mayor precisión.
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="form-group image-upload-group">
+                                    <label htmlFor="gym-image">Imagen del Gimnasio (opcional)</label>
+                                    <div className="image-upload-container">
+                                        {previewImage ? (
+                                            <div className="image-preview">
+                                                <img src={previewImage} alt="Vista previa" />
+                                                <button
+                                                    type="button"
+                                                    className="remove-image-btn"
+                                                    onClick={() => setPreviewImage('')}
+                                                >
+                                                    <FaTimes />
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <label className="upload-label" htmlFor="gym-image">
+                                                <div className="upload-placeholder">
+                                                    <FaPlus />
+                                                    <span>Subir imagen</span>
+                                                </div>
+                                                <input
+                                                    type="file"
+                                                    id="gym-image"
+                                                    accept="image/*"
+                                                    onChange={handleImageChange}
+                                                    style={{ display: 'none' }}
+                                                />
+                                            </label>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="form-actions">
+                            <button type="submit" className="submit-button">
+                                {editingGym ? (
+                                    <>
+                                        <FaEdit /> Guardar Cambios
+                                    </>
+                                ) : (
+                                    <>
+                                        <FaPlus /> Agregar Gimnasio
+                                    </>
+                                )}
+                            </button>
+                            <button
+                                type="button"
+                                className="cancel-button"
+                                onClick={toggleAddForm}
+                            >
+                                <FaTimes /> Cancelar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            )}
+
+            {renderGymList()}
+        </div>
+    );
+};
+
+export default AdminGymManagement;

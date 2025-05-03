@@ -230,7 +230,24 @@ public class UserController {
         }
         return ResponseEntity.notFound().build();
     }
+    @GetMapping("/role")
+    public ResponseEntity<?> getUserRole() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName();
+            UserEntity currentUser = userService.getUserByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
 
+            // Get the user's role
+            Role userRole = currentUser.getRole();
+
+            // Return the role in the response
+            return ResponseEntity.ok(Map.of("role", userRole.toString()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageResponse("Error retrieving user's role: " + e.getMessage()));
+        }
+    }
 
 }
 

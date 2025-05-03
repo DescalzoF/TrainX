@@ -3,24 +3,43 @@ import axios from 'axios';
 import L from 'leaflet';
 import './Gimnasios.css';
 import { FaSearch, FaMapMarkerAlt, FaStar } from 'react-icons/fa';
+import AdminGymManagement from '../../components/AdminGymManagement/AdminGymManagement.jsx';
+import AdminToggleButton from '../../components/AdminToggleButton/AdminToggleButton.jsx';
 
-// WavyText component for loading animation
-const WavyText = ({ text }) => {
+// Using the updated WavyText component you provided
+const WavyText = ({ text, replay = true }) => {
+    const [animation, setAnimation] = useState(true);
+
+    // Create animation loop effect
+    useEffect(() => {
+        if (replay) {
+            const interval = setInterval(() => {
+                setAnimation(prev => !prev);
+            }, 2000);
+
+            return () => clearInterval(interval);
+        }
+    }, [replay]);
+
     return (
         <div className="wavy-text-container">
-            {text.split('').map((letter, index) => (
+            {text.split("").map((letter, index) => (
                 <span
                     key={index}
                     className="wavy-letter"
                     style={{
-                        animationName: 'wave',
-                        animationDuration: '1s',
-                        animationDelay: `${index * 0.1}s`,
-                        animationIterationCount: 'infinite',
+                        display: "inline-block",
+                        marginRight: letter === " " ? "0.5em" : "0.05em",
+                        fontSize: "1.2rem",
+                        fontWeight: "bold",
+                        color: "#4285F4",
+                        animation: animation ? `wave 0.5s ease-in-out ${index * 0.05}s` : "none",
+                        position: "relative",
+                        transformOrigin: "bottom"
                     }}
                 >
-          {letter === ' ' ? '\u00A0' : letter}
-        </span>
+                    {letter}
+                </span>
             ))}
         </div>
     );
@@ -45,38 +64,112 @@ const Gimnasios = () => {
         lng: -58.3816  // Buenos Aires longitude
     });
 
+    // Admin state variables
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [adminActive, setAdminActive] = useState(false);
+    const [adminGyms, setAdminGyms] = useState([]);
+    const [apiAvailable, setApiAvailable] = useState(true);
+
     useEffect(() => {
-        // Function to fetch user profile and get address
-        const fetchUserAddress = async () => {
+        // Check if user is admin
+        checkUserRole();
+
+        // Load admin gyms from localStorage
+        const savedGyms = localStorage.getItem('adminGyms');
+        if (savedGyms) {
             try {
-                // Get token from localStorage or wherever you store it
-                const token = localStorage.getItem('token');
+                const parsedGyms = JSON.parse(savedGyms);
+                setAdminGyms(parsedGyms);
+            } catch (error) {
+                console.error("Failed to parse stored gyms:", error);
+                localStorage.removeItem('adminGyms'); // Remove invalid data
+            }
+        }
+    }, []);
 
-                if (!token) {
-                    throw new Error('No authentication token found');
-                }
+    // Check user role using the endpoint
+    const checkUserRole = async () => {
+        try {
+            const token = localStorage.getItem('token');
 
-                const response = await axios.get('http://localhost:8080/api/profile/me', {
+            if (!token) {
+                return;
+            }
+
+            // Try to get user role
+            try {
+                const response = await axios.get('http://localhost:8080/api/users/role', {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
                 });
 
-                // Check if user has an address in their profile
-                if (response.data && response.data.address) {
-                    // Ensure the address includes "Buenos Aires, Argentina"
-                    const fullAddress = response.data.address.toLowerCase().includes("buenos aires")
-                        ? response.data.address
-                        : `${response.data.address}, Buenos Aires, Argentina`;
+                // Check if the user role is ADMIN
+                if (response.data && response.data.role === 'ADMIN') {
+                    setIsAdmin(true);
+                }
+            } catch (err) {
+                console.error("Failed to check user role:", err);
+                // For demo purposes, enable admin functionality when backend is unavailable
+                if (err.code === 'ERR_NETWORK') {
+                    console.log("Backend unavailable, enabling admin mode for demo");
+                    setIsAdmin(true);
+                    setApiAvailable(false);
+                }
+            }
+        } catch (err) {
+            console.error("Error in checkUserRole:", err);
+        }
+    };
 
-                    setAddress(fullAddress);
-                    // Use the stored address for search
-                    searchByAddress(fullAddress);
-                    return true;
+    // Function to update gyms list with admin added gyms
+    const updateGyms = (newAdminGyms) => {
+        setAdminGyms(newAdminGyms);
+
+        // Combine API gyms with admin gyms and update markers
+        const combinedGyms = [...gyms.filter(gym => !gym.isAdminAdded), ...newAdminGyms];
+        setGyms(combinedGyms);
+    };
+
+    useEffect(() => {
+        // Function to fetch user profile and get address
+        const fetchUserAddress = async () => {
+            try {
+                // Get token from localStorage
+                const token = localStorage.getItem('token');
+
+                if (!token || !apiAvailable) {
+                    return false;
+                }
+
+                try {
+                    const response = await axios.get('http://localhost:8080/api/profile/me', {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    // Check if user has an address in their profile
+                    if (response.data && response.data.address) {
+                        // Ensure the address includes "Buenos Aires, Argentina"
+                        const fullAddress = response.data.address.toLowerCase().includes("buenos aires")
+                            ? response.data.address
+                            : `${response.data.address}, Buenos Aires, Argentina`;
+
+                        setAddress(fullAddress);
+                        // Use the stored address for search
+                        searchByAddress(fullAddress);
+                        return true;
+                    }
+                } catch (err) {
+                    console.error("Failed to fetch user profile:", err);
+                    if (err.code === 'ERR_NETWORK') {
+                        setApiAvailable(false);
+                    }
                 }
                 return false;
             } catch (err) {
-                console.error("Failed to fetch user profile:", err);
+                console.error("Error in fetchUserAddress:", err);
                 return false;
             }
         };
@@ -144,31 +237,36 @@ const Gimnasios = () => {
 
         // Initialize map if it doesn't exist
         if (!mapInstanceRef.current && mapRef.current) {
-            // Create map instance
-            mapInstanceRef.current = L.map(mapRef.current).setView(
-                [defaultLocation.lat, defaultLocation.lng],
-                13
-            );
+            try {
+                // Create map instance
+                mapInstanceRef.current = L.map(mapRef.current).setView(
+                    [defaultLocation.lat, defaultLocation.lng],
+                    13
+                );
 
-            // Add tile layer (OpenStreetMap)
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                maxZoom: 19
-            }).addTo(mapInstanceRef.current);
+                // Add tile layer (OpenStreetMap)
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                    maxZoom: 19
+                }).addTo(mapInstanceRef.current);
 
-            // Start the cascade of location attempts:
-            // 1. Try user profile address
-            // 2. If no address, try current location
-            // 3. Fall back to Buenos Aires
-            fetchUserAddress()
-                .then(hasAddress => {
-                    if (!hasAddress) {
+                // Start the cascade of location attempts:
+                // 1. Try user profile address
+                // 2. If no address, try current location
+                // 3. Fall back to Buenos Aires
+                fetchUserAddress()
+                    .then(hasAddress => {
+                        if (!hasAddress) {
+                            tryUserLocation();
+                        }
+                    })
+                    .catch(() => {
                         tryUserLocation();
-                    }
-                })
-                .catch(() => {
-                    tryUserLocation();
-                });
+                    });
+            } catch (error) {
+                console.error("Error initializing map:", error);
+                setError("Error al cargar el mapa. Por favor, recargue la página.");
+            }
         }
 
         // Cleanup function to destroy map when component unmounts
@@ -178,39 +276,66 @@ const Gimnasios = () => {
                 mapInstanceRef.current = null;
             }
         };
-    }, []);
+    }, [apiAvailable]);
 
     useEffect(() => {
         // Clear old markers
         clearMarkers();
 
+        if (!mapInstanceRef.current) return;
+
+        // Combine API gyms with admin gyms
+        const gymsList = [...gyms.filter(gym => !gym.isAdminAdded)];
+
+        // Only add admin gyms if they are not already included
+        if (adminGyms.length > 0) {
+            gymsList.push(...adminGyms);
+        }
+
         // Add new markers
-        if (gyms.length > 0 && mapInstanceRef.current) {
-            gyms.forEach((gym, index) => {
-                const marker = L.marker([gym.geometry.location.lat, gym.geometry.location.lng])
-                    .addTo(mapInstanceRef.current);
+        if (gymsList.length > 0) {
+            const validGyms = gymsList.filter(gym =>
+                gym.geometry?.location?.lat != null &&
+                gym.geometry?.location?.lng != null
+            );
 
-                // Add popup with gym info
-                const popupContent = `
-          <div class="info-window">
-            <h3>${gym.name}</h3>
-            <p><strong>Rating:</strong> ${gym.rating ? gym.rating + ' ★' : 'No rating'}</p>
-            <p><strong>Address:</strong> ${gym.vicinity}</p>
-            ${gym.place_id ? `<a href="https://www.google.com/maps/place/?q=place_id:${gym.place_id}" target="_blank">View on Google Maps</a>` : ''}
-          </div>
-        `;
+            validGyms.forEach((gym) => {
+                try {
+                    const marker = L.marker([gym.geometry.location.lat, gym.geometry.location.lng])
+                        .addTo(mapInstanceRef.current);
 
-                marker.bindPopup(popupContent);
-                markersRef.current.push(marker);
+                    // Add popup with gym info
+                    const popupContent = `
+                        <div class="info-window">
+                            <h3>${gym.name || 'Gimnasio'}</h3>
+                            <p><strong>Rating:</strong> ${gym.rating ? gym.rating + ' ★' : 'No rating'}</p>
+                            <p><strong>Address:</strong> ${gym.vicinity || 'Sin dirección'}</p>
+                            ${gym.place_id && !gym.isAdminAdded ? `<a href="https://www.google.com/maps/place/?q=place_id:${gym.place_id}" target="_blank">View on Google Maps</a>` : ''}
+                            ${gym.isAdminAdded ? '<p><strong>Status:</strong> <span style="color:#8e44ad;">Agregado por Administrador</span></p>' : ''}
+                        </div>
+                    `;
+
+                    marker.bindPopup(popupContent);
+                    markersRef.current.push(marker);
+                } catch (err) {
+                    console.error(`Error adding marker for gym ${gym.name}:`, err);
+                }
             });
 
-            // If gyms are available, adjust map view to show all markers
-            if (gyms.length > 0) {
-                const group = new L.featureGroup(markersRef.current);
-                mapInstanceRef.current.fitBounds(group.getBounds().pad(0.1));
+            // If valid gyms are available, adjust map view to show all markers
+            if (markersRef.current.length > 0) {
+                try {
+                    const group = new L.featureGroup(markersRef.current);
+                    const bounds = group.getBounds();
+                    if (bounds.isValid()) {
+                        mapInstanceRef.current.fitBounds(bounds.pad(0.1));
+                    }
+                } catch (err) {
+                    console.error("Error adjusting map view:", err);
+                }
             }
         }
-    }, [gyms]);
+    }, [gyms, adminGyms]);
 
     // Handler for address input change
     const handleAddressChange = (e) => {
@@ -271,12 +396,12 @@ const Gimnasios = () => {
                 },
                 (error) => {
                     console.error("Geolocation error:", error);
-                    setError("Error accessing your location. Please check browser permissions.");
+                    setError("Error al acceder a tu ubicación. Por favor verifica los permisos del navegador.");
                     setLoading(false);
                 }
             );
         } else {
-            setError("Geolocation is not supported by your browser.");
+            setError("La geolocalización no está soportada por tu navegador.");
             setLoading(false);
         }
     };
@@ -285,7 +410,11 @@ const Gimnasios = () => {
     const clearMarkers = () => {
         if (mapInstanceRef.current) {
             markersRef.current.forEach(marker => {
-                mapInstanceRef.current.removeLayer(marker);
+                try {
+                    mapInstanceRef.current.removeLayer(marker);
+                } catch (error) {
+                    console.error("Error removing marker:", error);
+                }
             });
             markersRef.current = [];
         }
@@ -322,9 +451,14 @@ const Gimnasios = () => {
     const geocodeAddress = async (address) => {
         try {
             // Add "Argentina" to the address if it doesn't already include it
-            const searchAddress = address.toLowerCase().includes("argentina")
+            let searchAddress = address.toLowerCase().includes("argentina")
                 ? address
                 : `${address}, Argentina`;
+
+            // Add "Buenos Aires" if it's not included
+            if (!searchAddress.toLowerCase().includes("buenos aires")) {
+                searchAddress = `${searchAddress}, Buenos Aires`;
+            }
 
             // Using OpenStreetMap's Nominatim for geocoding
             const response = await fetch(
@@ -344,11 +478,20 @@ const Gimnasios = () => {
                     lng: parseFloat(data[0].lon)
                 };
             } else {
-                throw new Error('Address not found');
+                // Fallback for demo purposes - use Buenos Aires coordinates
+                console.log("Address not found, falling back to default location");
+                return {
+                    lat: defaultLocation.lat,
+                    lng: defaultLocation.lng
+                };
             }
         } catch (error) {
             console.error("Geocoding error:", error);
-            throw error;
+            // Fallback to default location
+            return {
+                lat: defaultLocation.lat,
+                lng: defaultLocation.lng
+            };
         }
     };
 
@@ -371,7 +514,13 @@ const Gimnasios = () => {
         } catch (error) {
             console.error("Error searching by address:", error);
             setError(`No se pudo encontrar la dirección: ${error.message}`);
-            setGyms([]);
+
+            // Still show admin gyms if available
+            if (adminGyms.length > 0) {
+                setGyms(adminGyms);
+            } else {
+                setGyms([]);
+            }
         } finally {
             setLoadingGyms(false);
         }
@@ -385,17 +534,17 @@ const Gimnasios = () => {
 
             // Overpass query to find gyms, fitness centers, and sport centers
             const overpassQuery = `
-        [out:json];
-        (
-          node["leisure"="fitness_centre"](around:${radiusInMeters},${lat},${lng});
-          way["leisure"="fitness_centre"](around:${radiusInMeters},${lat},${lng});
-          node["leisure"="sports_centre"](around:${radiusInMeters},${lat},${lng});
-          way["leisure"="sports_centre"](around:${radiusInMeters},${lat},${lng});
-          node["amenity"="gym"](around:${radiusInMeters},${lat},${lng});
-          way["amenity"="gym"](around:${radiusInMeters},${lat},${lng});
-        );
-        out body center;
-      `;
+                [out:json];
+                (
+                  node["leisure"="fitness_centre"](around:${radiusInMeters},${lat},${lng});
+                  way["leisure"="fitness_centre"](around:${radiusInMeters},${lat},${lng});
+                  node["leisure"="sports_centre"](around:${radiusInMeters},${lat},${lng});
+                  way["leisure"="sports_centre"](around:${radiusInMeters},${lat},${lng});
+                  node["amenity"="gym"](around:${radiusInMeters},${lat},${lng});
+                  way["amenity"="gym"](around:${radiusInMeters},${lat},${lng});
+                );
+                out body center;
+            `;
 
             const response = await fetch(
                 `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(overpassQuery)}`
@@ -410,8 +559,8 @@ const Gimnasios = () => {
             // Process and format the results to match our expected structure
             const processedGyms = data.elements.map((element, index) => {
                 // For way elements, use the center coordinates
-                const lat = element.center ? element.center.lat : element.lat;
-                const lng = element.center ? element.center.lon : element.lon;
+                const latitude = element.center ? element.center.lat : element.lat;
+                const longitude = element.center ? element.center.lon : element.lon;
 
                 return {
                     place_id: element.id.toString(),
@@ -422,8 +571,8 @@ const Gimnasios = () => {
                     rating: element.tags.rating || null,
                     geometry: {
                         location: {
-                            lat: lat,
-                            lng: lng
+                            lat: latitude,
+                            lng: longitude
                         }
                     }
                 };
@@ -436,15 +585,53 @@ const Gimnasios = () => {
                 return distA - distB;
             });
 
-            setGyms(processedGyms);
+            // Combine with admin gyms
+            const combinedGyms = [...processedGyms, ...adminGyms];
+            setGyms(combinedGyms);
 
-            if (processedGyms.length === 0) {
+            if (processedGyms.length === 0 && adminGyms.length === 0) {
                 setError("No se encontraron gimnasios cercanos. Intente aumentar el radio de búsqueda.");
             }
         } catch (error) {
             console.error("Error fetching gyms:", error);
             setError("Error al buscar gimnasios. Por favor intente nuevamente más tarde.");
-            setGyms([]);
+
+            // Still show admin gyms if there are any
+            if (adminGyms.length > 0) {
+                setGyms(adminGyms);
+            } else {
+                // Add demo gyms for testing when services are not available
+                const demoGyms = [
+                    {
+                        place_id: "demo-1",
+                        name: "Gimnasio Demo 1",
+                        vicinity: "Av. Corrientes 1234, Buenos Aires",
+                        rating: 4.5,
+                        user_ratings_total: 42,
+                        geometry: {
+                            location: {
+                                lat: lat - 0.005,
+                                lng: lng + 0.003
+                            }
+                        }
+                    },
+                    {
+                        place_id: "demo-2",
+                        name: "Fitness Center Demo",
+                        vicinity: "Calle Florida 567, Buenos Aires",
+                        rating: 3.8,
+                        user_ratings_total: 27,
+                        geometry: {
+                            location: {
+                                lat: lat + 0.003,
+                                lng: lng - 0.002
+                            }
+                        }
+                    }
+                ];
+                setGyms(demoGyms);
+                setError("Usando datos de demostración - La API de gimnasios no está disponible");
+            }
         }
     };
 
@@ -466,6 +653,11 @@ const Gimnasios = () => {
         return deg * (Math.PI/180);
     };
 
+    // Toggle admin panel
+    const handleAdminToggle = (active) => {
+        setAdminActive(active);
+    };
+
     return (
         <div className="gimnasios-container">
             <div className="gimnasios-header">
@@ -473,9 +665,9 @@ const Gimnasios = () => {
                     <FaMapMarkerAlt /> Encuentra tu gimnasio
                 </h1>
                 <p>Descubre los mejores gimnasios cerca de ti en Buenos Aires</p>
-                {error && (
+                {!apiAvailable && (
                     <div className="connection-note">
-                        Los datos de gimnasios se obtienen de OpenStreetMap
+                        Modo demostración activo - Backend no disponible
                     </div>
                 )}
             </div>
@@ -524,6 +716,16 @@ const Gimnasios = () => {
                         />
                     </div>
                 </form>
+
+                {/* Admin Gym Management Component */}
+                {isAdmin && adminActive && (
+                    <AdminGymManagement
+                        mapInstance={mapInstanceRef.current}
+                        updateGyms={updateGyms}
+                        userLocation={userLocation}
+                        defaultLocation={defaultLocation}
+                    />
+                )}
             </div>
 
             {error && <div className="error-message">{error}</div>}
@@ -533,7 +735,7 @@ const Gimnasios = () => {
                     <div ref={mapRef} className="map"></div>
                     {loading && (
                         <div className="loading-overlay">
-                            <WavyText text="Obteniendo tu ubicación..." />
+                            <WavyText text="Obteniendo tu ubicación..." replay={true} />
                         </div>
                     )}
                 </div>
@@ -543,12 +745,12 @@ const Gimnasios = () => {
 
                     {loadingGyms ? (
                         <div className="loading-gyms">
-                            <WavyText text="Buscando gimnasios..." />
+                            <WavyText text="Buscando gimnasios..." replay={true} />
                         </div>
                     ) : gyms.length > 0 ? (
                         <ul className="gym-items">
                             {gyms.map((gym, index) => (
-                                <li key={gym.place_id} className="gym-item">
+                                <li key={gym.place_id || `gym-${index}`} className="gym-item">
                                     <div className="gym-rank">{index + 1}</div>
                                     <div className="gym-info">
                                         <h3>{gym.name}</h3>
@@ -556,18 +758,24 @@ const Gimnasios = () => {
                                             <div className="gym-rating">
                                                 <FaStar />
                                                 {gym.rating}
-                                                <span className="gym-reviews">{gym.user_ratings_total || 'N/A'} reseñas</span>
+                                                <span className="gym-reviews">
+                                                    {gym.user_ratings_total || 'N/A'} reseñas
+                                                </span>
                                             </div>
                                         )}
                                         <div className="gym-address">{gym.vicinity}</div>
-                                        <a
-                                            href={`https://www.openstreetmap.org/?mlat=${gym.geometry.location.lat}&mlon=${gym.geometry.location.lng}#map=19/${gym.geometry.location.lat}/${gym.geometry.location.lng}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="gym-link"
-                                        >
-                                            Ver en el mapa
-                                        </a>
+                                        {gym.isAdminAdded ? (
+                                            <span className="gym-admin-added">Agregado por Admin</span>
+                                        ) : (
+                                            <a
+                                                href={`https://www.openstreetmap.org/?mlat=${gym.geometry.location.lat}&mlon=${gym.geometry.location.lng}#map=19/${gym.geometry.location.lat}/${gym.geometry.location.lng}`}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="gym-link"
+                                            >
+                                                Ver en el mapa
+                                            </a>
+                                        )}
                                     </div>
                                 </li>
                             ))}
@@ -579,6 +787,13 @@ const Gimnasios = () => {
                     )}
                 </div>
             </div>
+
+            {/* Admin Toggle Button */}
+            <AdminToggleButton
+                isAdmin={isAdmin}
+                onToggle={handleAdminToggle}
+                adminActive={adminActive}
+            />
         </div>
     );
 };

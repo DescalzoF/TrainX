@@ -25,6 +25,9 @@ public class UserEntity implements UserDetails {
     private String username;
 
     @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false)
     private String surname;
 
     @Column(nullable = false)
@@ -85,6 +88,7 @@ public class UserEntity implements UserDetails {
     }
 
     public UserEntity(String username,
+                        String name,
                       String email,
                       String surname,
                       String password,
@@ -99,6 +103,7 @@ public class UserEntity implements UserDetails {
                       Long coins,
                       Role role) {
         this.username = username;
+        this.name = name;
         this.email = email;
         this.surname = surname;
         this.password = password;
@@ -288,6 +293,13 @@ public class UserEntity implements UserDetails {
         return xpFitnessEntity;
     }
 
+    public String getName(){
+        return name;
+    }
+
+    public void setName(String name){
+        this.name = name;
+    }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
