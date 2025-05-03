@@ -42,9 +42,6 @@ public class AdminInitializer implements CommandLineRunner {
             long defaultXp = 500L; // Ajusta este valor según lo necesites
             xpFitness.setTotalXp(defaultXp);
 
-            // Guardar XpFitness primero (opcional, también se persiste en cascada)
-            xpFitnessRepository.save(xpFitness);
-
             // Crear usuario con todos los campos requeridos
             UserEntity admin = new UserEntity();
             admin.setUsername("TrainXAdmin");
@@ -71,7 +68,7 @@ public class AdminInitializer implements CommandLineRunner {
             admin.setCaminoFitnessActual(defaultCamino);
             admin.setLevel(defaultLevel);
 
-            // Relacionar XpFitness con el usuario
+            // Relacionar XpFitness con el usuario (establecer la relación bidireccional)
             admin.setXpFitnessEntity(xpFitness);
             xpFitness.setUser(admin);
 
