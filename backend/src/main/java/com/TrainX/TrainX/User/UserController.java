@@ -24,7 +24,6 @@ public class UserController {
     private final CaminoFitnessService caminoFitnessService;
     private final LevelRepository levelRepository;
 
-
     @Autowired
     public UserController(UserService userService, CaminoFitnessService caminoFitnessService, LevelRepository levelRepository) {
         this.userService = userService;
@@ -32,7 +31,6 @@ public class UserController {
         this.levelRepository = levelRepository;
     }
 
-    // Get all users - Requires authentication
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UserEntity>> getAllUsers() {
@@ -40,7 +38,6 @@ public class UserController {
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
-    // Get user by ID - Requires authentication
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or authentication.principal.id == #id")
     public ResponseEntity<UserEntity> getUserById(@PathVariable("id") Long id) {
@@ -52,7 +49,6 @@ public class UserController {
         }
     }
 
-    // Delete user - Requires ADMIN role
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<HttpStatus> deleteUser(@PathVariable("id") Long id) {
@@ -64,7 +60,6 @@ public class UserController {
         }
     }
 
-    // Add coins to user - Requires ADMIN role
     @PatchMapping("/{id}/coins")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserEntity> addCoins(@PathVariable("id") Long id, @RequestParam Long amount) {
@@ -76,7 +71,6 @@ public class UserController {
         }
     }
 
-    // Get user by email - Requires authentication
     @GetMapping("/email/{email}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserEntity> getUserByEmail(@PathVariable String email) {
@@ -105,18 +99,14 @@ public class UserController {
         try {
             Long caminoFitnessId = request.get("caminoFitnessId");
 
-            // Obtener el CaminoFitness desde la base de datos
             CaminoFitnessEntity caminoFitness = caminoFitnessService.findById(caminoFitnessId)
                     .orElseThrow(() -> new RuntimeException("Camino no encontrado"));
 
-            // Asignar el CaminoFitness al usuario
             userService.assignCaminoFitness(userId, caminoFitnessId);
 
-            // Obtener el nivel "Principiante" del CaminoFitness
             LevelEntity nivelPrincipiante = levelRepository.findByNameLevelAndCaminos_IdCF("Principiante", caminoFitnessId)
                     .orElseThrow(() -> new RuntimeException("Nivel Principiante no encontrado para el camino"));
 
-            // Asignar el nivel Principiante al usuario
             userService.assignLevel(userId, nivelPrincipiante.getIdLevel());
 
             return ResponseEntity.ok("Camino y nivel asignados correctamente.");
@@ -126,8 +116,6 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al asignar camino y nivel.");
         }
     }
-
-
 
     @GetMapping("/{id}/camino")
     @PreAuthorize("hasRole('ADMIN') or authentication.principal.id == #id")
@@ -165,10 +153,8 @@ public class UserController {
     @GetMapping("/exerciseDetails")
     public ResponseEntity<Object> getUserExerciseDetails() {
         try {
-            // Obtener el nombre de usuario de la autenticación actual
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-            // Validar que el usuario está autenticado
             if (authentication == null || !authentication.isAuthenticated()) {
                 MessageResponse messageResponse = new MessageResponse("Error: Usuario no autenticado.");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(messageResponse);
@@ -176,11 +162,9 @@ public class UserController {
 
             String username = authentication.getName();
 
-            // Obtener los detalles del usuario
             UserEntity currentUser = userService.getUserByUsername(username)
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
-            // Obtener el levelId de manera segura
             Long levelId = null;
             if (currentUser.getLevel() != null) {
                 levelId = currentUser.getLevel().getIdLevel();
@@ -188,7 +172,6 @@ public class UserController {
                 System.out.println("No se encontró el level para el usuario.");
             }
 
-            // Obtener el caminoFitnessId de manera segura
             Long caminoFitnessId = null;
             if (currentUser.getCaminoFitnessActual() != null) {
                 caminoFitnessId = currentUser.getCaminoFitnessActual().getIdCF();
@@ -196,27 +179,22 @@ public class UserController {
                 System.out.println("No se encontró el camino fitness para el usuario.");
             }
 
-            // Imprimir los valores de los ids para depuración
             System.out.println("Level ID: " + levelId);
             System.out.println("Camino Fitness ID: " + caminoFitnessId);
 
-            // Si ambos valores son nulos, devolver error
             if (levelId == null || caminoFitnessId == null) {
                 MessageResponse messageResponse = new MessageResponse("Error: El usuario no tiene configurado el camino fitness o el nivel.");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(messageResponse);
             }
 
-            // Respuesta con los valores de levelId y caminoFitnessId
             Map<String, Long> response = Map.of(
                     "id", currentUser.getId(),
                     "caminoFitnessId", caminoFitnessId,
                     "levelId", levelId
             );
 
-            // Retornar los valores correctos
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            // En caso de error, devolver un mensaje con la excepción
             MessageResponse messageResponse = new MessageResponse("Error retrieving user profile: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(messageResponse);
         }
@@ -230,6 +208,7 @@ public class UserController {
         }
         return ResponseEntity.notFound().build();
     }
+
     @GetMapping("/role")
     public ResponseEntity<?> getUserRole() {
         try {
@@ -238,17 +217,12 @@ public class UserController {
             UserEntity currentUser = userService.getUserByUsername(username)
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
-            // Get the user's role
             Role userRole = currentUser.getRole();
 
-            // Return the role in the response
             return ResponseEntity.ok(Map.of("role", userRole.toString()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new MessageResponse("Error retrieving user's role: " + e.getMessage()));
         }
     }
-
 }
-
-

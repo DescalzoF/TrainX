@@ -3,10 +3,18 @@ package com.TrainX.TrainX.level;
 import com.TrainX.TrainX.caminoFitness.CaminoFitnessEntity;
 import com.TrainX.TrainX.exercise.ExerciseEntity;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "level")
+@Getter
+@Setter
+@NoArgsConstructor
 public class LevelEntity {
 
     @Id
@@ -14,7 +22,7 @@ public class LevelEntity {
     private Long idLevel;
 
     @Column(nullable = false)
-    private String nameLevel; // Principiante, Intermedio, Avanzado, Pro
+    private String nameLevel;
 
     @ManyToMany
     @JoinTable(
@@ -22,81 +30,27 @@ public class LevelEntity {
             joinColumns = @JoinColumn(name = "level_id"),
             inverseJoinColumns = @JoinColumn(name = "camino_id")
     )
-    private List<CaminoFitnessEntity> caminos;  // Relación muchos a muchos con CaminoFitnessEntity
+    private List<CaminoFitnessEntity> caminos = new ArrayList<>();
 
     @OneToMany(mappedBy = "level", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ExerciseEntity> exercises;
+    private List<ExerciseEntity> exercises = new ArrayList<>();
 
     @Column(nullable = false)
-    private Long xpMin;  // XP mínimo para el nivel
+    private Long xpMin;
 
     @Column(nullable = false)
-    private Long xpMax;  // XP máximo para el nivel
+    private Long xpMax;
 
-    // Constructor vacío
-    public LevelEntity() {}
-
-    // Constructor con campos útiles
     public LevelEntity(String nameLevel, List<CaminoFitnessEntity> caminos, Long xpMin, Long xpMax) {
         this.nameLevel = nameLevel;
-        this.caminos = caminos;
+        this.caminos = caminos != null ? caminos : new ArrayList<>();
         this.xpMin = xpMin;
         this.xpMax = xpMax;
     }
 
-    // Constructor completo (si es necesario)
     public LevelEntity(String nameLevel, List<CaminoFitnessEntity> caminos, List<ExerciseEntity> exercises) {
         this.nameLevel = nameLevel;
-        this.caminos = caminos;
-        this.exercises = exercises;
-    }
-
-    // Getters y Setters
-    public Long getIdLevel() {
-        return idLevel;
-    }
-
-    public void setIdLevel(Long idLevel) {
-        this.idLevel = idLevel;
-    }
-
-    public String getNameLevel() {
-        return nameLevel;
-    }
-
-    public void setNameLevel(String nameLevel) {
-        this.nameLevel = nameLevel;
-    }
-
-    public List<CaminoFitnessEntity> getCaminos() {
-        return caminos;
-    }
-
-    public void setCaminos(List<CaminoFitnessEntity> caminos) {
-        this.caminos = caminos;
-    }
-
-    public List<ExerciseEntity> getExercises() {
-        return exercises;
-    }
-
-    public void setExercises(List<ExerciseEntity> exercises) {
-        this.exercises = exercises;
-    }
-
-    public Long getXpMin() {
-        return xpMin;
-    }
-
-    public void setXpMin(Long xpMin) {
-        this.xpMin = xpMin;
-    }
-
-    public Long getXpMax() {
-        return xpMax;
-    }
-
-    public void setXpMax(Long xpMax) {
-        this.xpMax = xpMax;
+        this.caminos = caminos != null ? caminos : new ArrayList<>();
+        this.exercises = exercises != null ? exercises : new ArrayList<>();
     }
 }

@@ -10,40 +10,9 @@ function XPBar() {
     const [loading, setLoading] = useState(true);
     const [leveledUp, setLeveledUp] = useState(false);
     const [animatedXP, setAnimatedXP] = useState(0);
+    const [levelInfo, setLevelInfo] = useState(null);
+    const [previousLevelName, setPreviousLevelName] = useState(null);
     const updateIntervalRef = useRef(null);
-
-    // Define the level ranges directly in the component
-    const LEVEL_RANGES = [
-        { name: 'Principiante', min: 0, max: 1000 },
-        { name: 'Intermedio', min: 1000, max: 3000 },
-        { name: 'Avanzado', min: 3000, max: 6000 },
-        { name: 'Pro', min: 6000, max: 10000 },
-        { name: 'Pro+', min: 10000, max: 15000 },
-        { name: 'Maestro', min: 15000, max: 30000 }
-    ];
-
-    // Calculate level info based on total XP
-    const calculateLevelInfo = (xpAmount) => {
-        // Find the appropriate level range
-        const level = LEVEL_RANGES.find(range =>
-            xpAmount >= range.min && xpAmount < range.max
-        ) || LEVEL_RANGES[LEVEL_RANGES.length - 1]; // Default to highest level if beyond all ranges
-
-        // Calculate progress within the level
-        const xpInLevel = xpAmount - level.min;
-        const levelRange = level.max - level.min;
-        const progressPercentage = Math.min(100, Math.max(0, (xpInLevel / levelRange) * 100));
-
-        return {
-            name: level.name,
-            min: level.min,
-            max: level.max,
-            currentXp: xpAmount, // Store the full XP amount
-            xpInLevel,
-            levelRange,
-            progressPercentage
-        };
-    };
 
     // Initial loading and setup of periodic refresh
     useEffect(() => {
@@ -71,66 +40,60 @@ function XPBar() {
         };
     }, [isLoggedIn, currentUser, refreshXP]);
 
+    // Process XP data whenever it changes
+    useEffect(() => {
+        if (xp) {
+            const currentXp = xp.totalXp || 0;
+
+            // Calculate the progress percentage using minXp and maxXp from the server
+            const xpInLevel = currentXp - (xp.minXp || 0);
+            const levelRange = (xp.maxXp || 1000) - (xp.minXp || 0);
+            const progressPercentage = Math.min(100, Math.max(0, (xpInLevel / levelRange) * 100));
+
+            // Create level info object based on backend data
+            const newLevelInfo = {
+                name: xp.levelName || 'Unknown',
+                min: xp.minXp || 0,
+                max: xp.maxXp || 1000,
+                currentXp: currentXp,
+                xpInLevel,
+                levelRange,
+                progressPercentage
+            };
+
+            // Check if we leveled up
+            if (previousLevelName && previousLevelName !== newLevelInfo.name) {
+                setLeveledUp(true);
+                console.log(`Level up! New level: ${newLevelInfo.name}`);
+                setTimeout(() => setLeveledUp(false), 3000);
+            }
+
+            setPreviousLevelName(newLevelInfo.name);
+            setLevelInfo(newLevelInfo);
+            setTotalXp(currentXp);
+            setAnimatedXP(currentXp);
+        }
+    }, [xp, previousLevelName]);
+
     // Listen for XP changes from the XP context
     useEffect(() => {
         if (!isLoggedIn || !currentUser) return;
 
         const unsubscribe = subscribeToXPChanges((newXpData) => {
-            if (newXpData && newXpData.totalXp !== undefined) {
-                const newTotalXp = newXpData.totalXp;
-
-                // Check if we leveled up
-                const previousLevel = calculateLevelInfo(totalXp);
-                const newLevel = calculateLevelInfo(newTotalXp);
-
-                if (previousLevel.name !== newLevel.name && totalXp > 0) {
-                    setLeveledUp(true);
-                    console.log(`Level up! New level: ${newLevel.name}`);
-                    // You could add a notification/animation here
-                    setTimeout(() => setLeveledUp(false), 3000);
-                }
-
-                setTotalXp(newTotalXp);
-                setAnimatedXP(newTotalXp);
-            }
+            // The actual processing of the XP data is handled in the xp effect above
+            console.log('XP data received:', newXpData);
         });
 
         // Cleanup subscription on unmount
         return () => unsubscribe();
-    }, [isLoggedIn, currentUser, totalXp, subscribeToXPChanges]);
+    }, [isLoggedIn, currentUser, subscribeToXPChanges]);
 
-    // Watch for direct XP changes from the context
-    useEffect(() => {
-        if (xp && xp.totalXp !== undefined) {
-            const newTotalXp = xp.totalXp;
-
-            // Only process if the XP actually changed
-            if (newTotalXp !== totalXp) {
-                // Check if we leveled up
-                const previousLevel = calculateLevelInfo(totalXp);
-                const newLevel = calculateLevelInfo(newTotalXp);
-
-                if (previousLevel.name !== newLevel.name && totalXp > 0) {
-                    setLeveledUp(true);
-                    console.log(`Level up! New level: ${newLevel.name}`);
-                    // You could add a notification/animation here
-                    setTimeout(() => setLeveledUp(false), 3000);
-                }
-
-                setTotalXp(newTotalXp);
-                setAnimatedXP(newTotalXp);
-
-                console.log(`XP Bar updated: ${totalXp} -> ${newTotalXp}`);
-            }
-        }
-    }, [xp, totalXp]);
-
-    if (!isLoggedIn || loading) {
+    if (!isLoggedIn || loading || !levelInfo) {
         return null;
     }
 
-    // Calculate current level info
-    const levelInfo = calculateLevelInfo(animatedXP);
+    // Calculate XP needed for next level
+    const xpNeeded = levelInfo.max - levelInfo.currentXp;
 
     return (
         <div className={`xp-bar-container ${leveledUp ? 'level-up-animation' : ''}`}>
@@ -142,6 +105,7 @@ function XPBar() {
                 <div className="xp-numbers">
                     <span>{levelInfo.currentXp}</span>
                     <span>/{levelInfo.max} XP</span>
+                    <span> (+{xpNeeded} needed)</span>
                 </div>
             </div>
             <div className="level-indicator">

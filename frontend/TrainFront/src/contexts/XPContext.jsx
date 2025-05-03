@@ -61,7 +61,7 @@ export const XPProvider = ({ children }) => {
             console.error('Error fetching XP data:', error);
             setXP(null);
         }
-    }, [currentUser]);
+    }, [currentUser, listeners]);
 
     // Function to update XP
     const updateXP = useCallback(async (xpAmount) => {

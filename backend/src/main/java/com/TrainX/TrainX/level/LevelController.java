@@ -15,9 +15,6 @@ public class LevelController {
     @Autowired
     private LevelService levelService;
 
-    /**
-     * Obtener todos los niveles de un camino fitness específico
-     */
     @GetMapping("/by-camino")
     public ResponseEntity<List<LevelEntity>> getLevelsByCaminoFitness(@RequestParam Long caminoFitnessId) {
         if (caminoFitnessId == null || caminoFitnessId <= 0) {
@@ -36,9 +33,6 @@ public class LevelController {
         }
     }
 
-    /**
-     * Obtener un nivel por nombre y camino fitness asociado
-     */
     @GetMapping("/by-name-and-camino")
     public ResponseEntity<LevelEntity> getLevelByNameAndCamino(
             @RequestParam String nameLevel,
@@ -57,27 +51,18 @@ public class LevelController {
         }
     }
 
-    /**
-     * Obtener todos los niveles disponibles
-     */
     @GetMapping
     public ResponseEntity<List<LevelEntity>> getAllLevels() {
         List<LevelEntity> levels = levelService.getAllLevels();
         return ResponseEntity.ok(levels);
     }
 
-    /**
-     * Crear un nuevo nivel
-     */
     @PostMapping
     public ResponseEntity<LevelEntity> createLevel(@RequestBody LevelEntity levelEntity) {
         LevelEntity created = levelService.createLevel(levelEntity);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
-    /**
-     * Actualizar un nivel existente
-     */
     @PutMapping("/{id}")
     public ResponseEntity<LevelEntity> updateLevel(
             @PathVariable Long id,
@@ -90,9 +75,6 @@ public class LevelController {
         }
     }
 
-    /**
-     * Eliminar un nivel
-     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteLevel(@PathVariable Long id) {
         try {
@@ -100,6 +82,21 @@ public class LevelController {
             return ResponseEntity.noContent().build();
         } catch (ResponseStatusException e) {
             return ResponseEntity.status(e.getStatusCode()).build();
+        }
+    }
+
+    @GetMapping("/by-xp/{xp}")
+    public ResponseEntity<LevelEntity> getLevelByXP(@PathVariable Long xp) {
+        if (xp == null || xp < 0) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        try {
+            return levelService.getLevelByXP(xp)
+                    .map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.notFound().build());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }
