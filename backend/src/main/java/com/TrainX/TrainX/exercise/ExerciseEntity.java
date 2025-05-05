@@ -30,6 +30,9 @@ public class ExerciseEntity {
     @Column(nullable = false)
     private String videoUrl;
 
+    @Column (nullable = false)
+    private Double weight;
+
     @Column(nullable = false)
     private Long xpFitnessReward;
 
@@ -44,7 +47,7 @@ public class ExerciseEntity {
 
     public ExerciseEntity() {}
 
-    public ExerciseEntity(String name, String description, String muscleGroup, Integer sets, Integer reps, CaminoFitnessEntity caminoFitness, LevelEntity level, String videoUrl, Long xpFitnessReward) {
+    public ExerciseEntity(String name, String description, String muscleGroup, Integer sets, Integer reps, CaminoFitnessEntity caminoFitness, LevelEntity level, String videoUrl, Long xpFitnessReward, Double weight) {
         this.name = name;
         this.description = description;
         this.muscleGroup = muscleGroup;
@@ -54,6 +57,7 @@ public class ExerciseEntity {
         this.videoUrl = videoUrl;
         this.level = level;
         this.xpFitnessReward = xpFitnessReward;
+        this.weight = weight;
     }
 
     // Getters
@@ -95,6 +99,10 @@ public class ExerciseEntity {
         return xpFitnessReward;
     }
 
+    public Double getWeight() {
+        return weight;
+    }
+
 
     // Setters
     public void setName(String name) {
@@ -129,5 +137,9 @@ public class ExerciseEntity {
     }
     public void setXpFitnessReward(Long xpFitnessReward) {
         this.xpFitnessReward = xpFitnessReward;
+    }
+
+    public void setWeight(Double weight) {
+        this.weight = weight;
     }
 }
