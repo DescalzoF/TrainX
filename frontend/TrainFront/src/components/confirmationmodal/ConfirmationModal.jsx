@@ -11,10 +11,10 @@ function ConfirmationModal({ onConfirm, caminoSeleccionado, userId, selectedCami
     // Map of camino IDs to their corresponding level IDs
     const caminoToLevelMap = {
         1: 1,   // Deportista: caminofitnessid 1, levelid 1
-        2: 5,   // Fuerza: caminofitnessid 2, levelid 5
-        3: 9,   // Entrenamiento Hibrido: caminofitnessid 3, levelid 9
-        4: 13,  // Hipertrofia: caminofitnessid 4, levelid 13
-        5: 17   // Otro: caminofitnessid 5, levelid 17
+        2: 1,   // Fuerza: caminofitnessid 2, levelid 5
+        3: 1,   // Entrenamiento Hibrido: caminofitnessid 3, levelid 9
+        4: 1,  // Hipertrofia: caminofitnessid 4, levelid 13
+        5: 1   // Otro: caminofitnessid 5, levelid 17
     };
 
     const handleConfirm = async (confirm) => {
