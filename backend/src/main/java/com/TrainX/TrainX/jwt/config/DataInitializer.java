@@ -72,6 +72,7 @@ public class DataInitializer {
         };
     }
 
+
     @Bean
     @Order(2)
     public CommandLineRunner loadLevelsAndExercises(
@@ -81,13 +82,21 @@ public class DataInitializer {
         return args -> {
             // Solo agregar datos iniciales si el repositorio de ejercicios está vacío
             if (exerciseRepository.count() == 0) {
-                // Crear ejercicios para cada camino y nivel
-                initDeportistaExercises(caminoFitnessRepository, levelRepository, exerciseRepository);
-                initFuerzaExercises(caminoFitnessRepository, levelRepository, exerciseRepository);
-                initEntrenamientoHibridoExercises(caminoFitnessRepository, levelRepository, exerciseRepository);
-                initHipertrofiaExercises(caminoFitnessRepository, levelRepository, exerciseRepository);
-                initOtroExercises(caminoFitnessRepository, levelRepository, exerciseRepository);
+                // Crear los 4 niveles comunes para todos los caminos
+                List<CaminoFitnessEntity> allCaminos = caminoFitnessRepository.findAll();
 
+                // Create the four common levels with IDs 1-4
+                LevelEntity principiante = createCommonLevel(levelRepository, "Principiante", 1, allCaminos);
+                LevelEntity intermedio = createCommonLevel(levelRepository, "Intermedio", 2, allCaminos);
+                LevelEntity avanzado = createCommonLevel(levelRepository, "Avanzado", 3, allCaminos);
+                LevelEntity pro = createCommonLevel(levelRepository, "Pro", 4, allCaminos);
+
+                // Create exercises for each fitness path using the common levels
+                initDeportistaExercises(caminoFitnessRepository, exerciseRepository, principiante, intermedio, avanzado, pro);
+                initFuerzaExercises(caminoFitnessRepository, exerciseRepository, principiante, intermedio, avanzado, pro);
+                initEntrenamientoHibridoExercises(caminoFitnessRepository, exerciseRepository, principiante, intermedio, avanzado, pro);
+                initHipertrofiaExercises(caminoFitnessRepository, exerciseRepository, principiante, intermedio, avanzado, pro);
+                initOtroExercises(caminoFitnessRepository, exerciseRepository, principiante, intermedio, avanzado, pro);
 
                 System.out.println("Inicialización de niveles y ejercicios completada con éxito.");
             }
@@ -175,20 +184,50 @@ public class DataInitializer {
         }
         return tasks;
     }
+    // Creates a level that will be shared across all fitness paths
+    private LevelEntity createCommonLevel(LevelRepository levelRepository, String levelName, int levelNumber, List<CaminoFitnessEntity> allCaminos) {
+        // Define XP ranges based on level number
+        long xpMin, xpMax;
+        switch (levelNumber) {
+            case 1: // Principiante
+                xpMin = 0L;
+                xpMax = 1000L;
+                break;
+            case 2: // Intermedio
+                xpMin = 1001L;
+                xpMax = 3000L;
+                break;
+            case 3: // Avanzado
+                xpMin = 3001L;
+                xpMax = 6000L;
+                break;
+            case 4: // Pro
+                xpMin = 6001L;
+                xpMax = 10000L;
+                break;
+            default:
+                xpMin = 0L;
+                xpMax = 1000L;
+        }
+
+        // Create the level entity
+        LevelEntity level = new LevelEntity(levelName, allCaminos, xpMin, xpMax);
+
+        // Save and return the level
+        return levelRepository.save(level);
+    }
+
     private void initOtroExercises(
             CaminoFitnessRepository caminoFitnessRepository,
-            LevelRepository levelRepository,
-            ExerciseRepository exerciseRepository) {
+            ExerciseRepository exerciseRepository,LevelEntity principiante,
+            LevelEntity intermedio,
+            LevelEntity avanzado,
+            LevelEntity pro) {
 
         CaminoFitnessEntity camino = caminoFitnessRepository
                 .findByNameCFIgnoreCase("Otro")
                 .orElseThrow(() -> new RuntimeException("No se encontró el camino Otro"));
 
-        // Crear los 4 niveles
-        LevelEntity principiante = createLevel(levelRepository, "Principiante", 1, camino);
-        LevelEntity intermedio   = createLevel(levelRepository, "Intermedio",   2, camino);
-        LevelEntity avanzado     = createLevel(levelRepository, "Avanzado",     3, camino);
-        LevelEntity pro          = createLevel(levelRepository, "Pro",          4, camino);
 
         // NIVEL PRINCIPIANTE (6 placeholders, xpReward = 50)
         List<ExerciseEntity> ejerciciosPrincipiante = new ArrayList<>();
@@ -263,17 +302,15 @@ public class DataInitializer {
 
     private void initDeportistaExercises(
             CaminoFitnessRepository caminoFitnessRepository,
-            LevelRepository levelRepository,
-            ExerciseRepository exerciseRepository) {
+            ExerciseRepository exerciseRepository,LevelEntity principiante,
+            LevelEntity intermedio,
+            LevelEntity avanzado,
+            LevelEntity pro) {
 
         CaminoFitnessEntity camino = caminoFitnessRepository.findByNameCFIgnoreCase("Deportista")
                 .orElseThrow(() -> new RuntimeException("No se encontró el camino Deportista"));
 
-        // Crear los 4 niveles
-        LevelEntity principiante = createLevel(levelRepository, "Principiante", 1, camino);
-        LevelEntity intermedio = createLevel(levelRepository, "Intermedio", 2, camino);
-        LevelEntity avanzado = createLevel(levelRepository, "Avanzado", 3, camino);
-        LevelEntity pro = createLevel(levelRepository, "Pro", 4, camino);
+
 
         // NIVEL PRINCIPIANTE
         List<ExerciseEntity> ejerciciosPrincipiante = new ArrayList<>();
@@ -869,55 +906,15 @@ public class DataInitializer {
 
         exerciseRepository.saveAll(ejerciciosPro);
     }
-
-    private LevelEntity createLevel(LevelRepository levelRepository, String levelName, int levelNumber, CaminoFitnessEntity camino) {
-        // Create a list with the provided camino
-        List<CaminoFitnessEntity> caminos = new ArrayList<>();
-        caminos.add(camino);
-
-        // Define XP ranges based on level number
-        long xpMin, xpMax;
-        switch (levelNumber) {
-            case 1: // Principiante
-                xpMin = 0L;
-                xpMax = 1000L;
-                break;
-            case 2: // Intermedio
-                xpMin = 1001L;
-                xpMax = 3000L;
-                break;
-            case 3: // Avanzado
-                xpMin = 3001L;
-                xpMax = 6000L;
-                break;
-            case 4: // Pro
-                xpMin = 6001L;
-                xpMax = 10000L;
-                break;
-            default:
-                xpMin = 0L;
-                xpMax = 1000L;
-        }
-
-        // Create the level entity
-        LevelEntity level = new LevelEntity(levelName, caminos, xpMin, xpMax);
-
-        // Save and return the level
-        return levelRepository.save(level);
-    }
     private void initFuerzaExercises(
             CaminoFitnessRepository caminoFitnessRepository,
-            LevelRepository levelRepository,
-            ExerciseRepository exerciseRepository) {
+            ExerciseRepository exerciseRepository,LevelEntity principiante,
+            LevelEntity intermedio,
+            LevelEntity avanzado,
+            LevelEntity pro) {
 
         CaminoFitnessEntity camino = caminoFitnessRepository.findByNameCFIgnoreCase("Fuerza")
                 .orElseThrow(() -> new RuntimeException("No se encontró el camino Fuerza"));
-
-        // Crear los 4 niveles
-        LevelEntity principiante = createLevel(levelRepository, "Principiante", 1, camino);
-        LevelEntity intermedio = createLevel(levelRepository, "Intermedio", 2, camino);
-        LevelEntity avanzado = createLevel(levelRepository, "Avanzado", 3, camino);
-        LevelEntity pro = createLevel(levelRepository, "Pro", 4, camino);
 
         // NIVEL PRINCIPIANTE
         List<ExerciseEntity> ejerciciosPrincipiante = new ArrayList<>();
@@ -1522,17 +1519,10 @@ public class DataInitializer {
 
     private void initHipertrofiaExercises(
             CaminoFitnessRepository caminoFitnessRepository,
-            LevelRepository levelRepository,
-            ExerciseRepository exerciseRepository) {
+            ExerciseRepository exerciseRepository, LevelEntity principiante, LevelEntity intermedio, LevelEntity avanzado, LevelEntity pro) {
 
         CaminoFitnessEntity camino = caminoFitnessRepository.findByNameCFIgnoreCase("Hipertrofia")
                 .orElseThrow(() -> new RuntimeException("No se encontró el camino Hipertrofia"));
-
-        // Crear los 4 niveles
-        LevelEntity principiante = createLevel(levelRepository, "Principiante", 1, camino);
-        LevelEntity intermedio = createLevel(levelRepository, "Intermedio", 2, camino);
-        LevelEntity avanzado = createLevel(levelRepository, "Avanzado", 3, camino);
-        LevelEntity pro = createLevel(levelRepository, "Pro", 4, camino);
 
         // NIVEL PRINCIPIANTE
         List<ExerciseEntity> ejerciciosPrincipiante = new ArrayList<>();
@@ -2137,17 +2127,13 @@ public class DataInitializer {
 
     private void initEntrenamientoHibridoExercises(
             CaminoFitnessRepository caminoFitnessRepository,
-            LevelRepository levelRepository,
-            ExerciseRepository exerciseRepository) {
+            ExerciseRepository exerciseRepository,LevelEntity principiante,
+            LevelEntity intermedio,
+            LevelEntity avanzado,
+            LevelEntity pro) {
 
         CaminoFitnessEntity camino = caminoFitnessRepository.findByNameCFIgnoreCase("Entrenamiento Hibrido")
                 .orElseThrow(() -> new RuntimeException("No se encontró el camino EntrenamientoHibrido"));
-
-        // Crear los 4 niveles
-        LevelEntity principiante = createLevel(levelRepository, "Principiante", 1, camino);
-        LevelEntity intermedio = createLevel(levelRepository, "Intermedio", 2, camino);
-        LevelEntity avanzado = createLevel(levelRepository, "Avanzado", 3, camino);
-        LevelEntity pro = createLevel(levelRepository, "Pro", 4, camino);
 
         // NIVEL PRINCIPIANTE
         List<ExerciseEntity> ejerciciosPrincipiante = new ArrayList<>();
