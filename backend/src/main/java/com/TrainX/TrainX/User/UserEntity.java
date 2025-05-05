@@ -1,25 +1,22 @@
 package com.TrainX.TrainX.User;
 
 import com.TrainX.TrainX.caminoFitness.CaminoFitnessEntity;
+import com.TrainX.TrainX.desafioSemanal.DesafioCompletion;
+import com.TrainX.TrainX.desafioSemanal.DesafioSemanal;
 import com.TrainX.TrainX.level.LevelEntity;
-import com.TrainX.TrainX.session.SessionEntity;
 import com.TrainX.TrainX.xpFitness.XpFitnessEntity;
 import jakarta.persistence.*;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @Table(name = "users")
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 public class UserEntity implements UserDetails {
 
@@ -55,10 +52,13 @@ public class UserEntity implements UserDetails {
     private String address;
 
     @Column(nullable = false)
-    private Long coins;
+    private Long coins = 0L;
+
+    @Column(nullable = false)
+    private Long experience = 0L;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_level")
+    @JoinColumn(name = "level_id")
     private LevelEntity level;
 
     @Column(nullable = false, unique = true)
@@ -84,8 +84,17 @@ public class UserEntity implements UserDetails {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private XpFitnessEntity xpFitnessEntity;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SessionEntity> sessions = new ArrayList<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "user_desafios",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "desafio_id")
+    )
+    private Set<DesafioSemanal> desafiosCompletados = new HashSet<>();
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    private Set<DesafioCompletion> historialDesafios = new HashSet<>();
 
     public UserEntity(String username,
                       String name,
@@ -119,16 +128,6 @@ public class UserEntity implements UserDetails {
         this.role = role != null ? role : Role.USER;
     }
 
-    public void addSession(SessionEntity session) {
-        sessions.add(session);
-        session.setUser(this);
-    }
-
-    public void removeSession(SessionEntity session) {
-        sessions.remove(session);
-        session.setUser(null);
-    }
-
     public void setXpFitnessEntity(XpFitnessEntity xpFitnessEntity) {
         this.xpFitnessEntity = xpFitnessEntity;
         if (xpFitnessEntity != null && xpFitnessEntity.getUser() != this) {
@@ -145,7 +144,8 @@ public class UserEntity implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + role.name());
+        return Collections.singletonList(authority);
     }
 
     @Override

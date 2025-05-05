@@ -4,6 +4,8 @@ import "./ExercisesView.css";
 import confetti from 'canvas-confetti';
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import { useXP } from "../../contexts/XPContext.jsx";
+import { Check } from "lucide-react";
+import DesafiosSemanales from "./DesafiosSemanales.jsx";
 
 const ExerciseView = () => {
     const [exercises, setExercises] = useState([]);
@@ -384,6 +386,10 @@ const ExerciseView = () => {
             <h1>Programa de Entrenamiento de {username}</h1>
 
             <div className="content-container">
+                {/* Weekly Challenges Section - Now using the separate component */}
+                <DesafiosSemanales />
+
+                {/* Exercises Section */}
                 <div className="sessions-panel">
                     <div className="session-card active">
                         <div className="session-header">
