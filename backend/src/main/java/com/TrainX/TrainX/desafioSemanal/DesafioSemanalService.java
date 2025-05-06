@@ -8,8 +8,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class DesafioSemanalService {
@@ -62,6 +64,46 @@ public class DesafioSemanalService {
 
     public List<DesafioSemanal> getDesafiosPendientesForUser(Long userId) {
         return desafioRepository.findActiveDesafiosNotCompletedByUser(userId);
+    }
+
+    public List<DesafioSemanalDTO> getDesafiosWithTimeRemaining(Long userId) {
+        List<DesafioSemanal> activeDesafios = desafioRepository.findByActivoTrue();
+        List<DesafioSemanalDTO> result = new ArrayList<>();
+
+        for (DesafioSemanal desafio : activeDesafios) {
+            DesafioSemanalDTO dto = new DesafioSemanalDTO();
+            dto.setId(desafio.getId());
+            dto.setDescripcion(desafio.getDescripcion());
+            dto.setValorMonedas(desafio.getValorMonedas());
+
+            // Check if user already completed this challenge recently
+            Optional<DesafioCompletion> recentCompletion = completionRepository
+                    .findByUsuarioIdAndDesafioIdAndFechaCompletadoAfter(
+                            userId,
+                            desafio.getId(),
+                            LocalDateTime.now().minus(7, ChronoUnit.DAYS)
+                    );
+
+            if (recentCompletion.isPresent()) {
+                dto.setCompletado(true);
+                dto.setFechaCompletado(recentCompletion.get().getFechaCompletado());
+
+                // Calculate time remaining in hours
+                LocalDateTime nextAvailableDate = recentCompletion.get().getFechaCompletado().plus(7, ChronoUnit.DAYS);
+                long hoursRemaining = ChronoUnit.HOURS.between(LocalDateTime.now(), nextAvailableDate);
+                if (hoursRemaining < 0) {
+                    hoursRemaining = 0;
+                }
+                dto.setTiempoRestanteHoras(hoursRemaining);
+            } else {
+                dto.setCompletado(false);
+                dto.setTiempoRestanteHoras(0L); // Can complete now
+            }
+
+            result.add(dto);
+        }
+
+        return result;
     }
 
     @Transactional

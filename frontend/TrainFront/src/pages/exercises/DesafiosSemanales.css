@@ -8,12 +8,78 @@
     width: 100%;
 }
 
+.challenges-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
 .weekly-challenges-section h2 {
     font-size: 1.5rem;
-    margin-bottom: 1.5rem;
     color: #333;
     font-weight: 600;
+    margin: 0;
+}
+
+.weekly-challenges-section h3 {
+    font-size: 1.1rem;
+    color: #555;
+    font-weight: 500;
+    margin: 1rem 0 0.5rem 0;
+}
+
+.refresh-button {
+    background-color: #f5f5f5;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #666;
+}
+
+.refresh-button:hover {
+    background-color: #e0e0e0;
+    color: #333;
+}
+
+.refresh-button.refreshing svg {
+    animation: rotate 1s linear infinite;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.timer-container {
     text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.time-remaining {
+    font-size: 0.9rem;
+    color: #666;
+    font-weight: 500;
+    background-color: #f5f5f5;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    gap: 0.5rem;
+}
+
+.timer-icon {
+    color: #555;
+}
+
+.completed-challenge-section {
+    margin-bottom: 1.5rem;
 }
 
 .no-challenges {
@@ -49,6 +115,28 @@
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
 }
 
+.challenge-card.completed {
+    border-color: #4caf50;
+    box-shadow: 0 1px 4px rgba(76, 175, 80, 0.15);
+    background-color: #f8fff8;
+}
+
+.completed-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background-color: #4caf50;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-bottom-left-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    z-index: 5;
+}
+
 .challenge-header {
     display: flex;
     justify-content: space-between;
@@ -71,6 +159,10 @@
     color: #4a90e2;
     margin-right: 0.75rem;
     flex-shrink: 0;
+}
+
+.award-icon.completed {
+    color: #4caf50;
 }
 
 .challenge-title h3 {
