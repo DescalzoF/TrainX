@@ -90,6 +90,24 @@ public class DesafioSemanalController {
         }
     }
 
+    @GetMapping("/con-tiempo-restante")
+    public ResponseEntity<?> getDesafiosWithTimeRemaining() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName();
+            UserEntity currentUser = userService.getUserByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+            List<DesafioSemanalDTO> desafiosWithTimer =
+                    desafioService.getDesafiosWithTimeRemaining(currentUser.getId());
+
+            return ResponseEntity.ok(desafiosWithTimer);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageResponse("Error al obtener desafíos con tiempo restante: " + e.getMessage()));
+        }
+    }
+
     @PostMapping("/{desafioId}/completar")
     public ResponseEntity<?> completarDesafio(@PathVariable Long desafioId) {
         try {
@@ -110,8 +128,25 @@ public class DesafioSemanalController {
                         "monedasTotales", currentUser.getCoins()
                 ));
             } else {
-                return ResponseEntity.badRequest()
-                        .body(new MessageResponse("Ya has completado este desafío esta semana."));
+                // Find remaining time for this challenge
+                List<DesafioSemanalDTO> desafiosWithTimer =
+                        desafioService.getDesafiosWithTimeRemaining(currentUser.getId());
+
+                DesafioSemanalDTO targetDesafio = desafiosWithTimer.stream()
+                        .filter(d -> d.getId().equals(desafioId))
+                        .findFirst()
+                        .orElse(null);
+
+                if (targetDesafio != null && targetDesafio.getTiempoRestanteHoras() > 0) {
+                    return ResponseEntity.badRequest()
+                            .body(Map.of(
+                                    "message", "Ya has completado este desafío esta semana.",
+                                    "tiempoRestanteHoras", targetDesafio.getTiempoRestanteHoras()
+                            ));
+                } else {
+                    return ResponseEntity.badRequest()
+                            .body(new MessageResponse("Ya has completado este desafío esta semana."));
+                }
             }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

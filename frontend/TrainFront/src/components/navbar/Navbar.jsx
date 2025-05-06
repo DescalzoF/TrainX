@@ -17,6 +17,8 @@ function Navbar() {
     const [profilePicture, setProfilePicture] = useState(null);
     const [userCoins, setUserCoins] = useState(0);
     const dropdownRef = useRef(null);
+    // Add a ref for the interval to clean it up properly
+    const coinPollingIntervalRef = useRef(null);
 
     useEffect(() => {
         const handleScroll = () => {
@@ -33,16 +35,41 @@ function Navbar() {
         };
         window.addEventListener('profilePictureUpdated', handleProfileUpdate);
 
-        // Fetch user coins if logged in
+        // Fetch user coins immediately and set up polling if logged in
         if (isLoggedIn) {
             fetchUserCoins();
+
+            // Set up polling interval for continuous coin updates - every 10 seconds
+            coinPollingIntervalRef.current = setInterval(() => {
+                fetchUserCoins();
+            }, 10000); // Adjust the interval as needed (10000ms = 10 seconds)
         }
 
+        // Clean up all event listeners and intervals
         return () => {
             window.removeEventListener('scroll', handleScroll);
             window.removeEventListener('profilePictureUpdated', handleProfileUpdate);
+
+            // Clear the interval when component unmounts
+            if (coinPollingIntervalRef.current) {
+                clearInterval(coinPollingIntervalRef.current);
+            }
         };
     }, [isLoggedIn, currentUser]);
+
+    // Custom event listener for coin updates from other components
+    useEffect(() => {
+        const handleCoinUpdate = () => {
+            fetchUserCoins();
+        };
+
+        // Listen for a custom event that can be triggered from anywhere when coins change
+        window.addEventListener('coinsUpdated', handleCoinUpdate);
+
+        return () => {
+            window.removeEventListener('coinsUpdated', handleCoinUpdate);
+        };
+    }, []);
 
     const fetchUserCoins = async () => {
         try {
@@ -52,7 +79,6 @@ function Navbar() {
                 return;
             }
 
-            // Use the new dedicated endpoint for coins
             const response = await fetch(`http://localhost:8080/api/users/current/coins`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -81,6 +107,11 @@ function Navbar() {
     }, []);
 
     const handleLogout = async () => {
+        // Clear the coin polling interval when logging out
+        if (coinPollingIntervalRef.current) {
+            clearInterval(coinPollingIntervalRef.current);
+        }
+
         await logout();
         // Explicitly navigate to home page with replace to prevent back navigation
         navigate('/', { replace: true });

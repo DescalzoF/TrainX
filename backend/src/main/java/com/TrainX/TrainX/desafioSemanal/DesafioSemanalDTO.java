@@ -15,4 +15,5 @@ public class DesafioSemanalDTO {
     private Long valorMonedas;
     private boolean completado;
     private LocalDateTime fechaCompletado;
+    private Long tiempoRestanteHoras;
 }
