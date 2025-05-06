@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import "./ExercisesView.css";
 import confetti from 'canvas-confetti';
@@ -14,10 +14,14 @@ const ExerciseView = () => {
     const [userDetails, setUserDetails] = useState(null);
     const [completedExerciseIds, setCompletedExerciseIds] = useState({});
     const [justCompletedId, setJustCompletedId] = useState(null);
+    const [exerciseInputs, setExerciseInputs] = useState({});
 
     const { currentUser } = useAuth();
     const { updateXP, refreshXP } = useXP();
     const username = currentUser?.username || "Usuario";
+
+    // Track input refs for each exercise
+    const inputRefs = useRef({});
 
     // Debug completed exercises
     useEffect(() => {
@@ -31,6 +35,7 @@ const ExerciseView = () => {
         setUserDetails(null);
         setError(null);
         setJustCompletedId(null);
+        setExerciseInputs({});
 
         if (!currentUser?.id) {
             setLoading(false);
@@ -111,6 +116,18 @@ const ExerciseView = () => {
                 xpFitnessReward: ex.xpFitnessReward || 50
             }));
             setExercises(enriched);
+
+            // Initialize input refs for each exercise
+            const inputs = {};
+            enriched.forEach(ex => {
+                const id = String(ex.id);
+                inputs[id] = {
+                    sets: ex.sets,
+                    reps: ex.reps,
+                    weight: 0
+                };
+            });
+            setExerciseInputs(inputs);
         } else {
             console.warn("La respuesta de ejercicios no es un array:", response.data);
             setExercises([]);
@@ -126,7 +143,7 @@ const ExerciseView = () => {
         }
         try {
             const response = await axios.get(
-                `http://localhost:8080/api/exercises/completed?userId=${userId}`,
+                `http://localhost:8080/api/exercises/userId=${userId}`,
                 axiosConfig
             );
             if (Array.isArray(response.data)) {
@@ -143,6 +160,17 @@ const ExerciseView = () => {
         }
     };
 
+    const handleInputChange = (exerciseId, field, value) => {
+        const id = String(exerciseId);
+        setExerciseInputs(prev => ({
+            ...prev,
+            [id]: {
+                ...prev[id],
+                [field]: value
+            }
+        }));
+    };
+
     const completeExercise = async (exerciseId, xpAmount) => {
         try {
             const id = String(exerciseId);
@@ -153,6 +181,16 @@ const ExerciseView = () => {
             const userId = userDetails?.userId || currentUser.id;
             if (!userId) return;
 
+            // Get the input values for this exercise
+            const exercise = inputRefs.current[id];
+            if (!exercise) {
+                console.error("Could not find input refs for exercise", id);
+                return;
+            }
+
+            const sets = parseInt(exercise.sets.value) || 3;
+            const reps = parseInt(exercise.reps.value) || 12;
+            const weight = parseFloat(exercise.weight.value) || 0;
             const xpValue = Number(xpAmount) || 0;
 
             // Update UI first - show completion and XP gain immediately
@@ -175,15 +213,42 @@ const ExerciseView = () => {
                 scalar: 0.8
             });
 
-            // Show XP notification
-            showXpNotification(xpValue);
+            // Send data to backend
+            const response = await axios.post(
+                "http://localhost:8080/api/exercise-completions",
+                {
+                    exerciseId: parseInt(id),
+                    sets,
+                    reps,
+                    weight
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    }
+                }
+            );
 
-            // Update XP immediately without waiting for API response
-            updateXP(xpValue);
+            // Extract XP from response if available, otherwise use the expected amount
+            const earnedXp = response.data?.xpReward || xpValue;
+
+            // Show XP notification
+            showXpNotification(earnedXp);
+
+            // Update XP after API response
+            updateXP(earnedXp);
             refreshXP();
+
+            console.log("Exercise completion recorded:", response.data);
         } catch (err) {
             console.error('Error al completar el ejercicio:', err);
-            // No alert here, just log the error
+            // Try to recover the UI state if there was an error
+            const updatedCompletedExercises = { ...completedExerciseIds };
+            delete updatedCompletedExercises[String(exerciseId)];
+            setCompletedExerciseIds(updatedCompletedExercises);
+            setJustCompletedId(null);
+            alert("Error al guardar el ejercicio completado. Por favor, intenta nuevamente.");
         }
     };
 
@@ -271,18 +336,52 @@ const ExerciseView = () => {
                                         // Only show completed style if this is the just completed exercise
                                         const completed = justCompletedId === id && completedExerciseIds[id];
                                         const xp = ex.xpFitnessReward;
+
+                                        // Initialize refs if needed
+                                        if (!inputRefs.current[id]) {
+                                            inputRefs.current[id] = {
+                                                sets: null,
+                                                reps: null,
+                                                weight: null
+                                            };
+                                        }
+
                                         return (
                                             <div className={`table-row ${completed ? 'completed-row' : ''}`} key={id}>
                                                 <div className="col-exercise"><strong>{ex.name}</strong></div>
                                                 <div className="col-description"><p className="exercise-description">{ex.description}</p></div>
                                                 <div className="col-reps">
-                                                    <input type="number" min="1" step="1" defaultValue={ex.reps}/>
+                                                    <input
+                                                        type="number"
+                                                        min="1"
+                                                        step="1"
+                                                        defaultValue={ex.reps}
+                                                        ref={el => inputRefs.current[id].reps = el}
+                                                        onChange={(e) => handleInputChange(id, 'reps', e.target.value)}
+                                                        disabled={completedExerciseIds[id]}
+                                                    />
                                                 </div>
                                                 <div className="col-sets">
-                                                    <input type="number" min="1" step="1" defaultValue={ex.sets}/>
+                                                    <input
+                                                        type="number"
+                                                        min="1"
+                                                        step="1"
+                                                        defaultValue={ex.sets}
+                                                        ref={el => inputRefs.current[id].sets = el}
+                                                        onChange={(e) => handleInputChange(id, 'sets', e.target.value)}
+                                                        disabled={completedExerciseIds[id]}
+                                                    />
                                                 </div>
                                                 <div className="col-weight">
-                                                    <input type="number" min="0" step="0.5" defaultValue="0"/>
+                                                    <input
+                                                        type="number"
+                                                        min="0"
+                                                        step="0.5"
+                                                        defaultValue="0"
+                                                        ref={el => inputRefs.current[id].weight = el}
+                                                        onChange={(e) => handleInputChange(id, 'weight', e.target.value)}
+                                                        disabled={completedExerciseIds[id]}
+                                                    />
                                                 </div>
                                                 <div className="col-xp">
                                                     <button
