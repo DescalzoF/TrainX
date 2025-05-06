@@ -136,7 +136,7 @@ const DesafiosSemanales = () => {
             });
 
             // Actualizar mensaje de éxito
-            setSuccessMessage(`¡Enhorabuena! Has completado el desafío y ganado ${result.monedasGanadas} monedas.`);
+            setSuccessMessage(`Has completado el desafío y ganado ${result.monedasGanadas} monedas.`);
 
             // Trigger confetti effect for completed challenge
             confetti({

@@ -120,6 +120,7 @@ public class ExerciseService {
     }
     private ExerciseDTO convertToDTO(ExerciseEntity entity) {
         ExerciseDTO dto = new ExerciseDTO();
+        dto.setId(entity.getId());
         dto.setName(entity.getName());
         dto.setDescription(entity.getDescription());
         dto.setMuscleGroup(entity.getMuscleGroup());

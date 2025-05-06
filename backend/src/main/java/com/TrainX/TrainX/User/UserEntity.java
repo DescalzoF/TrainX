@@ -54,9 +54,6 @@ public class UserEntity implements UserDetails {
     @Column(nullable = false)
     private Long coins = 0L;
 
-    @Column(nullable = false)
-    private Long experience = 0L;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "level_id")
     private LevelEntity level;

@@ -181,19 +181,6 @@ const ExerciseView = () => {
             // Update XP immediately without waiting for API response
             updateXP(xpValue);
             refreshXP();
-
-            // Send API request in background
-            try {
-                await axios.post(
-                    "http://localhost:8080/api/exercises/complete",
-                    { userId, exerciseId: id, xpFitnessReward: xpValue },
-                    { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } }
-                );
-            } catch (err) {
-                // Log error but don't alert user or revert UI changes
-                console.warn("Error recording exercise completion in backend:", err);
-                // We keep the UI state as completed to maintain good UX
-            }
         } catch (err) {
             console.error('Error al completar el ejercicio:', err);
             // No alert here, just log the error
