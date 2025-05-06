@@ -183,7 +183,7 @@
 .col-description {
     padding: 8px 12px;
     font-size: 0.85rem;
-    color: #666;
+    color: black;
 }
 
 /* Fix for the exercise name and description alignment */
@@ -199,17 +199,29 @@
 }
 .exercise-description {
     font-size: 0.85rem;
-    color: #666;
+    color: black;
     margin: 0;
     flex: 1;
 }
-.col-weight input {
+
+/* Standardized input styling for all inputs */
+.col-reps input, .col-sets input, .col-weight input {
     width: 80px;
     padding: 8px;
     border: 1px solid #ddd;
     border-radius: 4px;
     text-align: center;
+    background-color: black;
 }
+
+/* Make inputs more distinct on hover/focus */
+.col-reps input:hover, .col-sets input:hover, .col-weight input:hover,
+.col-reps input:focus, .col-sets input:focus, .col-weight input:focus {
+    border-color: #0061ff;
+    outline: none;
+    box-shadow: 0 0 3px rgba(0, 97, 255, 0.3);
+}
+
 .col-actions {
     display: flex;
     gap: 10px;
@@ -350,6 +362,13 @@
         min-width: 250px;
         max-width: 320px;
     }
+
+    /* Responsive adjustments for the inputs */
+    .col-reps input, .col-sets input, .col-weight input {
+        width: 70px;
+        padding: 6px;
+        font-size: 14px;
+    }
 }
 
 @media (max-width: 768px) {
@@ -393,6 +412,12 @@
         left: 20px;
         right: 20px;
         max-width: none;
+    }
+
+    /* Small screen adjustments for inputs */
+    .col-reps input, .col-sets input, .col-weight input {
+        width: 60px;
+        margin-left: auto;
     }
 }
 

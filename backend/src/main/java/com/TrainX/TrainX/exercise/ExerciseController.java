@@ -1,5 +1,7 @@
 package com.TrainX.TrainX.exercise;
 
+import com.TrainX.TrainX.completedExercise.CompletedExerciseRequest;
+import com.TrainX.TrainX.completedExercise.CompletedExerciseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -7,6 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -14,10 +17,12 @@ import java.util.Optional;
 public class ExerciseController {
 
     private final ExerciseService exerciseService;
+    private final CompletedExerciseService completedExerciseService;
 
     @Autowired
-    public ExerciseController(ExerciseService exerciseService) {
+    public ExerciseController(ExerciseService exerciseService, CompletedExerciseService completedExerciseService) {
         this.exerciseService = exerciseService;
+        this.completedExerciseService = completedExerciseService;
     }
 
     @GetMapping
@@ -82,6 +87,7 @@ public class ExerciseController {
             return ResponseEntity.notFound().build();
         }
     }
+
     @GetMapping("/{caminoFitnessId}/{levelId}")
     public ResponseEntity<List<ExerciseDTO>> getExercisesByPathVariables(
             @PathVariable Long caminoFitnessId,
@@ -97,6 +103,29 @@ public class ExerciseController {
         } else {
             System.out.println("Se encontraron " + exercises.size() + " ejercicios");
             return ResponseEntity.ok(exercises);
+        }
+    }
+
+    // New endpoint to get completed exercises for a user
+    @GetMapping("/completed")
+    public ResponseEntity<List<Long>> getCompletedExercises(@RequestParam Long userId) {
+        List<Long> completedExerciseIds = completedExerciseService.getCompletedExerciseIds(userId);
+        return ResponseEntity.ok(completedExerciseIds);
+    }
+
+    // New endpoint to mark an exercise as completed
+    @PostMapping("/complete")
+    public ResponseEntity<?> completeExercise(@RequestBody CompletedExerciseRequest request) {
+        try {
+            completedExerciseService.markExerciseAsCompleted(
+                    request.getUserId(),
+                    request.getExerciseId(),
+                    request.getXpFitnessReward()
+            );
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", e.getMessage()));
         }
     }
 }
