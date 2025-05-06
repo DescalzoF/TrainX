@@ -15,6 +15,7 @@ function Navbar() {
     const [scrolled, setScrolled] = useState(false);
     const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
     const [profilePicture, setProfilePicture] = useState(null);
+    const [userCoins, setUserCoins] = useState(0);
     const dropdownRef = useRef(null);
 
     useEffect(() => {
@@ -32,11 +33,42 @@ function Navbar() {
         };
         window.addEventListener('profilePictureUpdated', handleProfileUpdate);
 
+        // Fetch user coins if logged in
+        if (isLoggedIn) {
+            fetchUserCoins();
+        }
+
         return () => {
             window.removeEventListener('scroll', handleScroll);
             window.removeEventListener('profilePictureUpdated', handleProfileUpdate);
         };
-    }, []);
+    }, [isLoggedIn, currentUser]);
+
+    const fetchUserCoins = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                console.error('No token found for coin fetch');
+                return;
+            }
+
+            // Use the new dedicated endpoint for coins
+            const response = await fetch(`http://localhost:8080/api/users/current/coins`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setUserCoins(data.coins || 0);
+            } else {
+                console.error('Failed to fetch user coins:', response.status);
+            }
+        } catch (error) {
+            console.error('Error fetching user coins:', error);
+        }
+    };
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -140,8 +172,8 @@ function Navbar() {
                                         <a href="#" onClick={(e) => handleNavClick(e, '/perfil')}>
                                             Perfil <CgProfile size={20} style={{ marginLeft: '8px' }} />
                                         </a>
-                                        <a href="#" onClick={(e) => handleNavClick(e, '/tienda')}>
-                                            Monedas <FaCoins size={20} style={{ marginLeft: '8px' }} />
+                                        <a href="#" onClick={(e) => handleNavClick(e, '/tienda')} className="coins-link">
+                                            Monedas {userCoins} <FaCoins size={18} style={{ marginLeft: '8px', color: '#FFD700' }} />
                                         </a>
                                         <a href="#" onClick={handleLogout}>
                                             Logout <IoIosLogOut size={20} style={{ marginLeft: '8px' }}/>

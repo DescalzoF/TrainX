@@ -225,4 +225,20 @@ public class UserController {
                     .body(new MessageResponse("Error retrieving user's role: " + e.getMessage()));
         }
     }
+    
+    @GetMapping("/current/coins")
+    public ResponseEntity<?> getCurrentUserCoins() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String username = authentication.getName();
+            UserEntity currentUser = userService.getUserByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            Map<String, Long> response = Map.of("coins", currentUser.getCoins() != null ? currentUser.getCoins() : 0L);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new MessageResponse("Error retrieving user coins: " + e.getMessage()));
+        }
+    }
 }

@@ -232,7 +232,7 @@
     top: 100%;
     background-color: white;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-    min-width: 160px;
+    min-width: 180px;
     z-index: 1000;
     border-radius: 4px;
     overflow: hidden;
@@ -244,8 +244,22 @@
     text-decoration: none;
     display: block;
     transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 
 .profile-dropdown-content a:hover {
     background-color: #f5f5f5;
+}
+
+/* Coin styling */
+.coins-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.coins-link svg {
+    color: #FFD700;
 }

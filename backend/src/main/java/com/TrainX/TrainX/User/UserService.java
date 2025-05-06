@@ -138,4 +138,9 @@ public class UserService {
     public UserXpWithLevelDTO getUserXpWithLevel(Long userId) {
         return userRepository.getUserXpWithLevel(userId);
     }
+
+    // New method for saving a user
+    public UserEntity saveUser(UserEntity user) {
+        return userRepository.save(user);
+    }
 }
