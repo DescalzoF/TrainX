@@ -7,8 +7,6 @@ function ConfirmationModal({ onConfirm, caminoSeleccionado, userId, selectedCami
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
-
-    // Map of camino IDs to their corresponding level IDs
     const caminoToLevelMap = {
         1: 1,   // Deportista: caminofitnessid 1, levelid 1
         2: 1,   // Fuerza: caminofitnessid 2, levelid 5
@@ -28,7 +26,6 @@ function ConfirmationModal({ onConfirm, caminoSeleccionado, userId, selectedCami
             return;
         }
 
-        // Get the corresponding level ID for the selected camino
         const levelId = caminoToLevelMap[selectedCaminoId];
 
         if (!levelId) {
@@ -50,8 +47,6 @@ function ConfirmationModal({ onConfirm, caminoSeleccionado, userId, selectedCami
                     'Authorization': `Bearer ${token}`
                 }
             };
-
-            // Realizamos la solicitud PUT para asignar tanto el camino como el nivel en un solo endpoint
             await axios.put(
                 `http://localhost:8080/api/users/${userId}/camino-y-nivel`,
                 {
@@ -60,8 +55,6 @@ function ConfirmationModal({ onConfirm, caminoSeleccionado, userId, selectedCami
                 },
                 authHeader
             );
-
-            // Store both caminoFitnessId and currentLevelId in localStorage
             localStorage.setItem('caminoFitnessId', selectedCaminoId);
             localStorage.setItem('currentLevelId', levelId);
 
@@ -69,12 +62,9 @@ function ConfirmationModal({ onConfirm, caminoSeleccionado, userId, selectedCami
             console.log(`Almacenado en localStorage - caminoFitnessId: ${selectedCaminoId}, currentLevelId: ${levelId}`);
 
             onConfirm(true);
-
-            // Navigate to the correct path with the specific level ID
             navigate(`/camino/${selectedCaminoId}/level/${levelId}`);
 
         } catch (err) {
-            // More detailed error logging
             console.error('Error en API:', err);
             if (err.response) {
                 console.error('Response status:', err.response.status);

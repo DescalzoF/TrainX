@@ -92,6 +92,28 @@ public class UserController {
         }
     }
 
+    @PutMapping("/{userId}/unassign-camino-y-nivel")
+    public ResponseEntity<String> unassignCaminoAndLevelFromUser(@PathVariable Long userId) {
+        try {
+            UserEntity user = userService.getUserById(userId);
+
+            // Unassign the camino fitness
+            user.setCaminoFitnessActual(null);
+
+            // Unassign the level
+            user.setLevel(null);
+
+            // Save the updated user
+            userService.saveUser(user);
+
+            return ResponseEntity.ok("Camino y nivel desasignados correctamente.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al desasignar camino y nivel: " + e.getMessage());
+        }
+    }
+
     @PutMapping("/{userId}/camino-y-nivel")
     public ResponseEntity<String> assignCaminoAndLevelToUser(
             @PathVariable Long userId,
