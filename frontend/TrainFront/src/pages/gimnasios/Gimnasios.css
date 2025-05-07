@@ -116,9 +116,13 @@
     cursor: pointer;
     display: flex;
     align-items: center;
+    justify-content: center; /* Center content horizontally */
     gap: 8px;
     transition: all 0.2s;
     font-family: 'Montserrat', sans-serif;
+    min-width: 140px; /* Set a minimum width for both buttons */
+    height: 46px; /* Set a consistent height */
+    flex-shrink: 0; /* Prevent the buttons from shrinking */
 }
 
 .search-button {
