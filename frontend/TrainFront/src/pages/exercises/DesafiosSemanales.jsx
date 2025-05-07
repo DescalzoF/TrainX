@@ -14,7 +14,6 @@ const DesafiosSemanales = () => {
     const [coinsAnimation, setCoinsAnimation] = useState(null);
     const [timeRemaining, setTimeRemaining] = useState(null);
 
-    // Define the API base URL as a constant
     const API_BASE_URL = "http://localhost:8080/api";
 
     useEffect(() => {
@@ -68,7 +67,6 @@ const DesafiosSemanales = () => {
         };
     };
 
-    // Fetch the current status of the weekly challenge for the user
     const fetchDesafioStatus = async () => {
         try {
             setLoading(true);
@@ -191,11 +189,6 @@ const DesafiosSemanales = () => {
         }
     };
 
-    // Manually refresh challenges
-    const refreshDesafios = () => {
-        fetchDesafioStatus();
-    };
-
     // Show loading state
     if (loading) {
         return (
@@ -278,23 +271,6 @@ const DesafiosSemanales = () => {
             </div>
         );
     }
-
-    // No challenges available
-    if (!currentDesafio) {
-        return (
-            <div className="weekly-challenges-section">
-                <div className="challenges-header">
-                    <h2>Desafío Semanal</h2>
-                </div>
-                <div className="no-challenges">
-                    <p>No hay desafíos disponibles en este momento</p>
-                    <p className="subtitle">Vuelve más tarde para verificar si hay nuevos desafíos</p>
-                </div>
-            </div>
-        );
-    }
-
-    // Show current active challenge
     return (
         <div className="weekly-challenges-section">
             <div className="challenges-header">

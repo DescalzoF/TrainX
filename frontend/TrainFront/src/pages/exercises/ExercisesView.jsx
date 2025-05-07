@@ -418,32 +418,16 @@ const ExerciseView = () => {
                             </div>
                         </div>
                     </div>
-                </div>
 
-                {/* Cambiar Camino button */}
-                <div className="cambiar-camino-container" style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    marginTop: '30px',
-                    marginBottom: '20px'
-                }}>
-                    <button
-                        className="cambiar-camino-button"
-                        onClick={openResetModal}
-                        style={{
-                            padding: '12px 25px',
-                            backgroundColor: '#4a90e2',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '5px',
-                            fontSize: '1rem',
-                            fontWeight: '600',
-                            cursor: 'pointer',
-                            transition: 'all 0.3s ease'
-                        }}
-                    >
-                        Cambiar Camino
-                    </button>
+                    {/* Cambiar Camino button - Moved inside the sessions-panel after exercise list */}
+                    <div className="cambiar-camino-container">
+                        <button
+                            className="cambiar-camino-button"
+                            onClick={openResetModal}
+                        >
+                            Cambiar Camino
+                        </button>
+                    </div>
                 </div>
             </div>
 
