@@ -1,217 +1,305 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Award, Check, ChevronDown, ChevronUp, Coins } from "lucide-react";
+import { Award, Check, ChevronDown, ChevronUp, Coins, RefreshCw, Clock } from "lucide-react";
 import confetti from 'canvas-confetti';
-import './DesafiosSemanales.css'; // Import the new CSS file
+import './DesafiosSemanales.css';
 
 const DesafiosSemanales = () => {
-    const [desafios, setDesafios] = useState([]);
-    const [loadingDesafios, setLoadingDesafios] = useState(true);
-    const [errorDesafios, setErrorDesafios] = useState(null);
+    const [currentDesafio, setCurrentDesafio] = useState(null);
+    const [completedDesafio, setCompletedDesafio] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [expanded, setExpanded] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
-    const [expandedDesafio, setExpandedDesafio] = useState(null);
     const [coinsAnimation, setCoinsAnimation] = useState(null);
+    const [timeRemaining, setTimeRemaining] = useState(null);
 
-    // State to store the randomly selected weekly challenge
-    const [randomDesafio, setRandomDesafio] = useState(null);
+    // Define the API base URL as a constant
+    const API_BASE_URL = "http://localhost:8080/api";
 
     useEffect(() => {
-        fetchDesafios();
+        fetchDesafioStatus();
     }, []);
 
-    const fetchDesafios = async () => {
-        try {
-            // Get the token from localStorage
-            const token = localStorage.getItem("jwtToken") || localStorage.getItem("token");
+    // Format time remaining in a human-readable format
+    const formatTimeRemaining = (hours) => {
+        if (!hours && hours !== 0) return "";
 
-            if (!token) {
-                setErrorDesafios("No se encontró el token JWT.");
-                setLoadingDesafios(false);
-                return;
-            }
+        if (hours < 24) {
+            return `${Math.ceil(hours)} horas`;
+        } else {
+            const days = Math.floor(hours / 24);
+            const remainingHours = Math.ceil(hours % 24);
 
-            const axiosConfig = {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                }
-            };
-
-            const response = await axios.get("http://localhost:8080/api/desafios-semanales/pendientes", axiosConfig);
-
-            if (response.data && Array.isArray(response.data)) {
-                // Store all desafios
-                setDesafios(response.data);
-
-                // Select a random desafio for this week if we have any
-                if (response.data.length > 0) {
-                    // Check if we already have a stored weekly challenge ID in localStorage
-                    const storedWeeklyDesafioId = localStorage.getItem("weeklyDesafioId");
-                    const lastUpdatedWeek = localStorage.getItem("weeklyDesafioUpdatedAt");
-                    const currentWeek = getWeekNumber(new Date());
-
-                    // If we have a stored ID and it's from the current week
-                    if (storedWeeklyDesafioId && lastUpdatedWeek === currentWeek.toString()) {
-                        // Find the stored desafio in our current list
-                        const storedDesafio = response.data.find(d => d.id.toString() === storedWeeklyDesafioId);
-                        if (storedDesafio) {
-                            // Use the stored challenge if it still exists in our pending list
-                            setRandomDesafio(storedDesafio);
-                        } else {
-                            // If the stored challenge is no longer in our list, select a new one
-                            selectRandomDesafio(response.data);
-                        }
-                    } else {
-                        // Select a new random challenge for this week
-                        selectRandomDesafio(response.data);
-                    }
-                } else {
-                    setRandomDesafio(null);
-                }
+            if (remainingHours === 0) {
+                return `${days} días`;
             } else {
-                console.warn("La respuesta de desafíos no es un array:", response.data);
-                setDesafios([]);
-                setRandomDesafio(null);
+                return `${days} días y ${remainingHours} horas`;
             }
-            setLoadingDesafios(false);
-        } catch (err) {
-            console.error("Error al cargar los desafíos:", err);
-            setErrorDesafios("Error al cargar los desafíos semanales.");
-            setLoadingDesafios(false);
         }
     };
 
-    // Helper function to get current week number
-    const getWeekNumber = (date) => {
-        const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
-        const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
-        return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+    // Get authentication token from storage
+    const getAuthToken = () => {
+        const token = localStorage.getItem("jwtToken") || localStorage.getItem("token");
+
+        if (!token) {
+            console.error("No authentication token found");
+            return null;
+        }
+
+        return token;
     };
 
-    // Function to select a random desafio and store it
-    const selectRandomDesafio = (desafiosList) => {
-        if (!desafiosList || desafiosList.length === 0) return;
+    // Create axios config with auth headers
+    const createAxiosConfig = () => {
+        const token = getAuthToken();
 
-        // Pick a random challenge
-        const randomIndex = Math.floor(Math.random() * desafiosList.length);
-        const selected = desafiosList[randomIndex];
+        if (!token) {
+            throw new Error("No se encontró el token de autenticación.");
+        }
 
-        // Store the ID and current week in localStorage
-        localStorage.setItem("weeklyDesafioId", selected.id.toString());
-        localStorage.setItem("weeklyDesafioUpdatedAt", getWeekNumber(new Date()).toString());
-
-        // Set as the current week's challenge
-        setRandomDesafio(selected);
+        return {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+            withCredentials: true
+        };
     };
 
+    // Fetch the current status of the weekly challenge for the user
+    const fetchDesafioStatus = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+
+            // Create axios config with auth headers
+            const axiosConfig = createAxiosConfig();
+
+            // First check if user has a recently completed challenge
+            const estadoResponse = await axios.get(
+                `${API_BASE_URL}/desafios-semanales/estado`,
+                axiosConfig
+            );
+
+            console.log("Estado response:", estadoResponse.data);
+
+            // If user has completed a challenge recently, show it with time remaining
+            if (estadoResponse.data.locked && estadoResponse.data.completedDesafio) {
+                setCompletedDesafio(estadoResponse.data.completedDesafio);
+                setTimeRemaining(estadoResponse.data.completedDesafio.horasRestantes || 168); // Default to 7 days (168 hours)
+                setCurrentDesafio(null);
+            } else {
+                // User is not locked, get a random pending challenge
+                const pendientesResponse = await axios.get(
+                    `${API_BASE_URL}/desafios-semanales/pendientes`,
+                    axiosConfig
+                );
+
+                console.log("Pendientes response:", pendientesResponse.data);
+
+                if (pendientesResponse.data.desafio) {
+                    setCurrentDesafio(pendientesResponse.data.desafio);
+                } else {
+                    setCurrentDesafio(null);
+                }
+
+                setCompletedDesafio(null);
+                setTimeRemaining(null);
+            }
+        } catch (err) {
+            console.error("Error fetching desafio status:", err);
+
+            if (err.response) {
+                if (err.response.status === 401 || err.response.status === 403) {
+                    setError("Error de autenticación. Por favor, inicia sesión nuevamente.");
+                } else {
+                    setError(`Error del servidor: ${err.response.status}`);
+                }
+            } else if (err.request) {
+                setError("No se recibió respuesta del servidor. Comprueba tu conexión.");
+            } else {
+                setError(`Error: ${err.message}`);
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Handle challenge completion
     const completarDesafio = async (desafioId) => {
         try {
-            // Get the token from localStorage
-            const token = localStorage.getItem("jwtToken") || localStorage.getItem("token");
-
-            if (!token) {
-                console.error("No token found");
-                return;
-            }
-
-            const axiosConfig = {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                }
-            };
+            // Create axios config with auth headers
+            const axiosConfig = createAxiosConfig();
 
             const response = await axios.post(
-                `http://localhost:8080/api/desafios-semanales/${desafioId}/completar`,
+                `${API_BASE_URL}/desafios-semanales/${desafioId}/completar`,
                 {},
                 axiosConfig
             );
 
-            const result = response.data;
+            console.log("Completar response:", response.data);
 
-            // Mostrar animación de monedas
-            setCoinsAnimation({
-                amount: result.monedasGanadas,
-                desafioId: desafioId
-            });
+            // Show coins animation
+            if (response.data.monedasGanadas) {
+                setCoinsAnimation({
+                    amount: response.data.monedasGanadas
+                });
 
-            // Actualizar mensaje de éxito
-            setSuccessMessage(`Has completado el desafío y ganado ${result.monedasGanadas} monedas.`);
+                // Update success message
+                setSuccessMessage(`¡Desafío completado! Has ganado ${response.data.monedasGanadas} monedas.`);
+            } else {
+                setSuccessMessage("¡Desafío completado!");
+            }
 
-            // Trigger confetti effect for completed challenge
+            // Trigger confetti effect
             confetti({
                 particleCount: 150,
                 spread: 90,
                 origin: { y: 0.6 },
                 colors: ['#FFD700', '#FFA500', '#FFFF00', '#DAA520'],
-                disableForReducedMotion: true,
-                zIndex: 2000,
-                decay: 0.94,
-                scalar: 1.2
+                zIndex: 2000
             });
 
-            // Ocultar el mensaje después de unos segundos
+            // Refresh status after successful completion
             setTimeout(() => {
                 setSuccessMessage("");
                 setCoinsAnimation(null);
-
-                // Refrescar los desafíos
-                fetchDesafios();
+                fetchDesafioStatus();
             }, 3000);
 
         } catch (err) {
-            console.error("Error al completar el desafío:", err);
-            setErrorDesafios("Error al completar el desafío.");
+            console.error("Error completing challenge:", err);
+
+            if (err.response && err.response.data) {
+                if (err.response.data.horasRestantes) {
+                    setError(`Ya has completado este desafío. Disponible nuevamente en ${formatTimeRemaining(err.response.data.horasRestantes)}`);
+                } else if (err.response.data.message) {
+                    setError(`Error: ${err.response.data.message}`);
+                } else {
+                    setError("Error al completar el desafío. Por favor, inténtalo de nuevo.");
+                }
+            } else {
+                setError("Error al comunicarse con el servidor.");
+            }
+
+            // Clear error after 5 seconds
+            setTimeout(() => {
+                setError(null);
+            }, 5000);
         }
     };
 
-    const toggleExpand = (id) => {
-        if (expandedDesafio === id) {
-            setExpandedDesafio(null);
-        } else {
-            setExpandedDesafio(id);
-        }
+    // Manually refresh challenges
+    const refreshDesafios = () => {
+        fetchDesafioStatus();
     };
 
-    if (loadingDesafios) {
+    // Show loading state
+    if (loading) {
         return (
-            <div className="loading-challenges">
-                <div className="spinner-small"></div>
-                <p>Cargando desafíos...</p>
+            <div className="weekly-challenges-section">
+                <div className="challenges-header">
+                    <h2>Desafío Semanal</h2>
+                </div>
+                <div className="loading-challenges">
+                    <div className="spinner-small"></div>
+                    <p>Cargando desafíos...</p>
+                </div>
             </div>
         );
     }
 
-    if (errorDesafios) {
+    // Show error state
+    if (error) {
         return (
-            <div className="error-challenges">
-                <p>{errorDesafios}</p>
-                <button
-                    onClick={() => {
-                        setErrorDesafios(null);
-                        setLoadingDesafios(true);
-                        fetchDesafios();
-                    }}
-                    className="retry-button-small"
-                >
-                    Reintentar
-                </button>
+            <div className="weekly-challenges-section">
+                <div className="challenges-header">
+                    <h2>Desafío Semanal</h2>
+                </div>
+                <div className="error-challenges">
+                    <p>{error}</p>
+                </div>
             </div>
         );
     }
 
-    if (!randomDesafio) {
+    // Show completed challenge with cooldown timer
+    if (completedDesafio) {
         return (
-            <div className="no-challenges">
-                <p>¡Has completado todos los desafíos de esta semana!</p>
-                <p className="subtitle">Vuelve la próxima semana para más desafíos.</p>
+            <div className="weekly-challenges-section">
+                <div className="challenges-header">
+                    <h2>Desafío Semanal</h2>
+                </div>
+
+                <div className="timer-container">
+                    <div className="time-remaining">
+                        <Clock size={16} className="timer-icon" />
+                        <span>Próximo desafío disponible en {formatTimeRemaining(timeRemaining)}</span>
+                    </div>
+                </div>
+
+                <div className="completed-challenge-section">
+                    <div className="challenge-card completed">
+                        <div className="completed-badge">
+                            <Check size={14} />
+                            <span>Completado</span>
+                        </div>
+
+                        <div className="challenge-header" onClick={() => setExpanded(!expanded)}>
+                            <div className="challenge-title">
+                                <Award className="award-icon completed" size={24} />
+                                <div>
+                                    <h3>{completedDesafio.descripcion}</h3>
+                                    <div className="reward-info">
+                                        <Coins size={16} className="coins-icon-small" />
+                                        <span>{completedDesafio.valorMonedas} monedas</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="expand-icon">
+                                {expanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                            </div>
+                        </div>
+
+                        {expanded && (
+                            <div className="challenge-details">
+                                <p>
+                                    Has completado este desafío el {completedDesafio.fechaCompletado
+                                    ? new Date(completedDesafio.fechaCompletado).toLocaleDateString()
+                                    : "recientemente"}.
+                                    Regresa en {formatTimeRemaining(timeRemaining)} para un nuevo desafío.
+                                </p>
+                            </div>
+                        )}
+                    </div>
+                </div>
             </div>
         );
     }
 
+    // No challenges available
+    if (!currentDesafio) {
+        return (
+            <div className="weekly-challenges-section">
+                <div className="challenges-header">
+                    <h2>Desafío Semanal</h2>
+                </div>
+                <div className="no-challenges">
+                    <p>No hay desafíos disponibles en este momento</p>
+                    <p className="subtitle">Vuelve más tarde para verificar si hay nuevos desafíos</p>
+                </div>
+            </div>
+        );
+    }
+
+    // Show current active challenge
     return (
         <div className="weekly-challenges-section">
-            <h2>Desafío Semanal</h2>
+            <div className="challenges-header">
+                <h2>Desafío Semanal</h2>
+            </div>
 
             {/* Success message notification */}
             {successMessage && (
@@ -223,50 +311,40 @@ const DesafiosSemanales = () => {
             )}
 
             <div className="challenges-list">
-                <div
-                    key={randomDesafio.id}
-                    className="challenge-card"
-                >
-                    {coinsAnimation && coinsAnimation.desafioId === randomDesafio.id && (
+                <div key={currentDesafio.id} className="challenge-card">
+                    {coinsAnimation && (
                         <div className="coins-animation">
                             <Coins size={16} className="coins-icon" />
                             <span className="coins-amount">+{coinsAnimation.amount}</span>
                         </div>
                     )}
 
-                    <div
-                        className="challenge-header"
-                        onClick={() => toggleExpand(randomDesafio.id)}
-                    >
+                    <div className="challenge-header" onClick={() => setExpanded(!expanded)}>
                         <div className="challenge-title">
                             <Award className="award-icon" size={24} />
                             <div>
-                                <h3>{randomDesafio.descripcion}</h3>
+                                <h3>{currentDesafio.descripcion}</h3>
                                 <div className="reward-info">
                                     <Coins size={16} className="coins-icon-small" />
-                                    <span>{randomDesafio.valorMonedas} monedas</span>
+                                    <span>{currentDesafio.valorMonedas} monedas</span>
                                 </div>
                             </div>
                         </div>
                         <div className="expand-icon">
-                            {expandedDesafio === randomDesafio.id ? (
-                                <ChevronUp size={20} />
-                            ) : (
-                                <ChevronDown size={20} />
-                            )}
+                            {expanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                         </div>
                     </div>
 
-                    {expandedDesafio === randomDesafio.id && (
+                    {expanded && (
                         <div className="challenge-details">
                             <p>
-                                Completa este desafío para ganar {randomDesafio.valorMonedas} monedas.
-                                Recuerda que solo puedes completar cada desafío una vez por semana.
+                                Completa este desafío para ganar {currentDesafio.valorMonedas} monedas.
+                                Recuerda que solo puedes completar un desafío cada 7 días.
                             </p>
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    completarDesafio(randomDesafio.id);
+                                    completarDesafio(currentDesafio.id);
                                 }}
                                 className="complete-challenge-button"
                             >

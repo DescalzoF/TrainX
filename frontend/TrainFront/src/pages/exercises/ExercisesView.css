@@ -421,13 +421,12 @@
     }
 }
 
-/* Add this to your ExercisesView.css file */
 
 .cambiar-camino-container {
     display: flex;
     justify-content: center;
-    margin-top: 30px;
-    margin-bottom: 20px;
+    margin-top: 10030px;
+    margin-bottom: 0;
 }
 
 .cambiar-camino-button {
