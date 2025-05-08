@@ -88,7 +88,7 @@ public class UserController {
             Map<String, Object> response = Map.of("id", currentUser.getId(), "username", currentUser.getUsername(), "email", currentUser.getEmail(), "caminoFitnessId", currentUser.getCaminoFitnessActual() != null ? currentUser.getCaminoFitnessActual().getIdCF() : null);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new MessageResponse("Error retrieving user profile: " + e.getMessage()));
+            return null;
         }
     }
 

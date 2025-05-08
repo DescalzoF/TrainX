@@ -48,17 +48,13 @@ export function AuthProvider({ children }) {
         setIsLoading(false);
     }, []);
 
-    // In AuthContext.jsx, modify the fetchUserProfile function:
     const fetchUserProfile = async () => {
         try {
-            // Make sure token is in headers before making the request
             const token = localStorage.getItem('token');
             if (!token) {
                 console.log('No token found for profile fetch');
                 return;
             }
-
-            // Set the header for this specific request
             const response = await axios.get('http://localhost:8080/api/users/currentUser', {
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -70,9 +66,11 @@ export function AuthProvider({ children }) {
                 setSelectedCaminoFitnessId(userData.caminoFitnessId);
                 localStorage.setItem('caminoFitnessId', userData.caminoFitnessId);
             }
+            else if (userData.caminoFitnessId === null) {
+                return null;
+            }
         } catch (error) {
             console.error('Error fetching user profile:', error.response?.data || error.message);
-            // Don't clear tokens on 401/403 as login() will handle this
         }
     };
 
