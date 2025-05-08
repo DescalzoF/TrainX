@@ -27,7 +27,14 @@ function ResetCaminoModal({ onClose, userId }) {
                 }
             };
 
-            // Using the correct endpoint from UserController.java
+            // Second call: Reset XP to 0
+            await axios.put(
+                `http://localhost:8080/api/xpfitness/${userId}/reset`,
+                {},  // Empty body
+                authHeader
+            );
+
+            // First call: Unassign camino and level
             await axios.put(
                 `http://localhost:8080/api/users/${userId}/unassign-camino-y-nivel`,
                 {},  // Empty body as the endpoint doesn't require payload
@@ -38,7 +45,7 @@ function ResetCaminoModal({ onClose, userId }) {
             localStorage.removeItem('caminoFitnessId');
             localStorage.removeItem('currentLevelId');
 
-            console.log('Camino fitness y nivel desasignados correctamente');
+            console.log('Camino fitness, nivel y XP reseteados correctamente');
 
             // Navigate to camino page
             navigate('/camino');
@@ -99,7 +106,7 @@ function ResetCaminoModal({ onClose, userId }) {
                         <h2 className="reset-camino-title warning">¡Advertencia!</h2>
                         <p className="warning-message">
                             Si cambias tu camino fitness, perderás todo tu progreso actual,
-                            incluyendo tu camino y nivel. Esta acción no se puede deshacer.
+                            incluyendo tu camino, nivel y puntos de experiencia (XP). Esta acción no se puede deshacer.
                         </p>
                         <div className="reset-camino-buttons">
                             <button

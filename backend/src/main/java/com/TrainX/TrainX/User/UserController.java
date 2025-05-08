@@ -228,7 +228,7 @@ public class UserController {
         if (userXpWithLevel != null) {
             return ResponseEntity.ok(userXpWithLevel);
         }
-        return ResponseEntity.notFound().build();
+        return null;
     }
 
     @GetMapping("/role")

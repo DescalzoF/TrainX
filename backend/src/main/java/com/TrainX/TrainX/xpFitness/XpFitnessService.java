@@ -45,4 +45,20 @@ public class XpFitnessService {
 
         return savedXpFitness;
     }
+
+    @Transactional
+    public XpFitnessEntity resetXpFitness(Long userId) {
+        XpFitnessEntity xpFitness = getXpFitnessByUser(userId);
+        if (xpFitness != null) {
+            // Resetear XP a 0
+            xpFitness.setTotalXp(0L);
+            XpFitnessEntity savedXpFitness = xpFitnessRepository.save(xpFitness);
+
+            // También actualiza el nivel del usuario ya que ahora tiene 0 XP
+            levelService.checkAndUpdateUserLevel(userId, 0L);
+
+            return savedXpFitness;
+        }
+        return null;
+    }
 }

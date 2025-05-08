@@ -9,7 +9,7 @@ import Perfil from './pages/perfil/Perfil.jsx';
 import { AuthProvider, useAuth } from './contexts/AuthContext.jsx';
 import { XPProvider } from './contexts/XPContext.jsx'; // Import the XPProvider
 import CaminoFitness from './pages/CaminoFitness/CaminoFitness.jsx';
-import CaminoFitnessAdmin from './pages/CaminoFitness/CaminoFitnessAdmin.jsx';
+import CaminoFitnessAdmin from './components/CaminoFitnessAdmin/CaminoFitnessAdmin.jsx';
 import ForgotPassword from './pages/auth/ForgotPassword/ForgotPassword.jsx';
 import ResetPassword from './pages/auth/ResetPassword/ResetPassword.jsx';
 import ExercisesView from './pages/exercises/ExercisesView.jsx';

@@ -1,0 +1,143 @@
+.admin-desafio-creator {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    width: 100%;
+}
+
+.create-desafio-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: #4f46e5;
+    color: white;
+    border: none;
+    border-radius: 0.375rem;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.create-desafio-btn:hover {
+    background-color: #4338ca;
+}
+
+.desafio-form-container {
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 1.25rem;
+    margin-top: 0.5rem;
+}
+
+.desafio-form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 0.75rem;
+}
+
+.desafio-form-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #111827;
+}
+
+.close-form-btn {
+    background: none;
+    border: none;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 0.25rem;
+}
+
+.close-form-btn:hover {
+    background-color: #f3f4f6;
+    color: #111827;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.375rem;
+    font-weight: 500;
+    color: #374151;
+}
+
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group textarea {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+}
+
+.form-group textarea {
+    min-height: 5rem;
+    resize: vertical;
+}
+
+.form-group.checkbox {
+    display: flex;
+    align-items: center;
+}
+
+.form-group.checkbox label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0;
+    cursor: pointer;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+}
+
+.save-desafio-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: #10b981;
+    color: white;
+    border: none;
+    border-radius: 0.375rem;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.save-desafio-btn:hover {
+    background-color: #059669;
+}
+
+.form-error {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background-color: #fee2e2;
+    border-radius: 0.375rem;
+    color: #b91c1c;
+    margin-bottom: 1rem;
+}
+
+.form-success {
+    padding: 0.75rem;
+    background-color: #d1fae5;
+    border-radius: 0.375rem;
+    color: #065f46;
+    margin-bottom: 1rem;
+    text-align: center;
+}
