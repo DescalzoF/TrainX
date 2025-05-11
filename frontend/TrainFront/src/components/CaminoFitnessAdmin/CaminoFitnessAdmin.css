@@ -1,0 +1,169 @@
+/* Add this to your existing CaminoFitness.css or create a new file */
+
+.admin-banner {
+    background-color: #0061ff;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: bold;
+    animation: fadeIn 0.5s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.camino-option.editing {
+    border: 2px solid #0061ff;
+    box-shadow: 0 0 10px rgba(0, 97, 255, 0.3);
+}
+
+.camino-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.camino-admin-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.camino-edit-btn,
+.camino-delete-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.camino-edit-btn {
+    color: #0061ff;
+}
+
+.camino-delete-btn {
+    color: #ff3860;
+}
+
+.camino-edit-btn:hover {
+    background-color: rgba(0, 97, 255, 0.1);
+}
+
+.camino-delete-btn:hover {
+    background-color: rgba(255, 56, 96, 0.1);
+}
+
+.camino-edit-form {
+    width: 100%;
+    padding: 15px;
+}
+
+.camino-edit-input,
+.camino-edit-textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    font-family: inherit;
+}
+
+.camino-edit-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.camino-edit-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.camino-save-btn,
+.camino-cancel-btn {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.camino-save-btn {
+    background-color: #0061ff;
+    color: white;
+}
+
+.camino-cancel-btn {
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+.camino-save-btn:hover {
+    background-color: #0052d6;
+}
+
+.camino-cancel-btn:hover {
+    background-color: #e8e8e8;
+}
+
+.camino-edit-error {
+    color: #ff3860;
+    font-size: 0.9rem;
+    margin-top: 10px;
+}
+
+.success-message {
+    background-color: #23d160;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    text-align: center;
+    animation: fadeIn 0.3s ease;
+    font-weight: 600;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Make sure clickable elements don't propagate clicks to parent */
+.camino-admin-actions button,
+.camino-edit-actions button,
+.camino-edit-form input,
+.camino-edit-form textarea {
+    pointer-events: auto;
+}
+
+/* For smaller screens */
+@media (max-width: 768px) {
+    .camino-edit-actions {
+        flex-direction: column;
+    }
+
+    .camino-header-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .camino-admin-actions {
+        align-self: flex-end;
+    }
+}

@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
 
 @RestController
 @RequestMapping("/api/desafios-semanales")
@@ -21,6 +23,7 @@ public class DesafioSemanalController {
 
     private final DesafioSemanalService desafioService;
     private final UserService userService;
+    private final Random random = new Random();
 
     @Autowired
     public DesafioSemanalController(DesafioSemanalService desafioService, UserService userService) {
@@ -80,31 +83,64 @@ public class DesafioSemanalController {
             UserEntity currentUser = userService.getUserByUsername(username)
                     .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
+            // Check if user has completed a challenge within last 7 days
+            DesafioCompletionDTO recentCompletion = desafioService.getRecentCompletionForUser(currentUser.getId());
+            if (recentCompletion != null) {
+                return ResponseEntity.ok(Map.of(
+                        "locked", true,
+                        "completedDesafio", recentCompletion
+                ));
+            }
+
+            // Get available challenges and select one randomly
             List<DesafioSemanal> desafiosPendientes =
                     desafioService.getDesafiosPendientesForUser(currentUser.getId());
 
-            return ResponseEntity.ok(desafiosPendientes);
+            if (desafiosPendientes.isEmpty()) {
+                return ResponseEntity.ok(Map.of(
+                        "locked", false,
+                        "message", "No hay desafíos disponibles"
+                ));
+            }
+
+            // Pick a random challenge
+            DesafioSemanal randomDesafio = desafiosPendientes.get(
+                    random.nextInt(desafiosPendientes.size()));
+
+            return ResponseEntity.ok(Map.of(
+                    "locked", false,
+                    "desafio", randomDesafio
+            ));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new MessageResponse("Error al obtener desafíos: " + e.getMessage()));
         }
     }
 
-    @GetMapping("/con-tiempo-restante")
-    public ResponseEntity<?> getDesafiosWithTimeRemaining() {
+    @GetMapping("/estado")
+    public ResponseEntity<?> getEstadoDesafio() {
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             String username = authentication.getName();
             UserEntity currentUser = userService.getUserByUsername(username)
                     .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-            List<DesafioSemanalDTO> desafiosWithTimer =
-                    desafioService.getDesafiosWithTimeRemaining(currentUser.getId());
+            // Check if user has completed a challenge within last 7 days
+            DesafioCompletionDTO recentCompletion = desafioService.getRecentCompletionForUser(currentUser.getId());
 
-            return ResponseEntity.ok(desafiosWithTimer);
+            if (recentCompletion != null) {
+                return ResponseEntity.ok(Map.of(
+                        "locked", true,
+                        "completedDesafio", recentCompletion
+                ));
+            } else {
+                return ResponseEntity.ok(Map.of(
+                        "locked", false
+                ));
+            }
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new MessageResponse("Error al obtener desafíos con tiempo restante: " + e.getMessage()));
+                    .body(new MessageResponse("Error al obtener estado de desafío: " + e.getMessage()));
         }
     }
 
@@ -128,24 +164,19 @@ public class DesafioSemanalController {
                         "monedasTotales", currentUser.getCoins()
                 ));
             } else {
-                // Find remaining time for this challenge
-                List<DesafioSemanalDTO> desafiosWithTimer =
-                        desafioService.getDesafiosWithTimeRemaining(currentUser.getId());
+                // Check if any challenge was completed in last 7 days
+                DesafioCompletionDTO recentCompletion = desafioService.getRecentCompletionForUser(currentUser.getId());
 
-                DesafioSemanalDTO targetDesafio = desafiosWithTimer.stream()
-                        .filter(d -> d.getId().equals(desafioId))
-                        .findFirst()
-                        .orElse(null);
-
-                if (targetDesafio != null && targetDesafio.getTiempoRestanteHoras() > 0) {
+                if (recentCompletion != null) {
                     return ResponseEntity.badRequest()
                             .body(Map.of(
-                                    "message", "Ya has completado este desafío esta semana.",
-                                    "tiempoRestanteHoras", targetDesafio.getTiempoRestanteHoras()
+                                    "message", "Ya has completado un desafío esta semana.",
+                                    "horasRestantes", recentCompletion.getHorasRestantes(),
+                                    "completedDesafio", recentCompletion
                             ));
                 } else {
                     return ResponseEntity.badRequest()
-                            .body(new MessageResponse("Ya has completado este desafío esta semana."));
+                            .body(new MessageResponse("No se pudo completar el desafío."));
                 }
             }
         } catch (Exception e) {

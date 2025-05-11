@@ -54,7 +54,6 @@ export const XPProvider = ({ children }) => {
                 // Notify all listeners about new XP data
                 listeners.forEach(listener => listener(response.data));
             } else {
-                console.warn('No XP data received from API');
                 setXP(null);
             }
         } catch (error) {

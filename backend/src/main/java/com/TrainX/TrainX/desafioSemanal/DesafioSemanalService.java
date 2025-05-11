@@ -66,46 +66,6 @@ public class DesafioSemanalService {
         return desafioRepository.findActiveDesafiosNotCompletedByUser(userId);
     }
 
-    public List<DesafioSemanalDTO> getDesafiosWithTimeRemaining(Long userId) {
-        List<DesafioSemanal> activeDesafios = desafioRepository.findByActivoTrue();
-        List<DesafioSemanalDTO> result = new ArrayList<>();
-
-        for (DesafioSemanal desafio : activeDesafios) {
-            DesafioSemanalDTO dto = new DesafioSemanalDTO();
-            dto.setId(desafio.getId());
-            dto.setDescripcion(desafio.getDescripcion());
-            dto.setValorMonedas(desafio.getValorMonedas());
-
-            // Check if user already completed this challenge recently
-            Optional<DesafioCompletion> recentCompletion = completionRepository
-                    .findByUsuarioIdAndDesafioIdAndFechaCompletadoAfter(
-                            userId,
-                            desafio.getId(),
-                            LocalDateTime.now().minus(7, ChronoUnit.DAYS)
-                    );
-
-            if (recentCompletion.isPresent()) {
-                dto.setCompletado(true);
-                dto.setFechaCompletado(recentCompletion.get().getFechaCompletado());
-
-                // Calculate time remaining in hours
-                LocalDateTime nextAvailableDate = recentCompletion.get().getFechaCompletado().plus(7, ChronoUnit.DAYS);
-                long hoursRemaining = ChronoUnit.HOURS.between(LocalDateTime.now(), nextAvailableDate);
-                if (hoursRemaining < 0) {
-                    hoursRemaining = 0;
-                }
-                dto.setTiempoRestanteHoras(hoursRemaining);
-            } else {
-                dto.setCompletado(false);
-                dto.setTiempoRestanteHoras(0L); // Can complete now
-            }
-
-            result.add(dto);
-        }
-
-        return result;
-    }
-
     @Transactional
     public boolean completarDesafio(Long userId, Long desafioId) {
         UserEntity user = userService.getUserById(userId);
@@ -124,6 +84,17 @@ public class DesafioSemanalService {
             return false; // Ya lo completó esta semana
         }
 
+        // Verificar si el usuario completó algún desafío en la última semana
+        Optional<DesafioCompletion> anyRecentCompletion = completionRepository
+                .findFirstByUsuarioIdAndFechaCompletadoAfterOrderByFechaCompletadoDesc(
+                        userId,
+                        LocalDateTime.now().minus(7, ChronoUnit.DAYS)
+                );
+
+        if (anyRecentCompletion.isPresent()) {
+            return false; // Ya completó un desafío esta semana
+        }
+
         // Registrar la completion
         DesafioCompletion completion = new DesafioCompletion();
         completion.setUsuario(user);
@@ -138,6 +109,40 @@ public class DesafioSemanalService {
         userService.saveUser(user);
 
         return true;
+    }
+
+    /**
+     * Gets the user's most recent completed challenge, if it's within the last 7 days
+     * @param userId The user ID
+     * @return Information about the most recent challenge completion within the last 7 days, or null if none exists
+     */
+    public DesafioCompletionDTO getRecentCompletionForUser(Long userId) {
+        Optional<DesafioCompletion> recentCompletion = completionRepository
+                .findFirstByUsuarioIdOrderByFechaCompletadoDesc(userId);
+
+        if (recentCompletion.isPresent()) {
+            DesafioCompletion completion = recentCompletion.get();
+            LocalDateTime completionDate = completion.getFechaCompletado();
+            LocalDateTime unlockDate = completionDate.plus(7, ChronoUnit.DAYS);
+
+            // Check if completion is within last 7 days
+            if (LocalDateTime.now().isBefore(unlockDate)) {
+                DesafioCompletionDTO dto = new DesafioCompletionDTO();
+                dto.setDesafioId(completion.getDesafio().getId());
+                dto.setDescripcion(completion.getDesafio().getDescripcion());
+                dto.setValorMonedas(completion.getDesafio().getValorMonedas());
+                dto.setFechaCompletado(completionDate);
+                dto.setFechaDesbloqueo(unlockDate);
+
+                // Calculate hours remaining until unlock
+                long hoursRemaining = LocalDateTime.now().until(unlockDate, ChronoUnit.HOURS);
+                dto.setHorasRestantes(hoursRemaining);
+
+                return dto;
+            }
+        }
+
+        return null;
     }
 
     public void initializeDefaultDesafios() {

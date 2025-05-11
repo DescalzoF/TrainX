@@ -5,7 +5,8 @@ import confetti from 'canvas-confetti';
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import { useXP } from "../../contexts/XPContext.jsx";
 import { Check } from "lucide-react";
-import DesafiosSemanales from "./DesafiosSemanales.jsx";
+import DesafiosSemanales from "../DesafiosSemanales/DesafiosSemanales.jsx";
+import ResetCaminoModal from "../../components/resetCaminoModal/ResetCaminoModal.jsx";
 
 const ExerciseView = () => {
     const [exercises, setExercises] = useState([]);
@@ -15,6 +16,7 @@ const ExerciseView = () => {
     const [completedExerciseIds, setCompletedExerciseIds] = useState({});
     const [justCompletedId, setJustCompletedId] = useState(null);
     const [exerciseInputs, setExerciseInputs] = useState({});
+    const [showResetModal, setShowResetModal] = useState(false);
 
     const { currentUser } = useAuth();
     const { updateXP, refreshXP } = useXP();
@@ -282,6 +284,14 @@ const ExerciseView = () => {
         setLoading(false);
     };
 
+    const openResetModal = () => {
+        setShowResetModal(true);
+    };
+
+    const closeResetModal = () => {
+        setShowResetModal(false);
+    };
+
     if (loading) {
         return (
             <div className="loading-container">
@@ -408,8 +418,26 @@ const ExerciseView = () => {
                             </div>
                         </div>
                     </div>
+
+                    {/* Cambiar Camino button - Moved inside the sessions-panel after exercise list */}
+                    <div className="cambiar-camino-container">
+                        <button
+                            className="cambiar-camino-button"
+                            onClick={openResetModal}
+                        >
+                            Cambiar Camino
+                        </button>
+                    </div>
                 </div>
             </div>
+
+            {/* Reset Camino Modal */}
+            {showResetModal && (
+                <ResetCaminoModal
+                    onClose={closeResetModal}
+                    userId={userDetails?.userId || currentUser?.id}
+                />
+            )}
         </div>
     );
 };

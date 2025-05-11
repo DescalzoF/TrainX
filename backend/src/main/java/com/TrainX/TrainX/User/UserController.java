@@ -88,7 +88,29 @@ public class UserController {
             Map<String, Object> response = Map.of("id", currentUser.getId(), "username", currentUser.getUsername(), "email", currentUser.getEmail(), "caminoFitnessId", currentUser.getCaminoFitnessActual() != null ? currentUser.getCaminoFitnessActual().getIdCF() : null);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new MessageResponse("Error retrieving user profile: " + e.getMessage()));
+            return null;
+        }
+    }
+
+    @PutMapping("/{userId}/unassign-camino-y-nivel")
+    public ResponseEntity<String> unassignCaminoAndLevelFromUser(@PathVariable Long userId) {
+        try {
+            UserEntity user = userService.getUserById(userId);
+
+            // Unassign the camino fitness
+            user.setCaminoFitnessActual(null);
+
+            // Unassign the level
+            user.setLevel(null);
+
+            // Save the updated user
+            userService.saveUser(user);
+
+            return ResponseEntity.ok("Camino y nivel desasignados correctamente.");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Error: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al desasignar camino y nivel: " + e.getMessage());
         }
     }
 
@@ -206,7 +228,7 @@ public class UserController {
         if (userXpWithLevel != null) {
             return ResponseEntity.ok(userXpWithLevel);
         }
-        return ResponseEntity.notFound().build();
+        return null;
     }
 
     @GetMapping("/role")

@@ -15,25 +15,18 @@ import { IoLocationSharp } from 'react-icons/io5';
 import { HiLocationMarker } from 'react-icons/hi';
 import './AdminGymManagement.css';
 
-const AdminGymManagement = ({ mapInstance, updateGyms, userLocation, defaultLocation }) => {
+const AdminGymManagement = ({ mapInstance, updateGyms, userLocation }) => {
     const [showAddForm, setShowAddForm] = useState(false);
     const [editingGym, setEditingGym] = useState(null);
     const [adminGyms, setAdminGyms] = useState([]);
-    const [newGym, setNewGym] = useState({
-        name: '',
-        vicinity: '',
-        rating: 0,
-        lat: '',
-        lng: ''
-    });
+    const [newGym, setNewGym] = useState({ name: '', vicinity: '', rating: 0, lat: '', lng: '' });
     const [formErrors, setFormErrors] = useState({});
-    const [selectedLocation, setSelectedLocation] = useState(null);
     const [mapMarker, setMapMarker] = useState(null);
     const [ratingHover, setRatingHover] = useState(0);
     const [previewImage, setPreviewImage] = useState('');
     const [showGymList, setShowGymList] = useState(false);
-
-    // Load admin gyms from localStorage on component mount
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
     useEffect(() => {
         const storedGyms = localStorage.getItem('adminGyms');
         if (storedGyms) {
@@ -155,6 +148,24 @@ const AdminGymManagement = ({ mapInstance, updateGyms, userLocation, defaultLoca
         updateGyms(updatedGyms);
     };
 
+    // Reverse geocode coordinates to address
+    const reverseGeocode = async (lat, lng) => {
+        // Implement a reverse geocoding function or use a service like Nominatim
+        // This is a placeholder for the actual implementation
+        try {
+            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`);
+            const data = await response.json();
+
+            if (data && data.display_name) {
+                return data.display_name;
+            }
+            return null;
+        } catch (error) {
+            console.error("Reverse geocoding error:", error);
+            return null;
+        }
+    };
+
     // Handle map click to select location
     const handleMapClick = (e) => {
         const { lat, lng } = e.latlng;
@@ -221,38 +232,85 @@ const AdminGymManagement = ({ mapInstance, updateGyms, userLocation, defaultLoca
         }
     };
 
-    // Use current location
+    // Handler for location button click - Updated with the new implementation
     const useCurrentLocation = () => {
-        if (userLocation && mapInstance && typeof L !== 'undefined') {
-            setNewGym({
-                ...newGym,
-                lat: userLocation.lat.toFixed(6),
-                lng: userLocation.lng.toFixed(6)
-            });
+        setLoading(true);
+        setError(null);
 
-            setSelectedLocation(userLocation);
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
 
-            // Update marker
-            if (mapMarker) {
-                mapMarker.remove();
-            }
+                    // Update form with coordinates
+                    setNewGym({
+                        ...newGym,
+                        lat: lat.toFixed(6),
+                        lng: lng.toFixed(6)
+                    });
 
-            const newMarker = L.marker([userLocation.lat, userLocation.lng], {
-                icon: L.divIcon({
-                    className: 'admin-marker-icon',
-                    html: '<div class="admin-pin"><div class="admin-pin-inner"><i class="fa fa-dumbbell"></i></div></div>',
-                    iconSize: [40, 40],
-                    iconAnchor: [20, 40]
-                })
-            }).addTo(mapInstance);
+                    setSelectedLocation({ lat, lng });
 
-            setMapMarker(newMarker);
+                    // Update map view
+                    if (mapInstance) {
+                        mapInstance.setView([lat, lng], 15);
+                    }
 
-            // Show popup on marker
-            newMarker.bindPopup(`<div class="popup-preview">
-                <strong>${newGym.name || 'Nuevo Gimnasio'}</strong>
-                <p>${newGym.vicinity || 'Dirección no establecida'}</p>
-            </div>`).openPopup();
+                    // Add marker to the map
+                    if (mapMarker) {
+                        mapMarker.remove();
+                    }
+
+                    if (typeof L !== 'undefined' && mapInstance) {
+                        const newMarker = L.marker([lat, lng], {
+                            icon: L.divIcon({
+                                className: 'admin-marker-icon',
+                                html: '<div class="admin-pin"><div class="admin-pin-inner"><i class="fa fa-dumbbell"></i></div></div>',
+                                iconSize: [40, 40],
+                                iconAnchor: [20, 40]
+                            })
+                        }).addTo(mapInstance);
+
+                        setMapMarker(newMarker);
+
+                        // Show popup on marker
+                        newMarker.bindPopup(`<div class="popup-preview">
+                            <strong>${newGym.name || 'Nuevo Gimnasio'}</strong>
+                            <p>${newGym.vicinity || 'Dirección no establecida'}</p>
+                        </div>`).openPopup();
+                    }
+
+                    // Try to get address from coordinates
+                    reverseGeocode(lat, lng)
+                        .then(addressResult => {
+                            if (addressResult) {
+                                // Ensure the address includes "Buenos Aires, Argentina"
+                                const fullAddress = addressResult.toLowerCase().includes("buenos aires")
+                                    ? addressResult
+                                    : `${addressResult}, Buenos Aires, Argentina`;
+
+                                setNewGym(prev => ({
+                                    ...prev,
+                                    vicinity: fullAddress
+                                }));
+                            }
+                            setLoading(false);
+                        })
+                        .catch(error => {
+                            console.error("Failed to get address:", error);
+                            setLoading(false);
+                        });
+                },
+                (error) => {
+                    console.error("Geolocation error:", error);
+                    setError("Error al acceder a tu ubicación. Por favor verifica los permisos del navegador.");
+                    setLoading(false);
+                }
+            );
+        } else {
+            setError("La geolocalización no está soportada por tu navegador.");
+            setLoading(false);
         }
     };
 
@@ -289,19 +347,6 @@ const AdminGymManagement = ({ mapInstance, updateGyms, userLocation, defaultLoca
         }
     };
 
-    // Handle file input change
-    const handleImageChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setPreviewImage(reader.result);
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
-    // Validate form
     const validateForm = () => {
         const errors = {};
 
@@ -325,15 +370,12 @@ const AdminGymManagement = ({ mapInstance, updateGyms, userLocation, defaultLoca
         return Object.keys(errors).length === 0;
     };
 
-    // Handle form submission for both adding and editing
     const handleSubmit = (e) => {
         e.preventDefault();
 
         if (!validateForm()) {
             return;
         }
-
-        // Prepare gym data
         const gymData = {
             name: newGym.name,
             vicinity: newGym.vicinity,
@@ -345,7 +387,7 @@ const AdminGymManagement = ({ mapInstance, updateGyms, userLocation, defaultLoca
                     lng: parseFloat(newGym.lng)
                 }
             },
-            isAdminAdded: true,  // Flag to identify admin-added gyms
+            isAdminAdded: true,
             image: previewImage || null
         };
 
@@ -489,8 +531,6 @@ const AdminGymManagement = ({ mapInstance, updateGyms, userLocation, defaultLoca
                 )}
             </div>
 
-            {/* Removed the duplicated search and location buttons here */}
-
             {showAddForm && (
                 <div className="admin-form-container">
                     <div className="admin-form-header">
@@ -606,46 +646,20 @@ const AdminGymManagement = ({ mapInstance, updateGyms, userLocation, defaultLoca
                                             type="button"
                                             className="location-button"
                                             onClick={useCurrentLocation}
-                                            disabled={!userLocation}
+                                            disabled={loading || !navigator.geolocation}
                                         >
-                                            <FaMapMarkerAlt /> Usar mi ubicación actual
+                                            {loading ? 'Obteniendo ubicación...' : (
+                                                <>
+                                                    <FaMapMarkerAlt /> Usar mi ubicación actual
+                                                </>
+                                            )}
                                         </button>
+
+                                        {error && <div className="location-error">{error}</div>}
 
                                         <div className="location-tip">
                                             <strong>Tip:</strong> Puedes hacer zoom en el mapa para mayor precisión.
                                         </div>
-                                    </div>
-                                </div>
-
-                                <div className="form-group image-upload-group">
-                                    <label htmlFor="gym-image">Imagen del Gimnasio (opcional)</label>
-                                    <div className="image-upload-container">
-                                        {previewImage ? (
-                                            <div className="image-preview">
-                                                <img src={previewImage} alt="Vista previa" />
-                                                <button
-                                                    type="button"
-                                                    className="remove-image-btn"
-                                                    onClick={() => setPreviewImage('')}
-                                                >
-                                                    <FaTimes />
-                                                </button>
-                                            </div>
-                                        ) : (
-                                            <label className="upload-label" htmlFor="gym-image">
-                                                <div className="upload-placeholder">
-                                                    <FaPlus />
-                                                    <span>Subir imagen</span>
-                                                </div>
-                                                <input
-                                                    type="file"
-                                                    id="gym-image"
-                                                    accept="image/*"
-                                                    onChange={handleImageChange}
-                                                    style={{ display: 'none' }}
-                                                />
-                                            </label>
-                                        )}
                                     </div>
                                 </div>
                             </div>
