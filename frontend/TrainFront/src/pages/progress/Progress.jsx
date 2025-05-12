@@ -1,66 +1,125 @@
-import React, { useState, useEffect } from 'react';
+import React, {useEffect, useState} from 'react';
 import axios from 'axios';
-import { useXP } from '../../contexts/XPContext';
 import './Progress.css';
-import { LineChart, BarChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import {
+    FaBolt,
+    FaCalendarAlt,
+    FaChartBar,
+    FaChartLine,
+    FaChartPie,
+    FaClock,
+    FaDumbbell,
+    FaExclamationTriangle,
+    FaFireAlt,
+    FaMedal,
+    FaRunning,
+    FaSpinner,
+    FaTrophy,
+    FaWeight
+} from 'react-icons/fa';
+import {CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis} from 'recharts';
 
-// Simple icon components
-const TrophyIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
-        <path d="M12 2v10M6 8h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2Z" />
-    </svg>
-);
-
-const ChartIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M3 3v18h18M18 17V9M13 17V5M8 17v-3" />
-    </svg>
-);
-
-function Progress() {
-    const { xp } = useXP();
+const Progress = () => {
+    const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [stats, setStats] = useState({
-        totals: { totalSets: 0, totalReps: 0, totalWeight: 0, totalXP: 0, totalCompletions: 0 },
-        averages: { avgSets: 0, avgReps: 0, avgWeight: 0 },
-        progressOverTime: [],
-        weightProgress: [],
-        achievements: [],
-        topExercises: []
+        totalXp: 0,
+        totalCompletions: 0,
+        favoriteExercise: '',
+        averageWeight: 0
+    });
+    const [extendedStats, setExtendedStats] = useState({
+        maxWeightLifted: 0,
+        mostFrequentDay: '',
+        longestStreak: 0,
+        totalSessions: 0,
+        averageRepsPerSet: 0,
+        currentStreak: 0,
+        weeklyGoalProgress: 0
     });
 
-    // For progress photos
-    const [previews, setPreviews] = useState({
-        photoOne: '', photoTwo: '', photoThree: ''
-    });
+    // State for real data from API
+    const [weeklyActivity, setWeeklyActivity] = useState({});
+    const [weeklyPerformance, setWeeklyPerformance] = useState([]);
+    const [recentActivity, setRecentActivity] = useState([]);
 
     useEffect(() => {
-        // Fetch all necessary data
-        const fetchData = async () => {
-            try {
-                // Get exercises data
-                const exercisesRes = await axios.get('/api/exercises');
-                const exercisesById = {};
+        const username = localStorage.getItem('username');
+        setUser(username || 'Usuario');
 
-                if (Array.isArray(exercisesRes.data)) {
-                    exercisesRes.data.forEach(exercise => {
-                        exercisesById[exercise.id] = exercise;
-                    });
+        const fetchData = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                setError('Token de autenticación no encontrado.');
+                setLoading(false);
+                return;
+            }
+
+            try {
+                // Using only the two original endpoints
+                // Fetch basic stats
+                const basicStatsPromise = axios.get('http://localhost:8080/api/exercise-completions/summary', {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+
+                // Fetch extended stats
+                const extendedStatsPromise = axios.get('http://localhost:8080/api/exercise-completions/extended-summary', {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+
+                // Wait for both requests to complete
+                const [basicRes, extendedRes] = await Promise.all([basicStatsPromise, extendedStatsPromise]);
+
+                const basicData = basicRes.data || {};
+                setStats({
+                    totalXp: Number(basicData.totalXp || 0),
+                    totalCompletions: Number(basicData.totalCompletions || 0),
+                    favoriteExercise: basicData.favoriteExercise || 'Ninguno',
+                    averageWeight: Number(basicData.averageWeight || 0)
+                });
+
+                const extendedData = extendedRes.data || {};
+                setExtendedStats({
+                    maxWeightLifted: Number(extendedData.maxWeightLifted || 0),
+                    mostFrequentDay: extendedData.mostFrequentDay || 'No disponible',
+                    longestStreak: Number(extendedData.longestStreak || 0),
+                    totalSessions: Number(extendedData.totalSessions || 0),
+                    averageRepsPerSet: Number(extendedData.averageRepsPerSet || 0),
+                    currentStreak: Number(extendedData.currentStreak || 0),
+                    weeklyGoalProgress: Number(extendedData.weeklyGoalProgress || 0)
+                });
+
+                // Set real data for visualizations from extended stats
+                if (extendedData.weeklyActivity) {
+                    setWeeklyActivity(extendedData.weeklyActivity || {});
                 }
 
-                // Get completions data
-                const completionsRes = await axios.get('/api/exercise-completions/me');
+                if (extendedData.weeklyPerformance) {
+                    // Ensure each entry has proper number formatting
+                    const formattedPerformance = (extendedData.weeklyPerformance || []).map(week => ({
+                        name: week.name, // Updated from weekName to name as per backend DTO
+                        weight: Number(week.weight || 0), // Updated from avgWeight to weight as per backend DTO
+                        reps: Number(week.reps || 0), // Updated from avgReps to reps as per backend DTO
+                        xp: Number(week.xp || 0) // Updated from totalXp to xp as per backend DTO
+                    }));
+                    setWeeklyPerformance(formattedPerformance);
+                }
 
-                // Get photos
-                const photosRes = await axios.get('/api/progress/me');
-                setPreviews(photosRes.data);
+                if (extendedData.recentActivity) {
+                    setRecentActivity(extendedData.recentActivity || []);
+                }
 
-                // Process exercise data
-                processExerciseData(completionsRes.data, exercisesById);
+                console.log("Weekly Performance Data:", extendedData.weeklyPerformance);
+                console.log("Recent Activity Data:", extendedData.recentActivity);
 
             } catch (err) {
-                console.error('Error fetching data:', err);
+                console.error('Error al obtener estadísticas:', err);
+                setError('No se pudieron cargar las estadísticas.');
             } finally {
                 setLoading(false);
             }
@@ -69,337 +128,266 @@ function Progress() {
         fetchData();
     }, []);
 
-    // Process exercise completion data
-    const processExerciseData = (completions, exercisesById) => {
-        if (!completions || completions.length === 0) return;
-
-        // Sort completions by date
-        const sortedCompletions = [...completions].sort((a, b) =>
-            new Date(a.completedAt) - new Date(b.completedAt)
-        );
-
-        // Group by exercise and calculate stats
-        const exerciseMap = {};
-        let totalSets = 0;
-        let totalReps = 0;
-        let totalWeight = 0;
-        let totalXP = 0;
-
-        sortedCompletions.forEach(completion => {
-            // Add to totals
-            totalSets += completion.sets;
-            totalReps += completion.sets * completion.reps;
-            totalWeight += completion.sets * completion.reps * completion.weight;
-            totalXP += completion.xpReward;
-
-            // Get exercise name
-            let exerciseName = "Unknown Exercise";
-            if (completion.exercise?.name) {
-                exerciseName = completion.exercise.name;
-            } else if (completion.exerciseId && exercisesById[completion.exerciseId]) {
-                exerciseName = exercisesById[completion.exerciseId].name;
-            }
-
-            // Group by exercise
-            if (!exerciseMap[exerciseName]) {
-                exerciseMap[exerciseName] = {
-                    totalXP: 0,
-                    count: 0,
-                    weightProgress: []
-                };
-            }
-
-            exerciseMap[exerciseName].totalXP += completion.xpReward;
-            exerciseMap[exerciseName].count += 1;
-            exerciseMap[exerciseName].weightProgress.push({
-                date: new Date(completion.completedAt).toLocaleDateString(),
-                weight: completion.weight
-            });
-        });
-
-        // Generate time series data
-        const progressByMonth = {};
-        sortedCompletions.forEach(completion => {
-            const date = new Date(completion.completedAt);
-            const monthKey = `${date.getFullYear()}-${date.getMonth() + 1}`;
-
-            if (!progressByMonth[monthKey]) {
-                progressByMonth[monthKey] = {
-                    period: monthKey,
-                    xp: 0,
-                    volume: 0
-                };
-            }
-
-            progressByMonth[monthKey].xp += completion.xpReward;
-            progressByMonth[monthKey].volume += completion.sets * completion.reps * completion.weight;
-        });
-
-        // Convert to arrays for charting
-        const progressOverTime = Object.values(progressByMonth)
-            .sort((a, b) => a.period.localeCompare(b.period));
-
-        // Get top exercises
-        const topExercises = Object.entries(exerciseMap)
-            .map(([name, data]) => ({ name, totalXP: data.totalXP, count: data.count }))
-            .sort((a, b) => b.totalXP - a.totalXP)
-            .slice(0, 5);
-
-        // Get weight progress for top 3 exercises
-        const topExerciseNames = topExercises.slice(0, 3).map(ex => ex.name);
-        const weightProgressData = [];
-
-        topExerciseNames.forEach(name => {
-            if (exerciseMap[name]?.weightProgress.length > 1) {
-                const sortedProgress = [...exerciseMap[name].weightProgress].sort(
-                    (a, b) => new Date(a.date) - new Date(b.date)
-                );
-
-                weightProgressData.push({
-                    name,
-                    data: sortedProgress
-                });
-            }
-        });
-
-        // Generate achievements
-        const achievements = [];
-        if (sortedCompletions.length > 0) {
-            achievements.push({
-                id: 1,
-                name: 'First Workout',
-                date: new Date(sortedCompletions[0].completedAt).toLocaleDateString()
-            });
-        }
-
-        if (totalXP >= 1000) {
-            achievements.push({
-                id: 2,
-                name: 'Beginner Expert: 1000+ XP',
-                date: new Date().toLocaleDateString()
-            });
-        }
-
-        achievements.push({
-            id: 3,
-            name: `Versatility: ${Object.keys(exerciseMap).length} different exercises`,
-            date: new Date().toLocaleDateString()
-        });
-
-        // Set stats
-        setStats({
-            totals: {
-                totalSets,
-                totalReps,
-                totalWeight: totalWeight.toFixed(1),
-                totalXP,
-                totalCompletions: sortedCompletions.length,
-                totalWorkouts: Math.ceil(sortedCompletions.length / 3)
-            },
-            averages: {
-                avgSets: sortedCompletions.length > 0 ? (totalSets / sortedCompletions.length).toFixed(1) : 0,
-                avgReps: totalSets > 0 ? (totalReps / totalSets).toFixed(1) : 0,
-                avgWeight: totalReps > 0 ? (totalWeight / totalReps).toFixed(1) : 0
-            },
-            progressOverTime,
-            weightProgress: weightProgressData,
-            achievements,
-            topExercises
-        });
+    // Get today's day index (0 = Monday, 6 = Sunday)
+    const getTodayIndex = () => {
+        const today = new Date().getDay();
+        // Convert Sunday (0) to index 6, and Monday (1) to index 0
+        return today === 0 ? 6 : today - 1;
     };
 
-    // Handle file change for photos
-    const handleFileChange = (e, key) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setPreviews(prev => ({ ...prev, [key]: reader.result }));
-            };
-            reader.readAsDataURL(file);
-        }
+    // Calculate progress circle circumference and offset
+    const calculateCircleProgress = (percentage) => {
+        const radius = 76;
+        const circumference = 2 * Math.PI * radius;
+        const offset = circumference - (percentage / 100) * circumference;
+        return { circumference, offset };
     };
 
-    // Submit photos
-    const handlePhotoSubmit = (e) => {
-        e.preventDefault();
-        axios.put('/api/progress/update', previews)
-            .then(() => alert('Photos updated successfully!'))
-            .catch(err => console.error('Error updating photos:', err));
+    const { circumference, offset } = calculateCircleProgress(extendedStats.weeklyGoalProgress);
+
+    // Transform weekly activity object into array format needed by chart
+    const getWeeklyActivityArray = () => {
+        // Default days in Spanish
+        const dayOrder = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+
+        // Create array with the correct order of days
+        return dayOrder.map(day => ({
+            day: day,
+            exercises: weeklyActivity[day] || 0
+        }));
     };
 
-    if (loading) return <div className="progress-loading">Loading your fitness data...</div>;
+    // Format a date to a Spanish-friendly format
+    const formatDate = (isoDateString) => {
+        if (!isoDateString) return '';
 
-    // Format weight progress data for chart
-    const prepareWeightData = () => {
-        const formattedData = [];
-        const allDates = new Set();
+        const date = new Date(isoDateString);
+        const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 
-        // Get all unique dates
-        stats.weightProgress.forEach(exercise => {
-            exercise.data.forEach(point => {
-                allDates.add(point.date);
-            });
-        });
-
-        // Sort dates
-        const sortedDates = [...allDates].sort((a, b) => new Date(a) - new Date(b));
-
-        // Create data points
-        sortedDates.forEach(date => {
-            const dataPoint = { date };
-
-            stats.weightProgress.forEach(exercise => {
-                const match = exercise.data.find(point => point.date === date);
-                dataPoint[exercise.name] = match ? match.weight : null;
-            });
-
-            formattedData.push(dataPoint);
-        });
-
-        return {
-            data: formattedData,
-            exercises: stats.weightProgress.map(ex => ex.name)
-        };
+        return `${date.getDate()} ${months[date.getMonth()]}, ${date.getFullYear()}`;
     };
 
-    const weightData = prepareWeightData();
+    if (loading) return (
+        <div className="progress-loading">
+            <FaSpinner className="fa-spin" />
+            <p>Cargando datos de progreso...</p>
+        </div>
+    );
+
+    if (error) return (
+        <div className="progress-error">
+            <FaExclamationTriangle />
+            <p>{error}</p>
+        </div>
+    );
+
+    const weeklyActivityData = getWeeklyActivityArray();
 
     return (
         <div className="progress-container">
-            <div className="page-title">
-                <h1>FITNESS TRACKER</h1>
-                <p>Monitor your progress and reach your fitness goals</p>
-            </div>
-
-            {/* Summary cards */}
-            <div className="progress-overview">
-                <div className="progress-card xp-card">
-                    <h3>Total XP</h3>
-                    <p className="progress-number">{stats.totals.totalXP}</p>
-                    <p className="progress-label">{xp?.levelName ? `Current Level: ${xp.levelName}` : 'Keep it up!'}</p>
-                </div>
-                <div className="progress-card">
-                    <h3>Total Workouts</h3>
-                    <p className="progress-number">{stats.totals.totalWorkouts}</p>
-                </div>
-                <div className="progress-card">
-                    <h3>Total Weight Lifted</h3>
-                    <p className="progress-number">{(stats.totals.totalWeight / 1000).toFixed(1)}t</p>
-                </div>
-            </div>
-
-            {/* Weight progress chart */}
-            <div className="progress-chart-section">
-                <div className="panel-header">
-                    <h2>Weight Progress by Exercise</h2>
-                </div>
-                <div className="chart-container">
-                    <ResponsiveContainer width="100%" height={300}>
-                        <LineChart data={weightData.data}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="date" />
-                            <YAxis />
-                            <Tooltip />
-                            <Legend />
-                            {weightData.exercises.map((exercise, index) => (
-                                <Line
-                                    key={exercise}
-                                    type="monotone"
-                                    dataKey={exercise}
-                                    stroke={`hsl(${index * 120}, 70%, 50%)`}
-                                    strokeWidth={2}
-                                    connectNulls
-                                />
-                            ))}
-                        </LineChart>
-                    </ResponsiveContainer>
-                </div>
-            </div>
-
-            {/* XP progress chart */}
-            <div className="progress-chart-section">
-                <div className="panel-header">
-                    <div className="panel-icon"><ChartIcon /></div>
-                    <h2>XP Progress</h2>
-                </div>
-                <div className="chart-container">
-                    <ResponsiveContainer width="100%" height={300}>
-                        <LineChart data={stats.progressOverTime}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="period" />
-                            <YAxis />
-                            <Tooltip />
-                            <Legend />
-                            <Line
-                                type="monotone"
-                                dataKey="xp"
-                                name="XP Earned"
-                                stroke="#0084ff"
-                                strokeWidth={2}
-                            />
-                        </LineChart>
-                    </ResponsiveContainer>
-                </div>
-            </div>
-
-            {/* Exercise distribution */}
-            <div className="progress-chart-section">
-                <div className="panel-header">
-                    <h2>Top 5 Exercises</h2>
-                </div>
-                <div className="chart-container">
-                    <ResponsiveContainer width="100%" height={300}>
-                        <BarChart data={stats.topExercises}>
-                            <CartesianGrid strokeDasharray="3 3" />
-                            <XAxis dataKey="name" />
-                            <YAxis />
-                            <Tooltip />
-                            <Legend />
-                            <Bar dataKey="totalXP" name="Total XP" fill="#0084ff" />
-                            <Bar dataKey="count" name="Times Completed" fill="#00e5ff" />
-                        </BarChart>
-                    </ResponsiveContainer>
-                </div>
-            </div>
-
-            {/* Achievements */}
-            <div className="progress-details">
-                <div className="achievements-section">
-                    <div className="panel-header">
-                        <div className="panel-icon"><TrophyIcon /></div>
-                        <h2>Achievements</h2>
-                    </div>
-                    <ul className="achievements-list">
-                        {stats.achievements.map(a => (
-                            <li key={a.id} className="achievement-item">
-                                <span className="achievement-name">{a.name}</span>
-                                <span className="achievement-date">{a.date}</span>
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            </div>
-
-            {/* Upload section - simplified */}
-            <div className="progress-upload-section">
-                <h2>Upload Progress Photos</h2>
-                <form onSubmit={handlePhotoSubmit} className="upload-form">
-                    {['photoOne', 'photoTwo', 'photoThree'].map(key => (
-                        <div key={key} className="photo-input-container">
-                            {previews[key] && <img src={previews[key]} alt="Preview" className="photo-preview" />}
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={e => handleFileChange(e, key)}
-                            />
+            <h1 className="progress-title">Progreso de {user}</h1>
+            <div className="progress-stats-section">
+                <h2 className="section-title"><FaChartLine /> Estadísticas Básicas</h2>
+                <div className="progress-summary">
+                    <div className="summary-card">
+                        <div className="summary-icon"><FaTrophy /></div>
+                        <div className="summary-content">
+                            <h3>XP Total</h3>
+                            <div className="summary-value">{stats.totalXp}</div>
                         </div>
-                    ))}
-                    <button type="submit" className="upload-button">Save Photos</button>
-                </form>
+                    </div>
+
+                    <div className="summary-card">
+                        <div className="summary-icon"><FaDumbbell /></div>
+                        <div className="summary-content">
+                            <h3>Ejercicios Completados</h3>
+                            <div className="summary-value">{stats.totalCompletions}</div>
+                        </div>
+                    </div>
+
+                    <div className="summary-card">
+                        <div className="summary-icon"><FaChartLine /></div>
+                        <div className="summary-content">
+                            <h3>Peso Promedio</h3>
+                            <div className="summary-value">{stats.averageWeight.toFixed(1)} kg</div>
+                        </div>
+                    </div>
+
+                    <div className="summary-card">
+                        <div className="summary-icon"><FaCalendarAlt /></div>
+                        <div className="summary-content">
+                            <h3>Sesiones Totales</h3>
+                            <div className="summary-value">{extendedStats.totalSessions}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Streak Section */}
+            <div className="streak-container">
+                <h2 className="section-title"><FaFireAlt /> Rachas y Objetivos</h2>
+                <div className="streak-content">
+                    <div className="streak-metric">
+                        <div className="streak-value">{extendedStats.currentStreak}</div>
+                        <div className="streak-label">Racha Actual<br/>(días)</div>
+                    </div>
+
+                    <div className="streak-divider"></div>
+
+                    <div className="progress-circle-container">
+                        <svg className="progress-circle">
+                            <circle
+                                className="progress-circle-bg"
+                                cx="80"
+                                cy="80"
+                                r="76"
+                            />
+                            <circle
+                                className="progress-circle-value"
+                                cx="80"
+                                cy="80"
+                                r="76"
+                                strokeDasharray={circumference}
+                                strokeDashoffset={offset}
+                            />
+                        </svg>
+                        <div className="progress-circle-text">
+                            <div className="circle-percentage">{extendedStats.weeklyGoalProgress}%</div>
+                            <div className="circle-label">de objetivo semanal</div>
+                        </div>
+                    </div>
+
+                    <div className="streak-divider"></div>
+
+                    <div className="streak-metric">
+                        <div className="streak-value">{extendedStats.longestStreak}</div>
+                        <div className="streak-label">Racha más Larga<br/>(días)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="progress-stats-section">
+                <h2 className="section-title">Estadísticas Detalladas</h2>
+                <div className="progress-summary">
+                    <div className="summary-card">
+                        <div className="summary-icon"><FaWeight /></div>
+                        <div className="summary-content">
+                            <h3>Peso Máximo Levantado</h3>
+                            <div className="summary-value">{extendedStats.maxWeightLifted.toFixed(1)} kg</div>
+                        </div>
+                    </div>
+
+                    <div className="summary-card">
+                        <div className="summary-icon"><FaCalendarAlt /></div>
+                        <div className="summary-content">
+                            <h3>Día Más Frecuente</h3>
+                            <div className="summary-value">{extendedStats.mostFrequentDay}</div>
+                        </div>
+                    </div>
+
+                    <div className="summary-card">
+                        <div className="summary-icon"><FaFireAlt /></div>
+                        <div className="summary-content">
+                            <h3>Racha Más Larga</h3>
+                            <div className="summary-value">{extendedStats.longestStreak} días</div>
+                        </div>
+                    </div>
+
+                    <div className="summary-card">
+                        <div className="summary-icon"><FaMedal /></div>
+                        <div className="summary-content">
+                            <h3>Sesiones Totales</h3>
+                            <div className="summary-value">{extendedStats.totalSessions}</div>
+                        </div>
+                    </div>
+
+                    <div className="summary-card">
+                        <div className="summary-icon"><FaClock /></div>
+                        <div className="summary-content">
+                            <h3>Promedio Reps por Serie</h3>
+                            <div className="summary-value">{extendedStats.averageRepsPerSet.toFixed(1)}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="progress-charts">
+                <div className="chart-container">
+                    <h2><FaChartBar /> Rendimiento Semanal</h2>
+                    {weeklyPerformance.length > 0 ? (
+                        <ResponsiveContainer width="100%" height={300} className="performance-chart">
+                            <LineChart data={weeklyPerformance} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="name" />
+                                <YAxis yAxisId="left" orientation="left" stroke="#8884d8" />
+                                <YAxis yAxisId="right" orientation="right" stroke="#82ca9d" />
+                                <Tooltip />
+                                <Legend />
+                                <Line yAxisId="left" type="monotone" dataKey="weight" stroke="#8884d8" name="Peso (kg)" activeDot={{ r: 8 }} />
+                                <Line yAxisId="right" type="monotone" dataKey="reps" stroke="#82ca9d" name="Repeticiones" />
+                            </LineChart>
+                        </ResponsiveContainer>
+                    ) : (
+                        <div className="no-activity">No hay datos de rendimiento disponibles</div>
+                    )}
+                </div>
+
+                <div className="chart-container">
+                    <h2><FaChartPie /> Actividad Semanal</h2>
+                    <div className="weekly-activity">
+                        {weeklyActivityData.map((item, index) => {
+                            const todayIndex = getTodayIndex();
+                            const isToday = index === todayIndex;
+                            // Avoid division by zero if all values are 0
+                            const maxExercises = Math.max(...weeklyActivityData.map(d => d.exercises)) || 1;
+                            const heightPercentage = (item.exercises / maxExercises) * 100;
+
+                            return (
+                                <div className="day-column" key={item.day}>
+                                    <div className="day-bar-container">
+                                        <div
+                                            className={`day-bar ${isToday ? 'active' : ''}`}
+                                            style={{ height: `${heightPercentage}%` }}
+                                        >
+                                            <span className="bar-value">{item.exercises}</span>
+                                        </div>
+                                    </div>
+                                    <div className="day-label">{item.day}</div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            </div>
+
+            <div className="recent-activity">
+                <h2 className="section-title"><FaRunning /> Actividad Reciente</h2>
+                <div className="activity-list">
+                    {recentActivity && recentActivity.length > 0 ? (
+                        recentActivity.map(activity => (
+                            <div className="activity-item" key={activity.id || Math.random()}>
+                                <div className="activity-icon">
+                                    <FaDumbbell />
+                                </div>
+                                <div className="activity-details">
+                                    <div className="activity-exercise">{activity.exercise || "Ejercicio"}</div>
+                                    <div className="activity-stats">
+                                        {activity.weight || 0} kg × {activity.reps || 0} reps × {activity.sets || 0} series
+                                    </div>
+                                    <div className="activity-date">{formatDate(activity.completedAt)}</div>
+                                </div>
+                                <div className="activity-xp">
+                                    <FaBolt /> {typeof activity.xp === 'number' ? activity.xp : 0}
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="no-activity">No hay actividad reciente para mostrar</div>
+                    )}
+                </div>
             </div>
         </div>
     );
-}
+};
 
 export default Progress;

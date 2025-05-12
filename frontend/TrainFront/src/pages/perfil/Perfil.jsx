@@ -408,31 +408,6 @@ function Perfil() {
                             />
                         </div>
 
-                        {isEditing && (
-                            <div className="form-group password-input-group">
-                                <label htmlFor="password"><FaLock className="field-icon" /> Contraseña</label>
-                                <div className="password-input-wrapper">
-                                    <input
-                                        type={showPassword ? "text" : "password"}
-                                        id="password"
-                                        name="password"
-                                        value={userData.password}
-                                        onChange={handleChange}
-                                        placeholder="Introduce nueva contraseña"
-                                        className="editable"
-                                    />
-                                    <button
-                                        type="button"
-                                        className="toggle-password-visibility"
-                                        onClick={togglePasswordVisibility}
-                                    >
-                                        {showPassword ? <FaEyeSlash /> : <FaEye />}
-                                    </button>
-                                </div>
-                                <p className="field-info">Dejar en blanco para mantener la actual</p>
-                            </div>
-                        )}
-
                         <div className="form-section-title">
                             <h2>Datos Físicos</h2>
                         </div>

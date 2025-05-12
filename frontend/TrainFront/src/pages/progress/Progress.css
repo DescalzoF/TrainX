@@ -1,488 +1,631 @@
-/* Progress.css - Professional modern technological fitness tracker */
 :root {
-    /* Core color palette */
-    --primary-blue: #0056d2;
-    --primary-dark: #004099;
-    --primary-light: #2d7ff9;
-    --accent-blue: #00c2ff;
-    --neon-blue: #18e1f7;
+    --primary: #1a73e8;
+    --primary-dark: #0d47a1;
+    --primary-light: #64b5f6;
+    --secondary: #121212;
+    --background: #f8f9fa;
+    --card-bg: #ffffff;
+    --card-hover: #f0f7ff;
+    --text-primary: #202124;
+    --text-secondary: #5f6368;
+    --text-tertiary: #80868b;
+    --border-color: #dadce0;
+    --shadow-sm: 0 2px 6px rgba(60, 64, 67, 0.12);
+    --shadow-md: 0 4px 12px rgba(60, 64, 67, 0.15);
+    --shadow-lg: 0 8px 24px rgba(60, 64, 67, 0.18);
+    --gradient-blue: linear-gradient(135deg, var(--primary-dark), var(--primary));
+    --gradient-dark: linear-gradient(135deg, #1e1e1e, #323232);
+    --border-radius-sm: 8px;
+    --border-radius-md: 12px;
+    --border-radius-lg: 16px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
-    /* Neutral colors */
-    --white: #ffffff;
-    --off-white: #f8fafc;
-    --light-grey: #edf2f7;
-    --mid-grey: #d1d5db;
-    --dark-grey: #475569;
-    --text-black: #111827;
-
-    /* UI elements */
-    --card-shadow: 0 4px 20px rgba(0, 86, 210, 0.1);
-    --hover-shadow: 0 10px 25px rgba(0, 86, 210, 0.18);
-    --transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
-    --gradient-blue: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
-    --gradient-neon: linear-gradient(135deg, var(--accent-blue), var(--neon-blue));
+body {
+    background-color: var(--background);
+    margin: 0;
+    font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
 .progress-container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 40px 24px;
-    font-family: 'Inter', 'Roboto', 'Segoe UI', Arial, sans-serif;
-    color: var(--text-black);
-    background-color: var(--off-white);
-    border-radius: 16px;
-    box-shadow: 0 0 40px rgba(0, 0, 0, 0.03);
+    padding: 24px;
+    color: var(--text-primary);
 }
 
-.page-title {
-    text-align: center;
-    margin-bottom: 48px;
-    padding-top: 40px;
-}
-
-.page-title h1 {
-    font-size: 2.8rem;
+.progress-title {
+    margin-top: 100px;
+    font-size: 2.2rem;
     font-weight: 700;
-    color: var(--primary-blue);
-    margin-bottom: 12px;
-    letter-spacing: -0.5px;
-    text-transform: uppercase;
-    background: var(--gradient-blue);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: 0 2px 10px rgba(0, 86, 210, 0.15);
-}
-
-.page-title p {
-    font-size: 1.2rem;
-    color: var(--dark-grey);
-    max-width: 600px;
-    margin: 0 auto;
-    line-height: 1.6;
-}
-
-.progress-loading {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 80vh;
-    font-size: 1.3rem;
-    color: var(--primary-blue);
-    position: relative;
-}
-
-.progress-loading:after {
-    content: "";
-    width: 40px;
-    height: 40px;
-    border: 4px solid var(--light-grey);
-    border-top: 4px solid var(--primary-blue);
-    border-radius: 50%;
-    margin-left: 16px;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* Improved card grid layout */
-.progress-overview {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 28px;
-    margin-bottom: 56px;
-}
-
-.progress-card {
-    background-color: var(--white);
-    border-radius: 16px;
-    padding: 28px 24px;
+    color: #0070f3;
+    margin-bottom: 30px;
     text-align: center;
-    box-shadow: var(--card-shadow);
-    transition: var(--transition);
+    padding-bottom: 12px;
     position: relative;
+}
+
+.progress-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background: var(--gradient-blue);
+    border-radius: 3px;
+}
+
+.progress-stats-section {
+    margin-bottom: 40px;
+}
+
+.section-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--primary-dark);
+    margin-bottom: 24px;
+    padding-left: 16px;
+    border-left: 5px solid var(--primary);
+    display: flex;
+    align-items: center;
+}
+
+.section-title svg {
+    margin-right: 10px;
+}
+
+/* Summary Cards */
+.progress-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.summary-card {
+    background: var(--card-bg);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-sm);
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    transition: var(--transition);
+    border: 1px solid var(--border-color);
     overflow: hidden;
-    border: 1px solid rgba(209, 213, 219, 0.5);
+    position: relative;
 }
 
-.progress-card:hover {
-    transform: translateY(-6px);
-    box-shadow: var(--hover-shadow);
-}
-
-.progress-card::before {
+.summary-card::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 5px;
+    right: 0;
+    height: 3px;
     background: var(--gradient-blue);
+    opacity: 0;
+    transition: var(--transition);
 }
 
-.progress-card h3 {
-    font-size: 1.2rem;
-    margin-bottom: 18px;
-    color: var(--dark-grey);
-    font-weight: 600;
+.summary-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-md);
+    border-color: transparent;
 }
 
-.progress-number {
-    font-size: 2.8rem;
-    font-weight: 700;
-    color: var(--primary-blue);
-    margin-bottom: 10px;
-    line-height: 1.1;
-    letter-spacing: -0.5px;
+.summary-card:hover::before {
+    opacity: 1;
 }
 
-.progress-label {
-    font-size: 0.95rem;
-    color: var(--dark-grey);
-    margin-top: 8px;
-}
-
-/* XP card special styling */
-.xp-card {
-    grid-column: 1 / -1;
+.summary-icon {
     background: var(--gradient-blue);
     color: white;
-    border: none;
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
     display: flex;
-    flex-direction: column;
-    justify-content: center;
     align-items: center;
-    padding: 34px 30px;
+    justify-content: center;
+    margin-right: 20px;
+    font-size: 1.5rem;
+    box-shadow: var(--shadow-sm);
     position: relative;
     overflow: hidden;
 }
 
-.xp-card::before {
-    display: none;
+.summary-icon::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.15);
+    top: -100%;
+    left: -100%;
+    transition: all 0.5s ease;
+    transform: rotate(45deg);
 }
 
-.xp-card::after {
+.summary-card:hover .summary-icon::after {
+    top: 100%;
+    left: 100%;
+}
+
+.summary-content {
+    flex: 1;
+}
+
+.summary-content h3 {
+    font-size: 1rem;
+    margin: 0 0 5px 0;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.summary-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    line-height: 1.2;
+}
+
+/* Charts Section */
+.progress-charts {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 24px;
+    margin-bottom: 40px;
+}
+
+.chart-container, .favorite-exercise, .recent-activity, .streak-container {
+    background: var(--card-bg);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-sm);
+    padding: 24px;
+    border: 1px solid var(--border-color);
+    transition: var(--transition);
+}
+
+.chart-container:hover, .favorite-exercise:hover, .recent-activity:hover, .streak-container:hover {
+    box-shadow: var(--shadow-md);
+    border-color: transparent;
+}
+
+.chart-container h2, .favorite-exercise h2, .recent-activity h2, .streak-container h2 {
+    font-size: 1.4rem;
+    margin: 0 0 20px 0;
+    color: var(--primary-dark);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.chart-container h2 svg, .favorite-exercise h2 svg, .recent-activity h2 svg {
+    margin-right: 10px;
+}
+
+/* Performance Charts */
+.performance-chart {
+    height: 300px;
+    width: 100%;
+}
+
+/* Weekly Activity Chart */
+.weekly-activity {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    height: 220px;
+    padding: 20px 0;
+}
+
+.day-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+}
+
+.day-bar-container {
+    width: 100%;
+    height: 180px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.day-bar {
+    width: 50%;
+    background: var(--gradient-blue);
+    border-radius: 6px 6px 0 0;
+    transition: height 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    min-height: 4px;
+}
+
+.day-bar::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
-    opacity: 0.7;
-    z-index: 0;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.2), rgba(255,255,255,0));
+    border-radius: 6px 6px 0 0;
 }
 
-.xp-card h3 {
-    color: rgba(255, 255, 255, 0.95);
-    font-size: 1.4rem;
-    position: relative;
-    z-index: 1;
+.day-bar.active {
+    background: var(--gradient-dark);
 }
 
-.xp-card .progress-number {
-    color: white;
-    font-size: 4rem;
-    margin: 12px 0;
-    font-weight: 800;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
-    position: relative;
-    z-index: 1;
-}
-
-.xp-card .progress-label {
-    color: rgba(255, 255, 255, 0.95);
-    font-size: 1.1rem;
-    position: relative;
-    z-index: 1;
-}
-
-/* Icon styling */
-.panel-icon {
-    background: var(--gradient-blue);
-    color: var(--white);
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 16px;
-    box-shadow: 0 4px 12px rgba(0, 86, 210, 0.2);
-}
-
-/* Chart sections */
-.progress-chart-section {
-    background-color: var(--white);
-    border-radius: 16px;
-    padding: 30px;
-    margin-bottom: 40px;
-    box-shadow: var(--card-shadow);
-    border: 1px solid rgba(209, 213, 219, 0.5);
-}
-
-.panel-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 28px;
-    padding-bottom: 16px;
-    border-bottom: 2px solid var(--light-grey);
-}
-
-.panel-header h2 {
-    font-size: 1.6rem;
-    font-weight: 600;
-    color: var(--primary-dark);
-    margin: 0;
-}
-
-.chart-container {
-    height: 350px;
-    margin: 0 -15px;
-}
-
-/* Achievements and stats sections */
-.progress-details {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 30px;
-    margin-bottom: 56px;
-}
-
-@media (max-width: 768px) {
-    .progress-details {
-        grid-template-columns: 1fr;
-    }
-
-    .page-title h1 {
-        font-size: 2.2rem;
-    }
-
-    .chart-container {
-        height: 300px;
-    }
-}
-
-.achievements-section, .stats-detail-section {
-    background-color: var(--white);
-    border-radius: 16px;
-    padding: 30px;
-    box-shadow: var(--card-shadow);
-    border: 1px solid rgba(209, 213, 219, 0.5);
-}
-
-.achievements-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.achievement-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px 0;
-    border-bottom: 1px solid var(--light-grey);
-}
-
-.achievement-item:last-child {
-    border-bottom: none;
-}
-
-.achievement-name {
-    font-weight: 600;
-    color: var(--text-black);
-    display: flex;
-    align-items: center;
-    position: relative;
-    padding-left: 20px;
-}
-
-.achievement-name::before {
-    content: '';
+.bar-value {
     position: absolute;
-    left: 0;
-    width: 10px;
-    height: 10px;
-    background: var(--gradient-blue);
-    border-radius: 50%;
+    top: -25px;
+    font-weight: bold;
+    color: var(--text-primary);
+    font-size: 0.85rem;
 }
 
-.achievement-date {
-    color: var(--dark-grey);
-    font-size: 0.95rem;
+.day-label {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
     font-weight: 500;
 }
 
-/* Detailed statistics styling */
-.stats-metrics {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 24px;
-}
-
-.stat-metric {
-    background-color: var(--light-grey);
-    padding: 18px 20px;
-    border-radius: 12px;
+/* Favorite Exercise */
+.favorite-exercise {
     display: flex;
     flex-direction: column;
+}
+
+.favorite-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px 0;
+}
+
+.favorite-icon {
+    font-size: 4rem;
+    color: var(--primary);
+    margin-bottom: 24px;
+    position: relative;
+    background: var(--card-hover);
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-sm);
+}
+
+.favorite-icon::after {
+    content: '';
+    position: absolute;
+    width: 140px;
+    height: 140px;
+    border: 2px dashed var(--primary-light);
+    border-radius: 50%;
+    animation: rotate 20s linear infinite;
+    opacity: 0.6;
+}
+
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.favorite-content span {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+}
+
+.favorite-content p {
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+/* Recent Activity */
+.recent-activity {
+    margin-top: 24px;
+}
+
+.activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    border-radius: var(--border-radius-sm);
+    background: var(--card-hover);
     transition: var(--transition);
-}
-
-.stat-metric:hover {
-    background-color: rgba(0, 86, 210, 0.05);
-    transform: translateY(-3px);
-}
-
-.stat-label {
-    font-size: 0.95rem;
-    color: var(--dark-grey);
-    margin-bottom: 8px;
-}
-
-.stat-value-text {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: var(--primary-blue);
-}
-
-/* Photos upload section */
-.progress-upload-section {
-    background: var(--light-grey);
-    border-radius: 16px;
-    padding: 36px;
-    box-shadow: var(--card-shadow);
-    margin-top: 48px;
     position: relative;
     overflow: hidden;
-    border: 1px solid rgba(209, 213, 219, 0.5);
 }
 
-.progress-upload-section::before {
+.activity-item::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 6px;
-    background: var(--gradient-neon);
+    width: 4px;
+    height: 100%;
+    background: var(--primary);
+    opacity: 0;
+    transition: var(--transition);
 }
 
-.progress-upload-section h2 {
-    font-size: 1.8rem;
+.activity-item:hover {
+    transform: translateX(5px);
+    box-shadow: var(--shadow-sm);
+}
+
+.activity-item:hover::before {
+    opacity: 1;
+}
+
+.activity-icon {
+    background: rgba(26, 115, 232, 0.1);
+    color: var(--primary);
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 16px;
+    font-size: 1.2rem;
+}
+
+.activity-details {
+    flex: 1;
+}
+
+.activity-exercise {
     font-weight: 600;
-    color: var(--primary-dark);
-    text-align: center;
-    margin-top: 0;
-    margin-bottom: 32px;
-    position: relative;
+    font-size: 1.1rem;
+    color: var(--text-primary);
 }
 
-.progress-upload-section h2::after {
-    content: '';
-    width: 60px;
-    height: 4px;
-    background: var(--gradient-blue);
-    position: absolute;
-    bottom: -12px;
-    left: 50%;
-    transform: translateX(-50%);
-    border-radius: 2px;
+.activity-stats {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin: 3px 0;
 }
 
-.upload-form {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 24px;
-    max-width: 900px;
-    margin: 0 auto;
+.activity-date {
+    font-size: 0.85rem;
+    color: var(--text-tertiary);
 }
 
-.photo-input-container {
+.activity-xp {
+    font-weight: 700;
+    color: var(--primary);
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+}
+
+.activity-xp svg {
+    margin-right: 4px;
+}
+
+/* Streak Section */
+.streak-container {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 40px;
+}
+
+.streak-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 20px 0;
+}
+
+.streak-metric {
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: var(--white);
-    padding: 16px;
-    border-radius: 12px;
-    box-shadow: var(--card-shadow);
-    transition: var(--transition);
-    border: 1px solid var(--mid-grey);
+    position: relative;
 }
 
-.photo-input-container:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--hover-shadow);
+.streak-value {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    margin-bottom: 8px;
 }
 
-.photo-input-container input {
-    margin-top: 12px;
-    width: 100%;
+.streak-label {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    text-align: center;
 }
 
-.photo-preview {
-    width: 120px;
-    height: 120px;
-    object-fit: cover;
-    border-radius: 8px;
-    margin-bottom: 16px;
-    box-shadow: var(--card-shadow);
+.streak-divider {
+    width: 1px;
+    height: 80px;
+    background: linear-gradient(to bottom, transparent, var(--border-color), transparent);
 }
 
-.upload-button {
-    grid-column: 1 / -1;
-    justify-self: center;
-    background: var(--gradient-blue);
-    color: var(--white);
-    border: none;
-    padding: 16px 40px;
-    border-radius: 10px;
+/* Progress Circle */
+.progress-circle-container {
+    position: relative;
+    width: 160px;
+    height: 160px;
+}
+
+.progress-circle {
+    transform: rotate(-90deg);
+    width: 160px;
+    height: 160px;
+}
+
+.progress-circle-bg {
+    fill: none;
+    stroke: var(--border-color);
+    stroke-width: 8px;
+}
+
+.progress-circle-value {
+    fill: none;
+    stroke: var(--primary);
+    stroke-width: 8px;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1s ease;
+}
+
+.progress-circle-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.circle-percentage {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    line-height: 1;
+}
+
+.circle-label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+/* Loading & Error States */
+.progress-loading, .progress-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 100px 0;
     font-size: 1.2rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
-    margin-top: 20px;
-    box-shadow: 0 4px 12px rgba(0, 86, 210, 0.25);
+    color: var(--text-secondary);
 }
 
-.upload-button:hover {
-    background: var(--primary-dark);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0, 86, 210, 0.35);
+.progress-loading svg {
+    font-size: 3rem;
+    color: var(--primary);
+    margin-bottom: 20px;
+    animation: pulse 1.5s infinite ease-in-out;
 }
 
-/* Additional responsive tweaks */
-@media (max-width: 600px) {
+@keyframes pulse {
+    0% {
+        opacity: 0.5;
+        transform: scale(0.8);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    100% {
+        opacity: 0.5;
+        transform: scale(0.8);
+    }
+}
+
+.progress-error {
+    color: #e53935;
+}
+
+.progress-error svg {
+    font-size: 3rem;
+    color: #e53935;
+    margin-bottom: 20px;
+}
+
+.no-activity {
+    text-align: center;
+    padding: 30px;
+    color: var(--text-tertiary);
+    font-style: italic;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 1024px) {
+    .progress-charts {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .progress-title {
+        font-size: 1.8rem;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+    }
+
+    .summary-card {
+        padding: 20px;
+    }
+
+    .summary-icon {
+        width: 52px;
+        height: 52px;
+        font-size: 1.3rem;
+    }
+
+    .summary-value {
+        font-size: 1.7rem;
+    }
+
+    .streak-content {
+        flex-direction: column;
+        gap: 30px;
+    }
+
+    .streak-divider {
+        width: 80px;
+        height: 1px;
+    }
+}
+
+@media (max-width: 480px) {
     .progress-container {
-        padding: 20px 16px;
+        padding: 16px;
     }
 
-    .progress-card {
-        padding: 24px 20px;
+    .summary-card {
+        padding: 16px;
     }
 
-    .progress-number {
-        font-size: 2.4rem;
+    .summary-icon {
+        width: 48px;
+        height: 48px;
+        font-size: 1.2rem;
+        margin-right: 14px;
     }
 
-    .xp-card .progress-number {
-        font-size: 3.4rem;
-    }
-
-    .panel-header h2 {
-        font-size: 1.4rem;
-    }
-
-    .progress-upload-section {
-        padding: 30px 20px;
-    }
-
-    .photo-preview {
-        width: 100px;
-        height: 100px;
+    .summary-value {
+        font-size: 1.5rem;
     }
 }

@@ -11,10 +11,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjusters;
+import java.time.temporal.WeekFields;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.Locale;
 
 @Service
 public class ExerciseCompletionService {
@@ -36,15 +42,12 @@ public class ExerciseCompletionService {
 
     @Transactional
     public ExerciseCompletionEntity completeExercise(Long userId, Long exerciseId, Integer sets, Integer reps, Double weight) {
-        // Find user
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
-        // Find exercise
         ExerciseEntity exercise = exerciseRepository.findById(exerciseId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Exercise not found"));
 
-        // Create exercise completion record
         ExerciseCompletionEntity completion = new ExerciseCompletionEntity(
                 user,
                 exercise,
@@ -54,165 +57,333 @@ public class ExerciseCompletionService {
                 exercise.getXpFitnessReward()
         );
 
-        // Save completion record
-        completion = exerciseCompletionRepository.save(completion);
-
-        return completion;
+        return exerciseCompletionRepository.save(completion);
     }
-    /**
-     * Get all exercise completions for a specific user
-     */
+
     @Transactional(readOnly = true)
     public List<ExerciseCompletionEntity> getUserCompletions(Long userId) {
-        // Check if user exists
         if (!userRepository.existsById(userId)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
 
-        // Custom query to get all completions for user
-        // Note: You might want to add this method to ExerciseCompletionRepository
         return exerciseCompletionRepository.findByUserId(userId);
     }
 
-    /**
-     * Calculate exercise completion statistics for a user
-     */
     @Transactional(readOnly = true)
-    public Map<String, Object> getCompletionStats(Long userId) {
-        List<ExerciseCompletionEntity> completions = getUserCompletions(userId);
-
-        if (completions.isEmpty()) {
-            return Collections.emptyMap();
+    public ExerciseCompletionStatisticsDTO getUserSummaryStatistics(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
 
-        Map<String, Object> stats = new HashMap<>();
+        List<ExerciseCompletionEntity> completions = exerciseCompletionRepository.findByUserId(userId);
 
-        // Basic stats
+        long totalXp = completions.stream()
+                .mapToLong(ExerciseCompletionEntity::getXpReward)
+                .sum();
+
         int totalCompletions = completions.size();
-        int totalSets = completions.stream().mapToInt(ExerciseCompletionEntity::getSets).sum();
-        int totalReps = completions.stream().mapToInt(c -> c.getSets() * c.getReps()).sum();
-        double totalWeight = completions.stream().mapToDouble(c -> c.getSets() * c.getReps() * c.getWeight()).sum();
-        Long totalXP = completions.stream().mapToLong(ExerciseCompletionEntity::getXpReward).sum();
 
-        // Averages
-        double avgSets = totalSets / (double) totalCompletions;
-        double avgReps = totalSets > 0 ? totalReps / (double) totalSets : 0;
-        double avgWeight = totalReps > 0 ? totalWeight / totalReps : 0;
-        double avgXpPerWorkout = totalCompletions > 0 ? totalXP / (double) totalCompletions : 0;
+        double averageWeight = completions.isEmpty() ? 0 :
+                completions.stream()
+                        .mapToDouble(ExerciseCompletionEntity::getWeight)
+                        .average()
+                        .orElse(0);
 
-        // Group by exercise
-        Map<Long, List<ExerciseCompletionEntity>> byExercise = completions.stream()
-                .collect(Collectors.groupingBy(c -> c.getExercise().getId()));
+        String favoriteExercise = "";
+        if (!completions.isEmpty()) {
+            Map<String, Long> exerciseCounts = completions.stream()
+                    .collect(Collectors.groupingBy(
+                            comp -> comp.getExercise().getName(),
+                            Collectors.counting()
+                    ));
 
-        // Calculate stats by exercise
-        Map<Long, Map<String, Object>> exerciseStats = new HashMap<>();
-
-        for (Map.Entry<Long, List<ExerciseCompletionEntity>> entry : byExercise.entrySet()) {
-            Long exerciseId = entry.getKey();
-            List<ExerciseCompletionEntity> exerciseCompletions = entry.getValue();
-
-            int exerciseTotalSets = exerciseCompletions.stream().mapToInt(ExerciseCompletionEntity::getSets).sum();
-            int exerciseTotalReps = exerciseCompletions.stream().mapToInt(c -> c.getSets() * c.getReps()).sum();
-            double exerciseTotalWeight = exerciseCompletions.stream()
-                    .mapToDouble(c -> c.getSets() * c.getReps() * c.getWeight()).sum();
-            Long exerciseTotalXP = exerciseCompletions.stream().mapToLong(ExerciseCompletionEntity::getXpReward).sum();
-            double maxWeight = exerciseCompletions.stream().mapToDouble(ExerciseCompletionEntity::getWeight).max().orElse(0);
-
-            // Calculate progress over time
-            List<Map<String, Object>> progress = exerciseCompletions.stream()
-                    .sorted(Comparator.comparing(ExerciseCompletionEntity::getCompletedAt))
-                    .map(c -> {
-                        Map<String, Object> point = new HashMap<>();
-                        point.put("date", c.getCompletedAt().format(DateTimeFormatter.ISO_DATE));
-                        point.put("weight", c.getWeight());
-                        point.put("sets", c.getSets());
-                        point.put("reps", c.getReps());
-                        point.put("xp", c.getXpReward());
-                        return point;
-                    })
-                    .collect(Collectors.toList());
-
-            Map<String, Object> exerciseStat = new HashMap<>();
-            exerciseStat.put("totalSets", exerciseTotalSets);
-            exerciseStat.put("totalReps", exerciseTotalReps);
-            exerciseStat.put("totalWeight", exerciseTotalWeight);
-            exerciseStat.put("totalXP", exerciseTotalXP);
-            exerciseStat.put("maxWeight", maxWeight);
-            exerciseStat.put("completionCount", exerciseCompletions.size());
-            exerciseStat.put("progress", progress);
-            exerciseStat.put("name", exerciseCompletions.get(0).getExercise().getName());
-
-            exerciseStats.put(exerciseId, exerciseStat);
+            favoriteExercise = exerciseCounts.entrySet().stream()
+                    .max(Map.Entry.comparingByValue())
+                    .map(Map.Entry::getKey)
+                    .orElse("");
         }
 
-        // Add all stats to the result map
-        stats.put("totalCompletions", totalCompletions);
-        stats.put("totalSets", totalSets);
-        stats.put("totalReps", totalReps);
-        stats.put("totalWeight", totalWeight);
-        stats.put("totalXP", totalXP);
-        stats.put("avgSets", avgSets);
-        stats.put("avgReps", avgReps);
-        stats.put("avgWeight", avgWeight);
-        stats.put("avgXpPerWorkout", avgXpPerWorkout);
-        stats.put("byExercise", exerciseStats);
-
-        // Generate progress over time data (grouped by week)
-        List<Map<String, Object>> progressByWeek = generateProgressByWeek(completions);
-        stats.put("progressOverTime", progressByWeek);
-
-        return stats;
+        return new ExerciseCompletionStatisticsDTO(
+                totalXp,
+                totalCompletions,
+                averageWeight,
+                favoriteExercise
+        );
     }
 
-    /**
-     * Generate weekly progress data for the user
-     */
-    private List<Map<String, Object>> generateProgressByWeek(List<ExerciseCompletionEntity> completions) {
-        // Group completions by week
-        Map<String, List<ExerciseCompletionEntity>> byWeek = new HashMap<>();
+    @Transactional(readOnly = true)
+    public ExtendedExerciseCompletionStatisticsDTO getExtendedStatsForUser(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
 
-        for (ExerciseCompletionEntity completion : completions) {
-            LocalDateTime date = completion.getCompletedAt();
-            int year = date.getYear();
-            int quarter = (date.getMonthValue() - 1) / 3 + 1;
-            int weekOfMonth = (date.getDayOfMonth() - 1) / 7 + 1;
+        List<ExerciseCompletionEntity> completions = exerciseCompletionRepository.findByUserId(userId);
 
-            String weekKey = year + "-" + quarter + "Q-" + weekOfMonth + "W";
+        if (completions.isEmpty()) {
+            return new ExtendedExerciseCompletionStatisticsDTO(
+                    0.0, null, 0, 0, 0.0, 0, 0,
+                    createEmptyWeeklyActivity(),
+                    new ArrayList<>(),
+                    new ArrayList<>()
+            );
+        }
 
-            if (!byWeek.containsKey(weekKey)) {
-                byWeek.put(weekKey, new ArrayList<>());
+        // Create a sorted list of completion dates for streak calculations
+        List<ExerciseCompletionEntity> sortedCompletions = completions.stream()
+                .sorted(Comparator.comparing(ExerciseCompletionEntity::getCompletedAt))
+                .collect(Collectors.toList());
+
+        // Basic extended stats (from original code)
+        double maxWeight = completions.stream()
+                .mapToDouble(ExerciseCompletionEntity::getWeight)
+                .max()
+                .orElse(0.0);
+
+        Map<DayOfWeek, Long> frequencyMap = completions.stream()
+                .collect(Collectors.groupingBy(
+                        c -> c.getCompletedAt().toLocalDate().getDayOfWeek(),
+                        Collectors.counting()
+                ));
+
+        String mostFrequentDay = frequencyMap.entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(entry -> entry.getKey().getDisplayName(TextStyle.FULL, new Locale("es", "ES")))
+                .orElse(null);
+
+        TreeSet<LocalDate> dates = completions.stream()
+                .map(c -> c.getCompletedAt().toLocalDate())
+                .collect(Collectors.toCollection(TreeSet::new));
+
+        // Calculate longest streak
+        int longestStreak = calculateLongestStreak(dates);
+
+        // Calculate current streak
+        int currentStreak = calculateCurrentStreak(dates);
+
+        int totalSessions = dates.size();
+
+        double averageRepsPerSet = completions.stream()
+                .mapToInt(ExerciseCompletionEntity::getReps)
+                .average()
+                .orElse(0.0);
+
+        // Calculate weekly activity
+        Map<String, Integer> weeklyActivity = calculateWeeklyActivity(completions);
+
+        // Calculate weekly goal progress (assume goal is 10 exercises per week)
+        int weeklyGoalProgress = calculateWeeklyGoalProgress(completions, 10);
+
+        // Generate weekly performance data
+        List<WeeklyPerformanceDTO> weeklyPerformance = generateWeeklyPerformanceData(completions);
+
+        // Get recent activity
+        List<RecentActivityDTO> recentActivity = getRecentActivity(completions);
+
+        return new ExtendedExerciseCompletionStatisticsDTO(
+                maxWeight,
+                mostFrequentDay,
+                longestStreak,
+                totalSessions,
+                averageRepsPerSet,
+                currentStreak,
+                weeklyGoalProgress,
+                weeklyActivity,
+                weeklyPerformance,
+                recentActivity
+        );
+    }
+
+    private int calculateLongestStreak(TreeSet<LocalDate> dates) {
+        if (dates.isEmpty()) {
+            return 0;
+        }
+
+        int longestStreak = 1;
+        int currentStreak = 1;
+        LocalDate previousDate = null;
+
+        for (LocalDate date : dates) {
+            if (previousDate != null) {
+                if (date.equals(previousDate.plusDays(1))) {
+                    currentStreak++;
+                } else if (!date.equals(previousDate)) { // Skip duplicate dates
+                    longestStreak = Math.max(longestStreak, currentStreak);
+                    currentStreak = 1;
+                }
+            }
+            previousDate = date;
+        }
+
+        // Check last streak
+        longestStreak = Math.max(longestStreak, currentStreak);
+
+        return longestStreak;
+    }
+
+    private int calculateCurrentStreak(TreeSet<LocalDate> dates) {
+        if (dates.isEmpty()) {
+            return 0;
+        }
+
+        LocalDate today = LocalDate.now();
+        LocalDate yesterday = today.minusDays(1);
+
+        // If the user worked out today, check backwards
+        if (dates.contains(today)) {
+            int streak = 1;
+            LocalDate checkDate = yesterday;
+
+            while (dates.contains(checkDate)) {
+                streak++;
+                checkDate = checkDate.minusDays(1);
             }
 
-            byWeek.get(weekKey).add(completion);
+            return streak;
         }
 
-        // Calculate stats for each week
-        List<Map<String, Object>> result = new ArrayList<>();
+        // If user worked out yesterday, check backwards
+        if (dates.contains(yesterday)) {
+            int streak = 1;
+            LocalDate checkDate = yesterday.minusDays(1);
 
-        for (Map.Entry<String, List<ExerciseCompletionEntity>> entry : byWeek.entrySet()) {
-            String weekKey = entry.getKey();
-            List<ExerciseCompletionEntity> weekCompletions = entry.getValue();
+            while (dates.contains(checkDate)) {
+                streak++;
+                checkDate = checkDate.minusDays(1);
+            }
 
-            Long xp = weekCompletions.stream().mapToLong(ExerciseCompletionEntity::getXpReward).sum();
-            int sets = weekCompletions.stream().mapToInt(ExerciseCompletionEntity::getSets).sum();
-            int reps = weekCompletions.stream().mapToInt(c -> c.getSets() * c.getReps()).sum();
-            double totalVolume = weekCompletions.stream()
-                    .mapToDouble(c -> c.getSets() * c.getReps() * c.getWeight()).sum();
-
-            Map<String, Object> weekData = new HashMap<>();
-            weekData.put("period", weekKey);
-            weekData.put("xp", xp);
-            weekData.put("sets", sets);
-            weekData.put("reps", reps);
-            weekData.put("totalVolume", totalVolume);
-            weekData.put("count", weekCompletions.size());
-
-            result.add(weekData);
+            return streak;
         }
 
-        // Sort by period
-        result.sort(Comparator.comparing(m -> (String) m.get("period")));
+        // If last workout was before yesterday, no current streak
+        return 0;
+    }
 
-        return result;
+    private Map<String, Integer> calculateWeeklyActivity(List<ExerciseCompletionEntity> completions) {
+        // Setup day names in Spanish
+        String[] dayNames = {"Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"};
+        Map<String, Integer> weeklyActivity = new LinkedHashMap<>();
+
+        // Initialize with zero counts
+        for (String day : dayNames) {
+            weeklyActivity.put(day, 0);
+        }
+
+        // Get current week's Monday and Sunday
+        LocalDate today = LocalDate.now();
+        LocalDate startOfWeek = today.with(WeekFields.of(Locale.forLanguageTag("es")).dayOfWeek(), 1);
+        LocalDate endOfWeek = startOfWeek.plusDays(6);
+
+        // Count exercises by day of week for current week
+        for (ExerciseCompletionEntity completion : completions) {
+            LocalDate completionDate = completion.getCompletedAt().toLocalDate();
+            if (!completionDate.isBefore(startOfWeek) && !completionDate.isAfter(endOfWeek)) {
+                int dayOfWeekValue = completionDate.getDayOfWeek().getValue(); // 1 = Monday, 7 = Sunday
+                String dayName = dayNames[dayOfWeekValue - 1];
+                weeklyActivity.put(dayName, weeklyActivity.getOrDefault(dayName, 0) + 1);
+            }
+        }
+
+        return weeklyActivity;
+    }
+
+    private Map<String, Integer> createEmptyWeeklyActivity() {
+        String[] dayNames = {"Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"};
+        Map<String, Integer> weeklyActivity = new LinkedHashMap<>();
+
+        for (String day : dayNames) {
+            weeklyActivity.put(day, 0);
+        }
+
+        return weeklyActivity;
+    }
+
+    private int calculateWeeklyGoalProgress(List<ExerciseCompletionEntity> completions, int weeklyGoal) {
+        // Get current week's Monday and Sunday
+        LocalDate today = LocalDate.now();
+        LocalDate startOfWeek = today.with(WeekFields.of(Locale.forLanguageTag("es")).dayOfWeek(), 1);
+        LocalDate endOfWeek = startOfWeek.plusDays(6);
+
+        // Count exercises completed this week
+        long exercisesThisWeek = completions.stream()
+                .filter(completion -> {
+                    LocalDate completionDate = completion.getCompletedAt().toLocalDate();
+                    return !completionDate.isBefore(startOfWeek) && !completionDate.isAfter(endOfWeek);
+                })
+                .count();
+
+        // Calculate progress as percentage
+        int progress = (int) Math.min(100, (exercisesThisWeek * 100) / weeklyGoal);
+        return progress;
+    }
+
+    private List<WeeklyPerformanceDTO> generateWeeklyPerformanceData(List<ExerciseCompletionEntity> completions) {
+        // Get the date 5 weeks ago
+        LocalDate today = LocalDate.now();
+        LocalDate fiveWeeksAgo = today.minusWeeks(5);
+
+        // Filter completions from the last 5 weeks
+        List<ExerciseCompletionEntity> recentCompletions = completions.stream()
+                .filter(completion -> completion.getCompletedAt().toLocalDate().isAfter(fiveWeeksAgo))
+                .collect(Collectors.toList());
+
+        // Group by week number
+        Map<Integer, List<ExerciseCompletionEntity>> weeklyCompletions = new HashMap<>();
+
+        for (ExerciseCompletionEntity completion : recentCompletions) {
+            LocalDate completionDate = completion.getCompletedAt().toLocalDate();
+            LocalDate weekStart = completionDate.with(WeekFields.of(Locale.forLanguageTag("es")).dayOfWeek(), 1);
+            int weekNumber = (int) ChronoUnit.WEEKS.between(fiveWeeksAgo, weekStart) + 1;
+
+            weeklyCompletions.computeIfAbsent(weekNumber, k -> new ArrayList<>()).add(completion);
+        }
+
+        // Calculate performance metrics for each week
+        List<WeeklyPerformanceDTO> weeklyPerformance = new ArrayList<>();
+
+        for (int i = 1; i <= 5; i++) {
+            List<ExerciseCompletionEntity> weekComps = weeklyCompletions.getOrDefault(i, Collections.emptyList());
+            String weekName = "Sem " + i;
+
+            if (weekComps.isEmpty()) {
+                // Add empty data for weeks with no completions
+                weeklyPerformance.add(new WeeklyPerformanceDTO(weekName, 0.0, 0, 0));
+            } else {
+                // Calculate average weight and reps, and total XP
+                double avgWeight = weekComps.stream()
+                        .mapToDouble(ExerciseCompletionEntity::getWeight)
+                        .average()
+                        .orElse(0.0);
+
+                int avgReps = (int) weekComps.stream()
+                        .mapToInt(ExerciseCompletionEntity::getReps)
+                        .average()
+                        .orElse(0.0);
+
+                int totalXp = weekComps.stream()
+                        .mapToInt(comp -> comp.getXpReward().intValue())
+                        .sum();
+
+                weeklyPerformance.add(new WeeklyPerformanceDTO(weekName, avgWeight, avgReps, totalXp));
+            }
+        }
+
+        return weeklyPerformance;
+    }
+
+    private List<RecentActivityDTO> getRecentActivity(List<ExerciseCompletionEntity> completions) {
+        // Get the 3 most recent exercise completions
+        return completions.stream()
+                .sorted(Comparator.comparing(ExerciseCompletionEntity::getCompletedAt).reversed())
+                .limit(3)
+                .map(completion -> new RecentActivityDTO(
+                        completion.getId(),
+                        completion.getExercise().getName(),
+                        completion.getWeight(),
+                        completion.getReps(),
+                        completion.getSets(),
+                        completion.getCompletedAt(),
+                        completion.getXpReward().intValue()
+                ))
+                .collect(Collectors.toList());
     }
 }

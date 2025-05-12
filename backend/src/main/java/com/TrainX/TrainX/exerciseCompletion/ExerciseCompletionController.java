@@ -78,14 +78,23 @@ public class ExerciseCompletionController {
         return dto;
     }
 
-    /**
-     * Get exercise completion statistics
-     */
-    @GetMapping("/stats")
-    public ResponseEntity<Map<String, Object>> getExerciseCompletionStats(
+    @GetMapping("/summary")
+    public ResponseEntity<ExerciseCompletionStatisticsDTO> getUserSummary(
             @AuthenticationPrincipal UserEntity currentUser) {
 
-        Map<String, Object> stats = exerciseCompletionService.getCompletionStats(currentUser.getId());
-        return ResponseEntity.ok(stats);
+        ExerciseCompletionStatisticsDTO statistics =
+                exerciseCompletionService.getUserSummaryStatistics(currentUser.getId());
+
+        return ResponseEntity.ok(statistics);
     }
+    @GetMapping("/extended-summary")
+    public ResponseEntity<ExtendedExerciseCompletionStatisticsDTO> getExtendedSummary(
+            @AuthenticationPrincipal UserEntity currentUser) {
+
+        ExtendedExerciseCompletionStatisticsDTO extendedStats =
+                exerciseCompletionService.getExtendedStatsForUser(currentUser.getId());
+
+        return ResponseEntity.ok(extendedStats);
+    }
+
 }
