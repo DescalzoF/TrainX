@@ -13,7 +13,6 @@ public class GymEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String name;
     private Double latitud;
     private Double longitud;

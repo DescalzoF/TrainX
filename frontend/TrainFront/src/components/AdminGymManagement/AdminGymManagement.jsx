@@ -14,6 +14,7 @@ import {
 import { IoLocationSharp } from 'react-icons/io5';
 import { HiLocationMarker } from 'react-icons/hi';
 import './AdminGymManagement.css';
+import axios from "axios";
 
 const AdminGymManagement = ({ mapInstance, updateGyms, userLocation }) => {
     const [showAddForm, setShowAddForm] = useState(false);
@@ -23,10 +24,10 @@ const AdminGymManagement = ({ mapInstance, updateGyms, userLocation }) => {
     const [formErrors, setFormErrors] = useState({});
     const [mapMarker, setMapMarker] = useState(null);
     const [ratingHover, setRatingHover] = useState(0);
-    const [previewImage, setPreviewImage] = useState('');
     const [showGymList, setShowGymList] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [selectedLocation, setSelectedLocation] = useState(null);
     useEffect(() => {
         const storedGyms = localStorage.getItem('adminGyms');
         if (storedGyms) {
@@ -38,6 +39,43 @@ const AdminGymManagement = ({ mapInstance, updateGyms, userLocation }) => {
             }
         }
     }, []);
+    // Utility functions to interact with the API
+    const addGymToDB = async (gymData) => {
+        try {
+            const token = localStorage.getItem('token'); // O el método que uses para obtener el token
+            const response = await axios.post(
+                'http://localhost:8080/api/gimnasios/add',
+                gymData,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            return response.data;
+        } catch (error) {
+            console.error('Error adding gym:', error);
+            throw error;
+        }
+    };
+
+    const updateGymInDB = async (gymId, gymData) => {
+        try {
+            const token = localStorage.getItem('token'); // O el método que uses para obtener el token
+            const response = await axios.put(`http://localhost:8080/api/gimnasios/${gymId}`, gymData, {headers: { Authorization: `Bearer ${token}`}}
+            );
+            return response.data;
+        } catch (error) {
+            console.error('Error updating gym:', error);
+            throw error;
+        }
+    };
+
+    const deleteGymFromDB = async (gymId) => {
+        try {
+            const token = localStorage.getItem('token'); // O el método que uses para obtener el token
+            await axios.delete(`http://localhost:8080/api/gimnasios/${gymId}`,{headers: { Authorization: `Bearer ${token}`}});
+        } catch (error) {
+            console.error('Error deleting gym:', error);
+            throw error;
+        }
+    }
 
     // Toggle form visibility
     const toggleAddForm = () => {
@@ -58,8 +96,6 @@ const AdminGymManagement = ({ mapInstance, updateGyms, userLocation }) => {
                 lng: userLocation ? userLocation.lng.toFixed(6) : ''
             });
             setFormErrors({});
-            setPreviewImage('');
-
             // Enable map click listener
             if (mapInstance) {
                 mapInstance.once('click', handleMapClick);
@@ -92,8 +128,6 @@ const AdminGymManagement = ({ mapInstance, updateGyms, userLocation }) => {
             lat: gym.geometry.location.lat.toFixed(6),
             lng: gym.geometry.location.lng.toFixed(6)
         });
-
-        setPreviewImage(gym.image || '');
 
         // Add marker to the map
         if (mapMarker) {
@@ -131,21 +165,29 @@ const AdminGymManagement = ({ mapInstance, updateGyms, userLocation }) => {
     };
 
     // Delete a gym
-    const deleteGym = (gymId) => {
+    const deleteGym = async (gymId) => {
         // Confirm before deleting
         if (!window.confirm('¿Estás seguro que deseas eliminar este gimnasio?')) {
             return;
         }
 
-        // Filter out the deleted gym
-        const updatedGyms = adminGyms.filter(gym => gym.place_id !== gymId);
+        try {
+            // Delete from the backend
+            await deleteGymFromDB(gymId);
 
-        // Update state and localStorage
-        setAdminGyms(updatedGyms);
-        localStorage.setItem('adminGyms', JSON.stringify(updatedGyms));
+            // Filter out the deleted gym
+            const updatedGyms = adminGyms.filter(gym => gym.place_id !== gymId);
 
-        // Update parent component
-        updateGyms(updatedGyms);
+            // Update state and localStorage
+            setAdminGyms(updatedGyms);
+            localStorage.setItem('adminGyms', JSON.stringify(updatedGyms));
+
+            // Update parent component
+            updateGyms(updatedGyms);
+        } catch (error) {
+            console.error('Failed to delete gym:', error);
+            alert('Error al eliminar el gimnasio. Intenta de nuevo más tarde.');
+        }
     };
 
     // Reverse geocode coordinates to address
@@ -370,17 +412,17 @@ const AdminGymManagement = ({ mapInstance, updateGyms, userLocation }) => {
         return Object.keys(errors).length === 0;
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (!validateForm()) {
             return;
         }
+
         const gymData = {
             name: newGym.name,
             vicinity: newGym.vicinity,
             rating: parseFloat(newGym.rating) || null,
-            user_ratings_total: 1, // Admin rating
             geometry: {
                 location: {
                     lat: parseFloat(newGym.lat),
@@ -388,56 +430,65 @@ const AdminGymManagement = ({ mapInstance, updateGyms, userLocation }) => {
                 }
             },
             isAdminAdded: true,
-            image: previewImage || null
         };
 
         let updatedGyms = [...adminGyms];
 
-        if (editingGym) {
-            // Update existing gym
-            gymData.place_id = editingGym.place_id; // Keep the same ID
+        try {
+            if (editingGym) {
+                // Update existing gym
+                gymData.place_id = editingGym.place_id; // Keep the same ID
 
-            // Find index of gym being edited
-            const gymIndex = updatedGyms.findIndex(gym => gym.place_id === editingGym.place_id);
+                // Send update to the backend
+                await updateGymInDB(gymData.place_id, gymData);
 
-            if (gymIndex !== -1) {
-                updatedGyms[gymIndex] = gymData;
+                // Find index of gym being edited
+                const gymIndex = updatedGyms.findIndex(gym => gym.place_id === editingGym.place_id);
+
+                if (gymIndex !== -1) {
+                    updatedGyms[gymIndex] = gymData;
+                }
+
+                setEditingGym(null); // Clear editing state
+            } else {
+                // Add new gym
+                gymData.place_id = `admin-${Date.now()}`; // Generate unique ID
+                await addGymToDB(gymData);
+
+                updatedGyms.push(gymData);
             }
 
-            setEditingGym(null); // Clear editing state
-        } else {
-            // Create new gym
-            gymData.place_id = `admin-${Date.now()}`; // Generate unique ID
-            updatedGyms.push(gymData);
-        }
+            // Update state
+            setAdminGyms(updatedGyms);
 
-        // Update state
-        setAdminGyms(updatedGyms);
+            // Save to localStorage
+            localStorage.setItem('adminGyms', JSON.stringify(updatedGyms));
 
-        // Save to localStorage
-        localStorage.setItem('adminGyms', JSON.stringify(updatedGyms));
+            // Update parent component
+            updateGyms(updatedGyms);
 
-        // Update parent component
-        updateGyms(updatedGyms);
+            // Reset form and close
+            setNewGym({
+                name: '',
+                vicinity: '',
+                rating: 0,
+                lat: '',
+                lng: ''
+            });
 
-        // Reset form and close
-        setNewGym({
-            name: '',
-            vicinity: '',
-            rating: 0,
-            lat: '',
-            lng: ''
-        });
+            setShowAddForm(false);
 
-        setShowAddForm(false);
-        setPreviewImage('');
-
-        // Remove marker
-        if (mapMarker) {
-            mapMarker.remove();
-            setMapMarker(null);
+            // Remove marker
+            if (mapMarker) {
+                mapMarker.remove();
+                setMapMarker(null);
+            }
+        } catch (error) {
+            console.error('Failed to save gym:', error);
+            alert('Error al guardar el gimnasio. Intenta de nuevo más tarde.');
         }
     };
+
 
     // Render gym list
     const renderGymList = () => {

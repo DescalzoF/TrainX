@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 @RestController
 @RequestMapping("/api/gimnasios")
-@CrossOrigin(origins = "*") // For development - restrict in production
 public class GymController {
 
     private final GymService gymService;
@@ -18,14 +17,14 @@ public class GymController {
     }
 
     // Create new gym
-    @PostMapping
+    @PostMapping("/add")
     public ResponseEntity<GymDTO> createGym(@RequestBody GymDTO gymDTO) {
         GymDTO createdGym = gymService.createGym(gymDTO);
         return new ResponseEntity<>(createdGym, HttpStatus.CREATED);
     }
 
     // Get all gyms
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<List<GymDTO>> getAllGyms() {
         List<GymDTO> gyms = gymService.getAllGyms();
         return new ResponseEntity<>(gyms, HttpStatus.OK);
