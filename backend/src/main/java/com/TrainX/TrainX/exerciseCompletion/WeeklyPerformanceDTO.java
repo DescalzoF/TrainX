@@ -11,7 +11,7 @@ import lombok.Setter;
 @Setter
 public class WeeklyPerformanceDTO {
     private String name; // Week identifier (e.g., "Sem 1")
-    private Double weight; // Average weight for the week
-    private Integer reps; // Average reps for the week
+    private Double totalWeight; // Average weight for the week
+    private Integer totalReps; // Average reps for the week
     private Integer xp; // Total XP earned during the week
 }

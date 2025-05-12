@@ -317,22 +317,34 @@ public class ExerciseCompletionService {
     }
 
     private List<WeeklyPerformanceDTO> generateWeeklyPerformanceData(List<ExerciseCompletionEntity> completions) {
-        // Get the date 5 weeks ago
+        // Get the date of the most recent completion
         LocalDate today = LocalDate.now();
-        LocalDate fiveWeeksAgo = today.minusWeeks(5);
+        LocalDate mostRecentDate = completions.stream()
+                .map(comp -> comp.getCompletedAt().toLocalDate())
+                .max(LocalDate::compareTo)
+                .orElse(today);
 
-        // Filter completions from the last 5 weeks
+        // Calculate the start of the most recent week
+        LocalDate weekStart = mostRecentDate.with(WeekFields.of(Locale.forLanguageTag("es")).dayOfWeek(), 1);
+        LocalDate fourWeeksAgo = weekStart.minusWeeks(3);
+
+        // Filter completions from the last 4 weeks
         List<ExerciseCompletionEntity> recentCompletions = completions.stream()
-                .filter(completion -> completion.getCompletedAt().toLocalDate().isAfter(fiveWeeksAgo))
+                .filter(completion -> {
+                    LocalDate completionDate = completion.getCompletedAt().toLocalDate();
+                    return !completionDate.isBefore(fourWeeksAgo) && !completionDate.isAfter(weekStart.plusWeeks(3));
+                })
                 .collect(Collectors.toList());
 
         // Group by week number
-        Map<Integer, List<ExerciseCompletionEntity>> weeklyCompletions = new HashMap<>();
+        Map<Integer, List<ExerciseCompletionEntity>> weeklyCompletions = new LinkedHashMap<>();
 
         for (ExerciseCompletionEntity completion : recentCompletions) {
             LocalDate completionDate = completion.getCompletedAt().toLocalDate();
-            LocalDate weekStart = completionDate.with(WeekFields.of(Locale.forLanguageTag("es")).dayOfWeek(), 1);
-            int weekNumber = (int) ChronoUnit.WEEKS.between(fiveWeeksAgo, weekStart) + 1;
+            LocalDate completionWeekStart = completionDate.with(WeekFields.of(Locale.forLanguageTag("es")).dayOfWeek(), 1);
+
+            // Calculate weeks relative to the most recent week's start
+            int weekNumber = (int) ChronoUnit.WEEKS.between(fourWeeksAgo, completionWeekStart) + 1;
 
             weeklyCompletions.computeIfAbsent(weekNumber, k -> new ArrayList<>()).add(completion);
         }
@@ -340,7 +352,7 @@ public class ExerciseCompletionService {
         // Calculate performance metrics for each week
         List<WeeklyPerformanceDTO> weeklyPerformance = new ArrayList<>();
 
-        for (int i = 1; i <= 5; i++) {
+        for (int i = 1; i <= 4; i++) {
             List<ExerciseCompletionEntity> weekComps = weeklyCompletions.getOrDefault(i, Collections.emptyList());
             String weekName = "Sem " + i;
 
@@ -348,22 +360,20 @@ public class ExerciseCompletionService {
                 // Add empty data for weeks with no completions
                 weeklyPerformance.add(new WeeklyPerformanceDTO(weekName, 0.0, 0, 0));
             } else {
-                // Calculate average weight and reps, and total XP
-                double avgWeight = weekComps.stream()
-                        .mapToDouble(ExerciseCompletionEntity::getWeight)
-                        .average()
-                        .orElse(0.0);
+                // Calculate total weight and reps, and total XP
+                double totalWeight = weekComps.stream()
+                        .mapToDouble(comp -> comp.getWeight() * comp.getSets() * comp.getReps())
+                        .sum();
 
-                int avgReps = (int) weekComps.stream()
-                        .mapToInt(ExerciseCompletionEntity::getReps)
-                        .average()
-                        .orElse(0.0);
+                int totalReps = weekComps.stream()
+                        .mapToInt(comp -> comp.getReps() * comp.getSets())
+                        .sum();
 
                 int totalXp = weekComps.stream()
                         .mapToInt(comp -> comp.getXpReward().intValue())
                         .sum();
 
-                weeklyPerformance.add(new WeeklyPerformanceDTO(weekName, avgWeight, avgReps, totalXp));
+                weeklyPerformance.add(new WeeklyPerformanceDTO(weekName, totalWeight, totalReps, totalXp));
             }
         }
 

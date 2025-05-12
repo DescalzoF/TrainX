@@ -102,10 +102,10 @@ const Progress = () => {
                 if (extendedData.weeklyPerformance) {
                     // Ensure each entry has proper number formatting
                     const formattedPerformance = (extendedData.weeklyPerformance || []).map(week => ({
-                        name: week.name, // Updated from weekName to name as per backend DTO
-                        weight: Number(week.weight || 0), // Updated from avgWeight to weight as per backend DTO
-                        reps: Number(week.reps || 0), // Updated from avgReps to reps as per backend DTO
-                        xp: Number(week.xp || 0) // Updated from totalXp to xp as per backend DTO
+                        name: week.name,
+                        totalWeight: Number(week.totalWeight || 0),
+                        totalReps: Number(week.totalReps || 0),
+                        xp: Number(week.xp || 0)
                     }));
                     setWeeklyPerformance(formattedPerformance);
                 }
@@ -318,13 +318,38 @@ const Progress = () => {
                         <ResponsiveContainer width="100%" height={300} className="performance-chart">
                             <LineChart data={weeklyPerformance} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                                 <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="name" />
-                                <YAxis yAxisId="left" orientation="left" stroke="#8884d8" />
-                                <YAxis yAxisId="right" orientation="right" stroke="#82ca9d" />
-                                <Tooltip />
+                                <XAxis dataKey="name" stroke= "black"  />
+                                <YAxis yAxisId="left" orientation="left" stroke="black" label={{ value: 'Peso Total', angle: -90, position: 'insideLeft', stroke: 'black' }} />
+                                <YAxis yAxisId="right" orientation="right" stroke="black" label={{ value: 'Repeticiones', angle: 90, position: 'insideRight', stroke: 'black'  }} />
+                                <Tooltip
+                                    formatter={(value, name, props) => {
+                                        // Custom tooltip to show more details
+                                        switch(name) {
+                                            case 'totalWeight':
+                                                return [`${value.toFixed(2)} kg`, 'Peso Total'];
+                                            case 'totalReps':
+                                                return [`${value}`, 'Repeticiones Totales'];
+                                            default:
+                                                return value;
+                                        }
+                                    }}
+                                />
                                 <Legend />
-                                <Line yAxisId="left" type="monotone" dataKey="weight" stroke="#8884d8" name="Peso (kg)" activeDot={{ r: 8 }} />
-                                <Line yAxisId="right" type="monotone" dataKey="reps" stroke="#82ca9d" name="Repeticiones" />
+                                <Line
+                                    yAxisId="left"
+                                    type="monotone"
+                                    dataKey="totalWeight"
+                                    stroke="#0070f3"
+                                    name="Peso Total (kg)"
+                                    activeDot={{ r: 8 }}
+                                />
+                                <Line
+                                    yAxisId="right"
+                                    type="monotone"
+                                    dataKey="totalReps"
+                                    stroke="gray"
+                                    name="Repeticiones Totales"
+                                />
                             </LineChart>
                         </ResponsiveContainer>
                     ) : (
