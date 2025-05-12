@@ -39,6 +39,13 @@ const Progress = () => {
         weeklyGoalProgress: 0
     });
 
+    // Photo upload state
+    // Photo upload state
+    const [photos, setPhotos] = useState([null, null, null, null, null]);
+    const [previews, setPreviews] = useState([null, null, null, null, null]);
+    const [existingPhotos, setExistingPhotos] = useState([null, null, null, null, null]);
+    const [uploading, setUploading] = useState(false);
+
     // State for real data from API
     const [weeklyActivity, setWeeklyActivity] = useState({});
     const [weeklyPerformance, setWeeklyPerformance] = useState([]);
@@ -55,26 +62,14 @@ const Progress = () => {
                 setLoading(false);
                 return;
             }
-
             try {
-                // Using only the two original endpoints
-                // Fetch basic stats
-                const basicStatsPromise = axios.get('http://localhost:8080/api/exercise-completions/summary', {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                });
+                const basicStatsPromise = axios.get('http://localhost:8080/api/exercise-completions/summary', { headers: { Authorization: `Bearer ${token}` } });
+                const extendedStatsPromise = axios.get('http://localhost:8080/api/exercise-completions/extended-summary', { headers: { Authorization: `Bearer ${token}` } });
+                const photosPromise = axios.get('http://localhost:8080/api/progress/me', { headers: { Authorization: `Bearer ${token}` } });
 
-                // Fetch extended stats
-                const extendedStatsPromise = axios.get('http://localhost:8080/api/exercise-completions/extended-summary', {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                });
+                const [basicRes, extendedRes, photoRes] = await Promise.all([basicStatsPromise, extendedStatsPromise, photosPromise]);
 
-                // Wait for both requests to complete
-                const [basicRes, extendedRes] = await Promise.all([basicStatsPromise, extendedStatsPromise]);
-
+                // Basic stats
                 const basicData = basicRes.data || {};
                 setStats({
                     totalXp: Number(basicData.totalXp || 0),
@@ -83,42 +78,42 @@ const Progress = () => {
                     averageWeight: Number(basicData.averageWeight || 0)
                 });
 
-                const extendedData = extendedRes.data || {};
+                // Extended stats
+                const ext = extendedRes.data || {};
                 setExtendedStats({
-                    maxWeightLifted: Number(extendedData.maxWeightLifted || 0),
-                    mostFrequentDay: extendedData.mostFrequentDay || 'No disponible',
-                    longestStreak: Number(extendedData.longestStreak || 0),
-                    totalSessions: Number(extendedData.totalSessions || 0),
-                    averageRepsPerSet: Number(extendedData.averageRepsPerSet || 0),
-                    currentStreak: Number(extendedData.currentStreak || 0),
-                    weeklyGoalProgress: Number(extendedData.weeklyGoalProgress || 0)
+                    maxWeightLifted: Number(ext.maxWeightLifted || 0),
+                    mostFrequentDay: ext.mostFrequentDay || 'No disponible',
+                    longestStreak: Number(ext.longestStreak || 0),
+                    totalSessions: Number(ext.totalSessions || 0),
+                    averageRepsPerSet: Number(ext.averageRepsPerSet || 0),
+                    currentStreak: Number(ext.currentStreak || 0),
+                    weeklyGoalProgress: Number(ext.weeklyGoalProgress || 0)
                 });
 
-                // Set real data for visualizations from extended stats
-                if (extendedData.weeklyActivity) {
-                    setWeeklyActivity(extendedData.weeklyActivity || {});
+                // Charts data
+                if (ext.weeklyActivity) setWeeklyActivity(ext.weeklyActivity);
+                if (ext.weeklyPerformance) {
+                    setWeeklyPerformance(ext.weeklyPerformance.map(w => ({
+                        name: w.name,
+                        totalWeight: Number(w.totalWeight || 0),
+                        totalReps: Number(w.totalReps || 0),
+                        xp: Number(w.xp || 0)
+                    })));
                 }
+                if (ext.recentActivity) setRecentActivity(ext.recentActivity);
 
-                if (extendedData.weeklyPerformance) {
-                    // Ensure each entry has proper number formatting
-                    const formattedPerformance = (extendedData.weeklyPerformance || []).map(week => ({
-                        name: week.name,
-                        totalWeight: Number(week.totalWeight || 0),
-                        totalReps: Number(week.totalReps || 0),
-                        xp: Number(week.xp || 0)
-                    }));
-                    setWeeklyPerformance(formattedPerformance);
-                }
-
-                if (extendedData.recentActivity) {
-                    setRecentActivity(extendedData.recentActivity || []);
-                }
-
-                console.log("Weekly Performance Data:", extendedData.weeklyPerformance);
-                console.log("Recent Activity Data:", extendedData.recentActivity);
+                // Existing photos
+                const dto = photoRes.data || {};
+                setExistingPhotos([
+                    dto.photoOne,
+                    dto.photoTwo,
+                    dto.photoThree,
+                    dto.photoFour,
+                    dto.photoFive
+                ]);
 
             } catch (err) {
-                console.error('Error al obtener estadísticas:', err);
+                console.error('Error loading progress:', err);
                 setError('No se pudieron cargar las estadísticas.');
             } finally {
                 setLoading(false);
@@ -127,6 +122,52 @@ const Progress = () => {
 
         fetchData();
     }, []);
+
+    // Handle file selection
+    const handlePhotoChange = (index, file) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            const newPreviews = [...previews];
+            newPreviews[index] = reader.result;
+            setPreviews(newPreviews);
+
+            const newPhotos = [...photos];
+            newPhotos[index] = reader.result;
+            setPhotos(newPhotos);
+        };
+        if (file) reader.readAsDataURL(file);
+    };
+
+    // Submit photos to backend
+    const submitPhotos = async () => {
+        setUploading(true);
+        const token = localStorage.getItem('token');
+        const dto = {
+            photoOne: photos[0] || existingPhotos[0] || null,
+            photoTwo: photos[1] || existingPhotos[1] || null,
+            photoThree: photos[2] || existingPhotos[2] || null,
+            photoFour: photos[3] || existingPhotos[3] || null,
+            photoFive: photos[4] || existingPhotos[4] || null
+        };
+        try {
+            const res = await axios.put('http://localhost:8080/api/progress/update', dto, { headers: { Authorization: `Bearer ${token}` } });
+            const updated = res.data || {};
+            setExistingPhotos([
+                updated.photoOne,
+                updated.photoTwo,
+                updated.photoThree,
+                updated.photoFour,
+                updated.photoFive
+            ]);
+            setPhotos([null, null, null, null, null]);
+            setPreviews([null, null, null, null, null]);
+        } catch (err) {
+            console.error('Error updating photos:', err);
+            setError('Error al guardar las fotos.');
+        } finally {
+            setUploading(false);
+        }
+    };
 
     // Get today's day index (0 = Monday, 6 = Sunday)
     const getTodayIndex = () => {
@@ -411,6 +452,29 @@ const Progress = () => {
                     )}
                 </div>
             </div>
+            <section className="photo-upload-section">
+                <h2>Subir Fotos de Progreso</h2>
+                <div className="photo-grid">
+                    {existingPhotos.map((url, idx) => (
+                        <div key={idx} className="photo-slot">
+                            {previews[idx]
+                                ? <img src={previews[idx]} alt={`Vista previa ${idx+1}`} />
+                                : url
+                                    ? <img src={url} alt={`Progreso ${idx+1}`} />
+                                    : <div className="placeholder">No hay foto</div>
+                            }
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={e => handlePhotoChange(idx, e.target.files[0])}
+                            />
+                        </div>
+                    ))}
+                </div>
+                <button onClick={submitPhotos} disabled={uploading} className="upload-button">
+                    {uploading ? 'Subiendo...' : 'Guardar Fotos'}
+                </button>
+            </section>
         </div>
     );
 };
