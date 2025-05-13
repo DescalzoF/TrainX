@@ -16,6 +16,19 @@ import { HiLocationMarker } from 'react-icons/hi';
 import './AdminGymManagement.css';
 import axios from "axios";
 
+const GymApiServiceMethods = {
+    convertToDTO: (gymData) => {
+        return {
+            id: gymData.id || null,
+            name: gymData.name,
+            latitud: gymData.geometry.location.lat,
+            longitud: gymData.geometry.location.lng,
+            calificacion: Math.round(gymData.rating) || 0,
+            direccion: gymData.vicinity
+        };
+    }
+};
+
 const AdminGymManagement = ({ mapInstance, updateGyms, userLocation }) => {
     const [showAddForm, setShowAddForm] = useState(false);
     const [editingGym, setEditingGym] = useState(null);
@@ -28,24 +41,53 @@ const AdminGymManagement = ({ mapInstance, updateGyms, userLocation }) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [selectedLocation, setSelectedLocation] = useState(null);
+
+    // Load gyms from backend on component mount
     useEffect(() => {
-        const storedGyms = localStorage.getItem('adminGyms');
-        if (storedGyms) {
-            try {
-                const parsedGyms = JSON.parse(storedGyms);
-                setAdminGyms(parsedGyms);
-            } catch (error) {
-                console.error("Failed to parse stored gyms:", error);
-            }
-        }
+        fetchGymsFromBackend();
     }, []);
-    // Utility functions to interact with the API
+
+    // Fetch all gyms from backend
+    const fetchGymsFromBackend = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.get(
+                'http://localhost:8080/api/gimnasios/all',
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            // Convert backend DTOs to the format expected by the component
+            const formattedGyms = response.data.map(gymDTO => ({
+                id: gymDTO.id,
+                name: gymDTO.name,
+                vicinity: gymDTO.direccion,
+                rating: gymDTO.calificacion,
+                geometry: {
+                    location: {
+                        lat: gymDTO.latitud,
+                        lng: gymDTO.longitud
+                    }
+                },
+                isAdminAdded: true
+            }));
+
+            setAdminGyms(formattedGyms);
+            // Update parent component
+            updateGyms(formattedGyms);
+        } catch (error) {
+            console.error('Error fetching gyms:', error);
+            setError('Error al cargar los gimnasios. Intenta de nuevo más tarde.');
+        }
+    };
+
     const addGymToDB = async (gymData) => {
         try {
-            const token = localStorage.getItem('token'); // O el método que uses para obtener el token
+            const token = localStorage.getItem('token');
+            const gymDTO = GymApiServiceMethods.convertToDTO(gymData);
+
             const response = await axios.post(
                 'http://localhost:8080/api/gimnasios/add',
-                gymData,
+                gymDTO,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
             return response.data;
@@ -57,8 +99,13 @@ const AdminGymManagement = ({ mapInstance, updateGyms, userLocation }) => {
 
     const updateGymInDB = async (gymId, gymData) => {
         try {
-            const token = localStorage.getItem('token'); // O el método que uses para obtener el token
-            const response = await axios.put(`http://localhost:8080/api/gimnasios/${gymId}`, gymData, {headers: { Authorization: `Bearer ${token}`}}
+            const token = localStorage.getItem('token');
+            const gymDTO = GymApiServiceMethods.convertToDTO(gymData);
+
+            const response = await axios.put(
+                `http://localhost:8080/api/gimnasios/${gymId}`,
+                gymDTO,
+                { headers: { Authorization: `Bearer ${token}` } }
             );
             return response.data;
         } catch (error) {
@@ -69,8 +116,11 @@ const AdminGymManagement = ({ mapInstance, updateGyms, userLocation }) => {
 
     const deleteGymFromDB = async (gymId) => {
         try {
-            const token = localStorage.getItem('token'); // O el método que uses para obtener el token
-            await axios.delete(`http://localhost:8080/api/gimnasios/${gymId}`,{headers: { Authorization: `Bearer ${token}`}});
+            const token = localStorage.getItem('token');
+            await axios.delete(
+                `http://localhost:8080/api/gimnasios/delete/${gymId}`,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
         } catch (error) {
             console.error('Error deleting gym:', error);
             throw error;
@@ -176,11 +226,10 @@ const AdminGymManagement = ({ mapInstance, updateGyms, userLocation }) => {
             await deleteGymFromDB(gymId);
 
             // Filter out the deleted gym
-            const updatedGyms = adminGyms.filter(gym => gym.place_id !== gymId);
+            const updatedGyms = adminGyms.filter(gym => gym.id !== gymId);
 
-            // Update state and localStorage
+            // Update state
             setAdminGyms(updatedGyms);
-            localStorage.setItem('adminGyms', JSON.stringify(updatedGyms));
 
             // Update parent component
             updateGyms(updatedGyms);
@@ -192,8 +241,6 @@ const AdminGymManagement = ({ mapInstance, updateGyms, userLocation }) => {
 
     // Reverse geocode coordinates to address
     const reverseGeocode = async (lat, lng) => {
-        // Implement a reverse geocoding function or use a service like Nominatim
-        // This is a placeholder for the actual implementation
         try {
             const response = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`);
             const data = await response.json();
@@ -274,7 +321,7 @@ const AdminGymManagement = ({ mapInstance, updateGyms, userLocation }) => {
         }
     };
 
-    // Handler for location button click - Updated with the new implementation
+    // Handler for location button click
     const useCurrentLocation = () => {
         setLoading(true);
         setError(null);
@@ -432,40 +479,59 @@ const AdminGymManagement = ({ mapInstance, updateGyms, userLocation }) => {
             isAdminAdded: true,
         };
 
-        let updatedGyms = [...adminGyms];
-
         try {
             if (editingGym) {
-                // Update existing gym
-                gymData.place_id = editingGym.place_id; // Keep the same ID
+                // Update existing gym - use ID from backend
+                gymData.id = editingGym.id;
 
                 // Send update to the backend
-                await updateGymInDB(gymData.place_id, gymData);
+                const updatedGymDTO = await updateGymInDB(gymData.id, gymData);
 
-                // Find index of gym being edited
-                const gymIndex = updatedGyms.findIndex(gym => gym.place_id === editingGym.place_id);
+                // Convert the response DTO back to our format
+                const updatedGym = {
+                    ...gymData,
+                    id: updatedGymDTO.id,
+                    vicinity: updatedGymDTO.direccion,
+                    geometry: {
+                        location: {
+                            lat: updatedGymDTO.latitud,
+                            lng: updatedGymDTO.longitud
+                        }
+                    },
+                    rating: updatedGymDTO.calificacion
+                };
 
-                if (gymIndex !== -1) {
-                    updatedGyms[gymIndex] = gymData;
-                }
+                // Update the gym in the list
+                const updatedGyms = adminGyms.map(gym =>
+                    gym.id === updatedGym.id ? updatedGym : gym
+                );
 
+                setAdminGyms(updatedGyms);
+                updateGyms(updatedGyms);
                 setEditingGym(null); // Clear editing state
             } else {
-                // Add new gym
-                gymData.place_id = `admin-${Date.now()}`; // Generate unique ID
-                await addGymToDB(gymData);
+                // Add new gym - the backend will assign an ID
+                const newGymDTO = await addGymToDB(gymData);
 
-                updatedGyms.push(gymData);
+                // Convert the response DTO back to our format
+                const newGymWithId = {
+                    ...gymData,
+                    id: newGymDTO.id,
+                    vicinity: newGymDTO.direccion,
+                    geometry: {
+                        location: {
+                            lat: newGymDTO.latitud,
+                            lng: newGymDTO.longitud
+                        }
+                    },
+                    rating: newGymDTO.calificacion
+                };
+
+                // Add the new gym to the list
+                const updatedGyms = [...adminGyms, newGymWithId];
+                setAdminGyms(updatedGyms);
+                updateGyms(updatedGyms);
             }
-
-            // Update state
-            setAdminGyms(updatedGyms);
-
-            // Save to localStorage
-            localStorage.setItem('adminGyms', JSON.stringify(updatedGyms));
-
-            // Update parent component
-            updateGyms(updatedGyms);
 
             // Reset form and close
             setNewGym({
@@ -489,7 +555,6 @@ const AdminGymManagement = ({ mapInstance, updateGyms, userLocation }) => {
         }
     };
 
-
     // Render gym list
     const renderGymList = () => {
         if (!showGymList || adminGyms.length === 0) {
@@ -506,7 +571,7 @@ const AdminGymManagement = ({ mapInstance, updateGyms, userLocation }) => {
                 </div>
                 <div className="admin-gym-items">
                     {adminGyms.map(gym => (
-                        <div key={gym.place_id} className="admin-gym-item">
+                        <div key={gym.id} className="admin-gym-item">
                             <div className="gym-details">
                                 {gym.image && (
                                     <div className="gym-image-thumbnail">
@@ -546,7 +611,7 @@ const AdminGymManagement = ({ mapInstance, updateGyms, userLocation }) => {
                                 </button>
                                 <button
                                     className="delete-gym-button"
-                                    onClick={() => deleteGym(gym.place_id)}
+                                    onClick={() => deleteGym(gym.id)}
                                     title="Eliminar gimnasio"
                                 >
                                     <FaTrash />

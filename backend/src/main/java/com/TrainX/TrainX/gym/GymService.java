@@ -17,16 +17,15 @@ public class GymService {
         this.gymRepository = gymRepository;
     }
 
-    // Convert Entity to DTO
     private GymDTO convertToDTO(GymEntity gymEntity) {
-        return new GymDTO(
-                gymEntity.getId(),
-                gymEntity.getName(),
-                gymEntity.getLatitud(),
-                gymEntity.getLongitud(),
-                gymEntity.getCalificacion(),
-                gymEntity.getDireccion()
-        );
+        GymDTO gymDTO = new GymDTO();
+        gymDTO.setId(gymEntity.getId());
+        gymDTO.setName(gymEntity.getName());
+        gymDTO.setLatitud(gymEntity.getLatitud());
+        gymDTO.setLongitud(gymEntity.getLongitud());
+        gymDTO.setCalificacion(gymEntity.getCalificacion());
+        gymDTO.setDireccion(gymEntity.getDireccion());
+        return gymDTO;
     }
 
     // Convert DTO to Entity

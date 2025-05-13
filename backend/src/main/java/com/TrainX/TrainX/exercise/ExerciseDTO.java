@@ -19,7 +19,6 @@ public class ExerciseDTO {
     private String videoUrl;
     private Long xpFitnessReward;
 
-    // Additional constructor for backward compatibility
     public ExerciseDTO(String name, String description, String muscleGroup,
                        Integer sets, Integer reps, String videoUrl, Long xpFitnessReward) {
         this.name = name;

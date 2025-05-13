@@ -23,13 +23,4 @@ public class GymDTO {
         this.calificacion = calificacion;
         this.direccion = direccion;
     }
-
-    public GymDTO(Long id, String name, Double latitud, Double longitud, Integer calificacion, String direccion) {
-        this.id = id;
-        this.name = name;
-        this.latitud = latitud;
-        this.longitud = longitud;
-        this.calificacion = calificacion;
-        this.direccion = direccion;
-    }
 }

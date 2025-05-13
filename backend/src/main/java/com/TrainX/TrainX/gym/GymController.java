@@ -49,7 +49,7 @@ public class GymController {
     }
 
     // Delete gym
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteGym(@PathVariable Long id) {
         gymService.deleteGym(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

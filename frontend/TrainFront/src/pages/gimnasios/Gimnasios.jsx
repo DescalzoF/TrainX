@@ -5,12 +5,9 @@ import './Gimnasios.css';
 import { FaSearch, FaMapMarkerAlt, FaStar } from 'react-icons/fa';
 import AdminGymManagement from '../../components/AdminGymManagement/AdminGymManagement.jsx';
 import AdminToggleButton from '../../components/AdminToggleButton/AdminToggleButton.jsx';
-
-// Using the updated WavyText component you provided
 const WavyText = ({ text, replay = true }) => {
     const [animation, setAnimation] = useState(true);
 
-    // Create animation loop effect
     useEffect(() => {
         if (replay) {
             const interval = setInterval(() => {
@@ -86,6 +83,44 @@ const Gimnasios = () => {
             }
         }
     }, []);
+
+    // Load gyms from backend on component mount
+    useEffect(() => {
+        fetchGymsFromBackend();
+    }, []);
+
+    // Fetch all gyms from backend
+    const fetchGymsFromBackend = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.get(
+                'http://localhost:8080/api/gimnasios/all',
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            // Convert backend DTOs to the format expected by the component
+            const formattedGyms = response.data.map(gymDTO => ({
+                id: gymDTO.id,
+                name: gymDTO.name,
+                vicinity: gymDTO.direccion,
+                rating: gymDTO.calificacion,
+                geometry: {
+                    location: {
+                        lat: gymDTO.latitud,
+                        lng: gymDTO.longitud
+                    }
+                },
+                isAdminAdded: true
+            }));
+
+            setAdminGyms(formattedGyms);
+            // Update parent component
+            updateGyms(formattedGyms);
+        } catch (error) {
+            console.error('Error fetching gyms:', error);
+            setError('Error al cargar los gimnasios. Intenta de nuevo más tarde.');
+        }
+    };
 
     // Check user role using the endpoint
     const checkUserRole = async () => {
