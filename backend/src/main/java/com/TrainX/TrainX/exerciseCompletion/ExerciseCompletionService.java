@@ -193,6 +193,20 @@ public class ExerciseCompletionService {
         );
     }
 
+    @Transactional(readOnly = true)
+    public ExerciseCompletionEntity getLatestExerciseCompletion(Long userId, Long exerciseId) {
+        if (!userRepository.existsById(userId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+
+        if (!exerciseRepository.existsById(exerciseId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Exercise not found");
+        }
+
+        return exerciseCompletionRepository.findTopByUserIdAndExerciseIdOrderByCompletedAtDesc(userId, exerciseId)
+                .orElse(null);
+    }
+
     private int calculateLongestStreak(TreeSet<LocalDate> dates) {
         if (dates.isEmpty()) {
             return 0;

@@ -17,6 +17,8 @@ const ExerciseView = () => {
     const [justCompletedId, setJustCompletedId] = useState(null);
     const [exerciseInputs, setExerciseInputs] = useState({});
     const [showResetModal, setShowResetModal] = useState(false);
+    const [latestCompletions, setLatestCompletions] = useState({});
+    const [loadingCompletions, setLoadingCompletions] = useState(true);
 
     const { currentUser } = useAuth();
     const { updateXP, refreshXP } = useXP();
@@ -38,6 +40,7 @@ const ExerciseView = () => {
         setError(null);
         setJustCompletedId(null);
         setExerciseInputs({});
+        setLatestCompletions({});
 
         if (!currentUser?.id) {
             setLoading(false);
@@ -45,6 +48,7 @@ const ExerciseView = () => {
         }
 
         setLoading(true);
+        setLoadingCompletions(true);
         refreshXP();
         fetchUserData();
     }, [currentUser, refreshXP]);
@@ -77,7 +81,6 @@ const ExerciseView = () => {
                 if (response.data && typeof response.data === 'object') {
                     setUserDetails(response.data);
                     await fetchExercises(response.data.caminoFitnessId, response.data.levelId, axiosConfig);
-                    await fetchCompletedExercises(axiosConfig, response.data.userId || currentUser.id);
                 } else {
                     throw new Error("Formato de respuesta inválido");
                 }
@@ -91,7 +94,6 @@ const ExerciseView = () => {
                     };
                     setUserDetails(fallback);
                     await fetchExercises(caminoFitnessId, levelId, axiosConfig);
-                    await fetchCompletedExercises(axiosConfig, currentUser.id);
                 } else {
                     throw new Error("No se pudo obtener la información del camino fitness y nivel.");
                 }
@@ -130,35 +132,63 @@ const ExerciseView = () => {
                 };
             });
             setExerciseInputs(inputs);
+
+            // Now fetch the latest completions for each exercise
+            await fetchLatestCompletions(enriched, axiosConfig);
         } else {
             console.warn("La respuesta de ejercicios no es un array:", response.data);
             setExercises([]);
+            setLoadingCompletions(false);
         }
         setLoading(false);
     };
 
-    const fetchCompletedExercises = async (axiosConfig, userId) => {
-        if (!userId) {
-            console.warn("No userId para completedExercises");
-            setCompletedExerciseIds({});
-            return;
-        }
+    // New function to fetch the latest completion data for all exercises
+    const fetchLatestCompletions = async (exercisesList, axiosConfig) => {
         try {
-            const response = await axios.get(
-                `http://localhost:8080/api/exercises/userId=${userId}`,
-                axiosConfig
-            );
-            if (Array.isArray(response.data)) {
-                // Create a fresh object for each API response
-                const map = {};
-                response.data.forEach(id => { map[String(id)] = true; });
-                setCompletedExerciseIds(map);
-            } else {
-                setCompletedExerciseIds({});
-            }
-        } catch (err) {
-            console.warn("Error fetching completedExercises:", err);
-            setCompletedExerciseIds({});
+            const completionsData = {};
+
+            // Create an array of promises for all fetch requests
+            const fetchPromises = exercisesList.map(async (exercise) => {
+                try {
+                    const id = String(exercise.id);
+                    const response = await axios.get(
+                        `http://localhost:8080/api/exercise-completions/latest/${id}`,
+                        axiosConfig
+                    );
+
+                    // If we get a successful response with data
+                    if (response.status === 200 && response.data) {
+                        completionsData[id] = response.data;
+                    }
+                } catch (error) {
+                    // If 204 No Content or other error, we just don't update that exercise
+                    console.warn(`No previous completion found for exercise ${exercise.id}`);
+                }
+            });
+
+            // Wait for all requests to complete
+            await Promise.all(fetchPromises);
+
+            // Update state with the gathered data
+            setLatestCompletions(completionsData);
+
+            // Update exercise inputs with latest completion data where available
+            const updatedInputs = {...exerciseInputs};
+
+            Object.entries(completionsData).forEach(([id, completion]) => {
+                updatedInputs[id] = {
+                    sets: completion.sets,
+                    reps: completion.reps,
+                    weight: completion.weight || 0
+                };
+            });
+
+            setExerciseInputs(updatedInputs);
+        } catch (error) {
+            console.error("Error fetching latest completions:", error);
+        } finally {
+            setLoadingCompletions(false);
         }
     };
 
@@ -242,6 +272,17 @@ const ExerciseView = () => {
             updateXP(earnedXp);
             refreshXP();
 
+            // Update the latest completion data for this exercise
+            setLatestCompletions(prev => ({
+                ...prev,
+                [id]: {
+                    ...response.data,
+                    sets,
+                    reps,
+                    weight
+                }
+            }));
+
             console.log("Exercise completion recorded:", response.data);
         } catch (err) {
             console.error('Error al completar el ejercicio:', err);
@@ -282,6 +323,7 @@ const ExerciseView = () => {
             setError(`Error en la solicitud: ${err.message}`);
         }
         setLoading(false);
+        setLoadingCompletions(false);
     };
 
     const openResetModal = () => {
@@ -290,6 +332,21 @@ const ExerciseView = () => {
 
     const closeResetModal = () => {
         setShowResetModal(false);
+    };
+
+    // Get default value for an input field with fallbacks
+    const getDefaultValue = (exerciseId, field, defaultVal) => {
+        const id = String(exerciseId);
+        // First check if we have a latest completion value
+        if (latestCompletions[id] && latestCompletions[id][field] !== undefined) {
+            return latestCompletions[id][field];
+        }
+        // Then check if we have a value in exerciseInputs
+        if (exerciseInputs[id] && exerciseInputs[id][field] !== undefined) {
+            return exerciseInputs[id][field];
+        }
+        // Finally fall back to the provided default
+        return defaultVal;
     };
 
     if (loading) {
@@ -330,92 +387,108 @@ const ExerciseView = () => {
                             <h3>Cuerpo Completo</h3>
                         </div>
                         <div className="session-details">
-                            <div className="exercises-table">
-                                <div className="table-header">
-                                    <div className="col-exercise">Ejercicio</div>
-                                    <div className="col-description">Descripción</div>
-                                    <div className="col-reps">Repeticiones</div>
-                                    <div className="col-sets">Series</div>
-                                    <div className="col-weight">Peso (kg)</div>
-                                    <div className="col-xp">XP</div>
-                                    <div className="col-actions">Acciones</div>
+                            {loadingCompletions ? (
+                                <div className="loading-mini">
+                                    <p>Cargando historial de ejercicios...</p>
                                 </div>
-                                {exercises.length > 0 ? (
-                                    exercises.map(ex => {
-                                        const id = String(ex.id);
-                                        // Only show completed style if this is the just completed exercise
-                                        const completed = justCompletedId === id && completedExerciseIds[id];
-                                        const xp = ex.xpFitnessReward;
+                            ) : (
+                                <div className="exercises-table">
+                                    <div className="table-header">
+                                        <div className="col-exercise">Ejercicio</div>
+                                        <div className="col-description">Descripción</div>
+                                        <div className="col-reps">Repeticiones</div>
+                                        <div className="col-sets">Series</div>
+                                        <div className="col-weight">Peso (kg)</div>
+                                        <div className="col-xp">XP</div>
+                                        <div className="col-actions">Acciones</div>
+                                    </div>
+                                    {exercises.length > 0 ? (
+                                        exercises.map(ex => {
+                                            const id = String(ex.id);
+                                            // Only show completed style if this is the just completed exercise
+                                            const completed = justCompletedId === id && completedExerciseIds[id];
+                                            const xp = ex.xpFitnessReward;
 
-                                        // Initialize refs if needed
-                                        if (!inputRefs.current[id]) {
-                                            inputRefs.current[id] = {
-                                                sets: null,
-                                                reps: null,
-                                                weight: null
-                                            };
-                                        }
+                                            // Get previous completion values or defaults
+                                            const defaultSets = getDefaultValue(id, 'sets', ex.sets);
+                                            const defaultReps = getDefaultValue(id, 'reps', ex.reps);
+                                            const defaultWeight = getDefaultValue(id, 'weight', 0);
 
-                                        return (
-                                            <div className={`table-row ${completed ? 'completed-row' : ''}`} key={id}>
-                                                <div className="col-exercise"><strong>{ex.name}</strong></div>
-                                                <div className="col-description"><p className="exercise-description">{ex.description}</p></div>
-                                                <div className="col-reps">
-                                                    <input
-                                                        type="number"
-                                                        min="1"
-                                                        step="1"
-                                                        defaultValue={ex.reps}
-                                                        ref={el => inputRefs.current[id].reps = el}
-                                                        onChange={(e) => handleInputChange(id, 'reps', e.target.value)}
-                                                        disabled={completedExerciseIds[id]}
-                                                    />
+                                            // Initialize refs if needed
+                                            if (!inputRefs.current[id]) {
+                                                inputRefs.current[id] = {
+                                                    sets: null,
+                                                    reps: null,
+                                                    weight: null
+                                                };
+                                            }
+
+                                            return (
+                                                <div className={`table-row ${completed ? 'completed-row' : ''}`} key={id}>
+                                                    <div className="col-exercise"><strong>{ex.name}</strong></div>
+                                                    <div className="col-description"><p className="exercise-description">{ex.description}</p></div>
+                                                    <div className="col-reps">
+                                                        <input
+                                                            type="number"
+                                                            min="1"
+                                                            step="1"
+                                                            defaultValue={defaultReps}
+                                                            ref={el => inputRefs.current[id].reps = el}
+                                                            onChange={(e) => handleInputChange(id, 'reps', e.target.value)}
+                                                            disabled={completedExerciseIds[id]}
+                                                        />
+                                                    </div>
+                                                    <div className="col-sets">
+                                                        <input
+                                                            type="number"
+                                                            min="1"
+                                                            step="1"
+                                                            defaultValue={defaultSets}
+                                                            ref={el => inputRefs.current[id].sets = el}
+                                                            onChange={(e) => handleInputChange(id, 'sets', e.target.value)}
+                                                            disabled={completedExerciseIds[id]}
+                                                        />
+                                                    </div>
+                                                    <div className="col-weight">
+                                                        <input
+                                                            type="number"
+                                                            min="0"
+                                                            step="0.5"
+                                                            defaultValue={defaultWeight}
+                                                            ref={el => inputRefs.current[id].weight = el}
+                                                            onChange={(e) => handleInputChange(id, 'weight', e.target.value)}
+                                                            disabled={completedExerciseIds[id]}
+                                                        />
+                                                    </div>
+                                                    <div className="col-xp">
+                                                        <button
+                                                            className={`xp-reward-button ${completed ? 'completed' : ''}`}
+                                                            onClick={() => completeExercise(id, xp)}
+                                                            disabled={completedExerciseIds[id]}
+                                                        >
+                                                            {completed ? <span className="completed-text">✓ Completado</span> : `+${xp} XP`}
+                                                        </button>
+                                                    </div>
+                                                    <div className="col-actions">
+                                                        {ex.videoUrl && (
+                                                            <a href={ex.videoUrl} target="_blank" rel="noopener noreferrer" className="video-link">
+                                                                <i className="fa fa-youtube-play"></i> Video
+                                                            </a>
+                                                        )}
+                                                        {latestCompletions[id] && (
+                                                            <span className="last-completed" title={`Última vez completado: ${new Date(latestCompletions[id].completedAt).toLocaleDateString()}`}>
+                                                                <i className="fa fa-history"></i>
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 </div>
-                                                <div className="col-sets">
-                                                    <input
-                                                        type="number"
-                                                        min="1"
-                                                        step="1"
-                                                        defaultValue={ex.sets}
-                                                        ref={el => inputRefs.current[id].sets = el}
-                                                        onChange={(e) => handleInputChange(id, 'sets', e.target.value)}
-                                                        disabled={completedExerciseIds[id]}
-                                                    />
-                                                </div>
-                                                <div className="col-weight">
-                                                    <input
-                                                        type="number"
-                                                        min="0"
-                                                        step="0.5"
-                                                        defaultValue="0"
-                                                        ref={el => inputRefs.current[id].weight = el}
-                                                        onChange={(e) => handleInputChange(id, 'weight', e.target.value)}
-                                                        disabled={completedExerciseIds[id]}
-                                                    />
-                                                </div>
-                                                <div className="col-xp">
-                                                    <button
-                                                        className={`xp-reward-button ${completed ? 'completed' : ''}`}
-                                                        onClick={() => completeExercise(id, xp)}
-                                                        disabled={completedExerciseIds[id]}
-                                                    >
-                                                        {completed ? <span className="completed-text">✓ Completado</span> : `+${xp} XP`}
-                                                    </button>
-                                                </div>
-                                                <div className="col-actions">
-                                                    {ex.videoUrl && (
-                                                        <a href={ex.videoUrl} target="_blank" rel="noopener noreferrer" className="video-link">
-                                                            <i className="fa fa-youtube-play"></i> Video
-                                                        </a>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        );
-                                    })
-                                ) : (
-                                    <div className="table-row"><div style={{ padding: '20px', textAlign: 'center' }}>No se encontraron ejercicios</div></div>
-                                )}
-                            </div>
+                                            );
+                                        })
+                                    ) : (
+                                        <div className="table-row"><div style={{ padding: '20px', textAlign: 'center' }}>No se encontraron ejercicios</div></div>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </div>
 

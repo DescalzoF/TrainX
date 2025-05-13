@@ -44,10 +44,6 @@ public class ExerciseCompletionController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Get all exercise completions for the current user
-     * This endpoint is needed for the Progress component
-     */
     @GetMapping("/me")
     public ResponseEntity<List<ExerciseCompletionResponseDTO>> getUserCompletions(
             @AuthenticationPrincipal UserEntity currentUser) {
@@ -62,9 +58,6 @@ public class ExerciseCompletionController {
         return ResponseEntity.ok(responseDTOs);
     }
 
-    /**
-     * Helper method to convert entity to response DTO
-     */
     private ExerciseCompletionResponseDTO convertToResponseDTO(ExerciseCompletionEntity completion) {
         ExerciseCompletionResponseDTO dto = new ExerciseCompletionResponseDTO();
         dto.setId(completion.getId());
@@ -87,6 +80,7 @@ public class ExerciseCompletionController {
 
         return ResponseEntity.ok(statistics);
     }
+
     @GetMapping("/extended-summary")
     public ResponseEntity<ExtendedExerciseCompletionStatisticsDTO> getExtendedSummary(
             @AuthenticationPrincipal UserEntity currentUser) {
@@ -97,4 +91,18 @@ public class ExerciseCompletionController {
         return ResponseEntity.ok(extendedStats);
     }
 
+    @GetMapping("/latest/{exerciseId}")
+    public ResponseEntity<ExerciseCompletionResponseDTO> getLatestExerciseCompletion(
+            @AuthenticationPrincipal UserEntity currentUser,
+            @PathVariable Long exerciseId) {
+
+        ExerciseCompletionEntity latestCompletion =
+                exerciseCompletionService.getLatestExerciseCompletion(currentUser.getId(), exerciseId);
+
+        if (latestCompletion == null) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok(convertToResponseDTO(latestCompletion));
+    }
 }
