@@ -7,6 +7,7 @@ import { useXP } from "../../contexts/XPContext.jsx";
 import { Check } from "lucide-react";
 import DesafiosSemanales from "../DesafiosSemanales/DesafiosSemanales.jsx";
 import ResetCaminoModal from "../../components/resetCaminoModal/ResetCaminoModal.jsx";
+import AdminDesafioSemanales from "../../components/AdminDesafioSemanales/AdminDesafioSemanales.jsx";
 
 const ExerciseView = () => {
     const [exercises, setExercises] = useState([]);
@@ -379,6 +380,7 @@ const ExerciseView = () => {
             <div className="content-container">
                 {/* Weekly Challenges Section - Now using the separate component */}
                 <DesafiosSemanales />
+                <AdminDesafioSemanales />
 
                 {/* Exercises Section */}
                 <div className="sessions-panel">
