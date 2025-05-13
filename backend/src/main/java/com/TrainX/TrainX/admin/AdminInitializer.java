@@ -53,7 +53,7 @@ public class AdminInitializer implements CommandLineRunner {
             admin.setPhoneNumber("1122334455");
             admin.setHeight(180L);
             admin.setWeight(80L);
-            admin.setUserPhoto("admin_profile.png");
+            admin.setUserPhoto("");
             admin.setAddress("TrainXHQ Address");
             admin.setCoins(100L);
             admin.setSex("M");

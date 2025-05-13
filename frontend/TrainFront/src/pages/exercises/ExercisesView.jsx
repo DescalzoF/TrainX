@@ -4,7 +4,6 @@ import "./ExercisesView.css";
 import confetti from 'canvas-confetti';
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import { useXP } from "../../contexts/XPContext.jsx";
-import { Check } from "lucide-react";
 import DesafiosSemanales from "../DesafiosSemanales/DesafiosSemanales.jsx";
 import ResetCaminoModal from "../../components/resetCaminoModal/ResetCaminoModal.jsx";
 import AdminDesafioSemanales from "../../components/AdminDesafioSemanales/AdminDesafioSemanales.jsx";
