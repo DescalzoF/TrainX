@@ -7,7 +7,6 @@ import iconoHibrido from "../../assets/icono-hibrido.jpg";
 import iconoHipertrofia from "../../assets/icono-hipertrofia.png";
 import iconoVarios from "../../assets/icono-varios.png";
 import ConfirmationModal from "../confirmationmodal/ConfirmationModal.jsx";
-import AdminToggleButton from "../../components/AdminToggleButton/AdminToggleButton.jsx";
 import axios from 'axios';
 import { useAuth } from '../../contexts/AuthContext.jsx';
 import { FaEdit, FaTrash, FaSave, FaTimes } from 'react-icons/fa';

@@ -169,13 +169,13 @@ function Navbar() {
                     <a href="" onClick={(e) => handleNavClick(e, '/gyms')} className="nav-link">Gimnasios</a>
                     <a href="" onClick={(e) => handleNavClick(e, '/progress')} className="nav-link">Progreso</a>
                     <div className="dropdown">
-                        <a href="" onClick={(e) => handleNavClick(e, '/leaderboard')} className="nav-link">
+                        <a className="nav-link">
                             Leaderboard <MdOutlineArrowDropDown size={30}/>
                         </a>
                         <div className="dropdown-content">
-                            <a href="#" onClick={(e) => handleNavClick(e, '/leaderboard/General')}>General</a>
-                            <a href="#" onClick={(e) => handleNavClick(e, '/leaderboard/Por nivel')}>Por nivel</a>
-                            <a href="#" onClick={(e) => handleNavClick(e, '/leaderboard/Semanal')}>Semanal</a>
+                            <a href="" onClick={(e) => handleNavClick(e, '/leaderboard-general')}>General</a>
+                            <a href="" onClick={(e) => handleNavClick(e, '/leaderboard-por-nivel')}>Por nivel</a>
+                            <a href="" onClick={(e) => handleNavClick(e, '/leaderboard-semanal')}>Semanal</a>
                         </div>
                     </div>
                     <a href="" onClick={(e) => handleNavClick(e, '/challenges')} className="nav-link">Duelos Semanales</a>

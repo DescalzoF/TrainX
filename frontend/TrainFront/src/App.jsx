@@ -14,7 +14,8 @@ import ForgotPassword from './pages/auth/ForgotPassword/ForgotPassword.jsx';
 import ResetPassword from './pages/auth/ResetPassword/ResetPassword.jsx';
 import ExercisesView from './pages/exercises/ExercisesView.jsx';
 import Gimnasios from './pages/gimnasios/Gimnasios.jsx';
-import Progress from './pages/progress/Progress.jsx'; // Import the Progress component
+import Progress from './pages/progress/Progress.jsx';
+import LeaderboardGeneral from './pages/leaderboard/general/LeaderboardGeneral.jsx';
 import './App.css';
 
 const ProtectedRoute = ({ children }) => {
@@ -148,6 +149,16 @@ function AppContent() {
                         element={
                             <ProtectedRoute>
                                 <Gimnasios />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    {/* Add the new LeaderboardGeneral route */}
+                    <Route
+                        path="/leaderboard-general"
+                        element={
+                            <ProtectedRoute>
+                                <LeaderboardGeneral />
                             </ProtectedRoute>
                         }
                     />

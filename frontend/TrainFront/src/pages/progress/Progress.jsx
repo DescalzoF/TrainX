@@ -39,14 +39,11 @@ const Progress = () => {
         weeklyGoalProgress: 0
     });
 
-    // Photo upload state
-    // Photo upload state
     const [photos, setPhotos] = useState([null, null, null, null, null]);
     const [previews, setPreviews] = useState([null, null, null, null, null]);
     const [existingPhotos, setExistingPhotos] = useState([null, null, null, null, null]);
     const [uploading, setUploading] = useState(false);
 
-    // State for real data from API
     const [weeklyActivity, setWeeklyActivity] = useState({});
     const [weeklyPerformance, setWeeklyPerformance] = useState([]);
     const [recentActivity, setRecentActivity] = useState([]);
@@ -69,7 +66,6 @@ const Progress = () => {
 
                 const [basicRes, extendedRes, photoRes] = await Promise.all([basicStatsPromise, extendedStatsPromise, photosPromise]);
 
-                // Basic stats
                 const basicData = basicRes.data || {};
                 setStats({
                     totalXp: Number(basicData.totalXp || 0),
@@ -78,7 +74,6 @@ const Progress = () => {
                     averageWeight: Number(basicData.averageWeight || 0)
                 });
 
-                // Extended stats
                 const ext = extendedRes.data || {};
                 setExtendedStats({
                     maxWeightLifted: Number(ext.maxWeightLifted || 0),
@@ -90,7 +85,6 @@ const Progress = () => {
                     weeklyGoalProgress: Number(ext.weeklyGoalProgress || 0)
                 });
 
-                // Charts data
                 if (ext.weeklyActivity) setWeeklyActivity(ext.weeklyActivity);
                 if (ext.weeklyPerformance) {
                     setWeeklyPerformance(ext.weeklyPerformance.map(w => ({
@@ -360,11 +354,10 @@ const Progress = () => {
                             <LineChart data={weeklyPerformance} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                                 <CartesianGrid strokeDasharray="3 3" />
                                 <XAxis dataKey="name" stroke= "black"  />
-                                <YAxis yAxisId="left" orientation="left" stroke="black" label={{ value: 'Peso Total', angle: -90, position: 'insideLeft', stroke: 'black' }} />
-                                <YAxis yAxisId="right" orientation="right" stroke="black" label={{ value: 'Repeticiones', angle: 90, position: 'insideRight', stroke: 'black'  }} />
+                                <YAxis yAxisId="left" orientation="left" stroke="black" label={{ value: 'Peso Total', angle: -90, position: 'insideLeft', stroke: 'black', offset: -10}} />
+                                <YAxis yAxisId="right" orientation="right" stroke="black" label={{ value: 'Repeticiones', angle: 90, position: 'insideRight', stroke: 'black', offset: -5}} />
                                 <Tooltip
                                     formatter={(value, name, props) => {
-                                        // Custom tooltip to show more details
                                         switch(name) {
                                             case 'totalWeight':
                                                 return [`${value.toFixed(2)} kg`, 'Peso Total'];
@@ -404,7 +397,6 @@ const Progress = () => {
                         {weeklyActivityData.map((item, index) => {
                             const todayIndex = getTodayIndex();
                             const isToday = index === todayIndex;
-                            // Avoid division by zero if all values are 0
                             const maxExercises = Math.max(...weeklyActivityData.map(d => d.exercises)) || 1;
                             const heightPercentage = (item.exercises / maxExercises) * 100;
 
