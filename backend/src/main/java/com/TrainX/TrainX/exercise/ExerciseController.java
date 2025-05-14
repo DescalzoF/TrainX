@@ -99,4 +99,19 @@ public class ExerciseController {
             return ResponseEntity.ok(exercises);
         }
     }
+
+    @GetMapping("/level/{levelId}")
+    public ResponseEntity<List<ExerciseDTO>> getExercisesByLevel(@PathVariable Long levelId) {
+        System.out.println("Endpoint /level/{levelId} llamado con levelId=" + levelId);
+
+        List<ExerciseDTO> exercises = exerciseService.findExercisesByLevelId(levelId);
+
+        if (exercises.isEmpty()) {
+            System.out.println("No se encontraron ejercicios para el nivel");
+            return ResponseEntity.noContent().build();
+        } else {
+            System.out.println("Se encontraron " + exercises.size() + " ejercicios para el nivel");
+            return ResponseEntity.ok(exercises);
+        }
+    }
 }
