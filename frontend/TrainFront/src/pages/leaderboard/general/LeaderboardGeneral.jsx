@@ -8,7 +8,6 @@ const LeaderboardGeneral = () => {
     const currentUsername = localStorage.getItem('username');
     const capitalize = (str) => str ? str.charAt(0).toUpperCase() + str.slice(1) : '-';
 
-
     useEffect(() => {
         axios.get('http://localhost:8080/api/exercise-completions/leaderboard-general')
             .then(res => setLeaderboard(res.data))
@@ -27,6 +26,7 @@ const LeaderboardGeneral = () => {
                     <div className="day-name">Día Frecuente</div>
                     <div>Sesiones</div>
                     <div className="xp-name">XP Total</div>
+                    {/* Mover "Racha" al final */}
                     <div className="racha">Racha</div>
                 </div>
                 {leaderboard
@@ -52,11 +52,12 @@ const LeaderboardGeneral = () => {
                                 <div>{capitalize(user.mostFrequentDay)}</div>
                                 <div className="session-number">{user.totalSessions || 0}</div>
                                 <div className="xp-cell">{user.totalXp} XP</div>
+                                {/* Mover el contenido de "Racha" al final */}
                                 <div className="streak-cell">
                                     {user.currentStreak > 0 ? (
                                         <span className="streak streak-up">
-  <span className="streak-number">{user.currentStreak}</span> <ArrowUpRight size={18} />
-</span>
+                                            <span className="streak-number">{user.currentStreak}</span> <ArrowUpRight size={18} />
+                                        </span>
                                     ) : (
                                         <span className="streak streak-down">
                                             0 <ArrowDownRight size={18} />

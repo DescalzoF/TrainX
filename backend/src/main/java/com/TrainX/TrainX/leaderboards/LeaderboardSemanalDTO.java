@@ -15,5 +15,7 @@ public class LeaderboardSemanalDTO {
     private Integer weeklyXp; // XP total ganado en la semana actual
     private Integer weeklyExercisesCompleted; // Total de ejercicios/sesiones en la semana actual (opcional, buen dato para el leaderboard)
     private Double totalWeight;
+    private String levelName;
+    private Integer totalWeeklyReps; // Total de repeticiones en la semana actual
     // Puedes añadir más campos si consideras relevantes otras métricas semanales
 }

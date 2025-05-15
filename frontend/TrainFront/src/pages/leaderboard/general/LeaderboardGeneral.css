@@ -1,7 +1,7 @@
 /* Main wrapper */
 .leaderboard-wrapper {
-    max-width: 1100px;
-    margin: 60px auto;
+    width: 1200px;
+    margin: 140px auto 60px; /* Ajustado margen top */
     padding: 20px;
     background-color: #0b0f1a;
     border-radius: 20px;
@@ -9,7 +9,6 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: white;
     animation: fadeIn 1s ease-in;
-    margin-top: 140px;
 }
 
 /* Title */
@@ -23,7 +22,7 @@
 /* Table-like layout */
 .leaderboard-container {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: 10px;
 }
 
@@ -31,37 +30,72 @@
     background-color: #1c1f27;
     font-weight: bold;
     border-bottom: 2px solid #00aaff;
+    display: grid; /* Aseguramos que sea un contenedor grid */
+    /* Definimos las 8 columnas esperadas */
+    grid-template-columns:
+        60px /* # */
+        minmax(150px, 2.2fr) /* Usuario */
+        1.5fr /* Camino */
+        1.2fr /* Nivel */
+        1.5fr /* Día Frecuente */
+        1.3fr /* Sesiones */
+        1fr /* XP Total */
+        2.0fr; /* Racha */
+    align-items: center;
+    padding: 14px 12px;
+    border-radius: 12px;
+    transition: transform 0.2s, background-color 0.3s;
+    column-gap: 36px;
 }
 
-.leaderboard-row:hover {
-    background-color: #1a1f2a;
-    transform: scale(1.01);
-}
-.leaderboard-header,
+/* Asignar columna explícita a cada elemento en el encabezado */
+.leaderboard-header > div:nth-child(1) { grid-column: 1; } /* # */
+.leaderboard-header > div:nth-child(2) { grid-column: 2; } /* Usuario */
+.leaderboard-header > div:nth-child(3) { grid-column: 3; } /* Camino */
+.leaderboard-header > div:nth-child(4) { grid-column: 4; } /* Nivel */
+.leaderboard-header > div:nth-child(5) { grid-column: 5; } /* Día Frecuente */
+.leaderboard-header > div:nth-child(6) { grid-column: 6; } /* Sesiones */
+.leaderboard-header > div:nth-child(7) { grid-column: 7; } /* XP Total */
+.leaderboard-header > div:nth-child(8) { grid-column: 8; } /* Racha */
+
+
 .leaderboard-row {
-    display: grid;
+    display: grid; /* Aseguramos que sea un contenedor grid */
+    /* Definimos las 8 columnas esperadas - Debe coincidir con el header */
     grid-template-columns:
-        60px
-        2.2fr
-        1.5fr
-        1.2fr
-        1.5fr
-        1.3fr
-        1fr
-        2.0fr;
+        60px /* # */
+        minmax(150px, 2.2fr) /* Usuario */
+        1.5fr /* Camino */
+        1.2fr /* Nivel */
+        1.5fr /* Día Frecuente */
+        1.3fr /* Sesiones */
+        1fr /* XP Total */
+        2.0fr; /* Racha */
     align-items: center;
-    padding: 14px 12px; /* <--- aquí se ajusta */
+    padding: 14px 12px;
     border-radius: 12px;
     background-color: #141922;
     transition: transform 0.2s, background-color 0.3s;
     column-gap: 36px;
 }
 
+/* Asignar columna explícita a cada elemento en la fila de datos */
+.leaderboard-row > div:nth-child(1) { grid-column: 1; } /* # */
+.leaderboard-row > div:nth-child(2) { grid-column: 2; } /* Usuario */
+.leaderboard-row > div:nth-child(3) { grid-column: 3; } /* Camino */
+.leaderboard-row > div:nth-child(4) { grid-column: 4; } /* Nivel */
+.leaderboard-row > div:nth-child(5) { grid-column: 5; } /* Día Frecuente */
+.leaderboard-row > div:nth-child(6) { grid-column: 6; } /* Sesiones */
+.leaderboard-row > div:nth-child(7) { grid-column: 7; } /* XP Total */
+.leaderboard-row > div:nth-child(8) { grid-column: 8; } /* Racha */
 
 
+.leaderboard-row:hover {
+    background-color: #1a1f2a;
+    transform: scale(1.01);
+}
 
-
-/* Position number */
+/* Posición número */
 .rank-number {
     font-weight: bold;
     font-size: 1.1rem;
@@ -73,6 +107,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
+    min-width: 0;
 }
 
 .user-photo {
@@ -81,11 +116,16 @@
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid #00aaff;
+    flex-shrink: 0;
 }
 
 .username {
     font-weight: 500;
     color: white;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
 }
 
 /* XP styling */
@@ -99,14 +139,13 @@
 }
 
 /* Streak cell */
-/* Streak cell */
 .streak-cell {
     display: flex;
-    align-items: center;      /* Alineación vertical */
-    justify-content: start;
+    align-items: center;
+    justify-content: flex-end; /* Alineado a la derecha */
     gap: 6px;
     font-weight: bold;
-    height: 100%;             /* Asegura alineación dentro de la celda */
+    height: 100%;
 }
 
 .streak-up {
@@ -117,26 +156,51 @@
     color: #ff4c4c;
 }
 
+/* Alineación para título "Racha" */
+.racha {
+    justify-self: end; /* Alineado a la derecha dentro de su celda */
+    text-align: right;
+}
 
-/* Animation */
+/* Animación */
 @keyframes fadeIn {
     from {
         opacity: 0;
         transform: translateY(20px);
-    } to {
-          opacity: 1;
-          transform: translateY(0);
-      }
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* Responsive */
 @media screen and (max-width: 768px) {
     .leaderboard-header,
     .leaderboard-row {
-        grid-template-columns: 30px 1.8fr 1fr 1fr;
+        /* Definición de columnas para responsive - si se muestran menos columnas */
+        grid-template-columns: 30px 1.8fr 1fr 1fr; /* Ejemplo: 4 columnas en responsive */
         font-size: 0.9rem;
+        /* Eliminar asignaciones explícitas o redefinirlas si el número de columnas cambia */
+        /* En este ejemplo, Racha y XP Total se ocultan, por lo que las asignaciones explícitas no son necesarias */
+        /* Si quisieras mostrar Racha en responsive, tendrías que ajustar esto */
     }
 
+    .leaderboard-header > div:nth-child(1) { grid-column: 1; } /* # */
+    .leaderboard-header > div:nth-child(2) { grid-column: 2; } /* Usuario */
+    .leaderboard-header > div:nth-child(3) { grid-column: 3; } /* Camino */
+    .leaderboard-header > div:nth-child(4) { grid-column: 4; } /* Nivel */
+    /* Las columnas 5-8 se ocultan en este ejemplo responsive */
+
+
+    .leaderboard-row > div:nth-child(1) { grid-column: 1; } /* # */
+    .leaderboard-row > div:nth-child(2) { grid-column: 2; } /* Usuario */
+    .leaderboard-row > div:nth-child(3) { grid-column: 3; } /* Camino */
+    .leaderboard-row > div:nth-child(4) { grid-column: 4; } /* Nivel */
+    /* Las columnas 5-8 se ocultan en este ejemplo responsive */
+
+
+    /* Ocultar XP y Racha en pantallas pequeñas */
     .xp-cell,
     .streak-cell {
         display: none;
@@ -147,26 +211,30 @@
     }
 }
 
+/* Highlight current user row */
 .current-user-row {
     background-color: #112233 !important;
     border: 2px solid #00aaff;
     box-shadow: 0 0 12px #00aaff80;
 }
-.session-number{
-    padding-left: 30px;
+
+/* Extra padding helpers - Revisa si siguen siendo necesarios con el nuevo orden */
+.session-number {
+    /* padding-left: 30px; */ /* Revisa si este padding es necesario o interfiere */
 }
 
-.xp-name{
-    padding-left: 15px;
+.xp-name {
+    /* padding-left: 15px; */ /* Revisa si este padding es necesario o interfiere */
 }
 
-.day-name{
-    padding-right: 10px;
-}
-.level-name{
-    padding-right: 9px;
-}
-.cf-name{
-    padding-left: 7px;
+.day-name {
+    /* padding-right: 10px; */ /* Revisa si este padding es necesario o interfiere */
 }
 
+.level-name {
+    /* padding-right: 9px; */ /* Revisa si este padding es necesario o interfiere */
+}
+
+.cf-name {
+    /* padding-left: 7px; */ /* Revisa si este padding es necesario o interfiere */
+}

@@ -460,6 +460,7 @@ public class ExerciseCompletionService {
                     double totalWeight = 0.0; // Total de peso levantado en la semana
                     Set<LocalDate> weeklyWorkoutDays = new HashSet<>(); // Para contar sesiones/días de entrenamiento
                     int weeklyExercises = 0; // Contador de ejercicios completados
+                    int totalWeeklyReps = 0; // Total de repeticiones en la semana
 
                     for (ExerciseCompletionEntity completion : completions) {
                         LocalDate completionDate = completion.getCompletedAt().toLocalDate();
@@ -469,6 +470,7 @@ public class ExerciseCompletionService {
                             totalWeight += completion.getWeight() * completion.getSets() * completion.getReps(); // Total de peso levantado
                             weeklyWorkoutDays.add(completionDate); // Añadir el día para contar sesiones
                             weeklyExercises++; // Contar el ejercicio individual
+                            totalWeeklyReps += completion.getReps() * completion.getSets(); // Total de repeticiones
                         }
                     }
 
@@ -485,8 +487,9 @@ public class ExerciseCompletionService {
                             user.getUserPhoto(),
                             weeklyXp,
                             weeklyActivityCount,
-                            totalWeight
-
+                            totalWeight,
+                            user.getLevel() != null ? user.getLevel().getNameLevel() : "N/A",
+                            totalWeeklyReps
                     );
                 })
                 // Ordenar por XP Semanal de forma descendente
