@@ -77,6 +77,7 @@
 .dropdown .nav-link {
     display: flex;
     align-items: center;
+    text-decoration: none;
 }
 
 .dropdown .nav-link svg {
@@ -90,7 +91,7 @@
 .dropdown-content {
     display: none;
     position: absolute;
-    background-color: #1a1a2e;
+    background-color: black;
     min-width: 160px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     z-index: 1200; /* Increased from 1 to 1200 to be higher than XP bar */
@@ -115,7 +116,8 @@
 
 .dropdown-content a:hover {
     color: #0061ff;
-    background-color: #313146;
+    background-color: black;
+    text-decoration: none;
 }
 
 .dropdown:hover .dropdown-content {
@@ -267,3 +269,4 @@
 .coins-link svg {
     color: #FFD700;
 }
+
