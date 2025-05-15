@@ -118,6 +118,7 @@ public class ExerciseService {
             return new ArrayList<>();
         }
     }
+
     private ExerciseDTO convertToDTO(ExerciseEntity entity) {
         ExerciseDTO dto = new ExerciseDTO();
         dto.setId(entity.getId());
@@ -129,5 +130,46 @@ public class ExerciseService {
         dto.setVideoUrl(entity.getVideoUrl());
         dto.setXpFitnessReward(entity.getXpFitnessReward());
         return dto;
+    }
+    public List<ExerciseDTO> findExercisesByLevelId(Long levelId) {
+        System.out.println("Buscando todos los ejercicios para LevelId: " + levelId);
+
+        try {
+            if (levelId == null) {
+                System.err.println("LevelId es nulo");
+                return new ArrayList<>();
+            }
+
+            // Obtener los ejercicios por levelId
+            List<ExerciseEntity> exercises = exerciseRepository.findByLevel_IdLevel(levelId);
+            return exercises.stream()
+                    .map(this::convertToDTO)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            System.err.println("Error al buscar ejercicios por nivel: " + e.getMessage());
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+
+    }
+
+    public ExerciseDTO updateDefaultExercise(ExerciseDTO exerciseDTO) {
+        // Obtener el ejercicio existente
+        ExerciseEntity existingExercise = exerciseRepository.findById(exerciseDTO.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Exercise not found with id: " + exerciseDTO.getId()));
+
+        // Actualizar los campos del ejercicio existente
+        existingExercise.setName(exerciseDTO.getName());
+        existingExercise.setDescription(exerciseDTO.getDescription());
+        existingExercise.setMuscleGroup(exerciseDTO.getMuscleGroup());
+        existingExercise.setSets(exerciseDTO.getSets());
+        existingExercise.setReps(exerciseDTO.getReps());
+        existingExercise.setVideoUrl(exerciseDTO.getVideoUrl());
+        existingExercise.setXpFitnessReward(exerciseDTO.getXpFitnessReward());
+
+        // Guardar el ejercicio actualizado
+        ExerciseEntity updatedExercise = exerciseRepository.save(existingExercise);
+
+        return convertToDTO(updatedExercise);
     }
 }

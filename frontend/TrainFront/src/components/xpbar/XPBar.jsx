@@ -66,6 +66,17 @@ function XPBar() {
                 setLeveledUp(true);
                 console.log(`Level up! New level: ${newLevelInfo.name}`);
                 setTimeout(() => setLeveledUp(false), 3000);
+                // Update levelId in localStorage
+                const currentLevelId = parseInt(localStorage.getItem('levelId'), 10);
+                if (!isNaN(currentLevelId)) {
+                    const newLevelId = currentLevelId + 1;
+                    localStorage.setItem('levelId', newLevelId.toString());
+                    console.log(`LevelId actualizado a ${newLevelId}`);
+                } else {
+                    console.warn('No se encontró un levelId válido en localStorage');
+                }
+
+                setTimeout(() => setLeveledUp(false), 3000);
             }
 
             setPreviousLevelName(newLevelInfo.name);

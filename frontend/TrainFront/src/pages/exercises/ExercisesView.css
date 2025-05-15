@@ -172,6 +172,10 @@
 }
 .table-row {
     border-bottom: 1px solid #eeeeee;
+    transition: background-color 0.2s ease;
+}
+.table-row:hover {
+    background-color: #f8f8f8;
 }
 .table-row:last-child {
     border-bottom: none;
@@ -183,7 +187,41 @@
 .col-description {
     padding: 8px 12px;
     font-size: 0.85rem;
-    color: #666;
+    color: black;
+}
+
+/* Enhanced exercise selector styling */
+.col-exercise.exercise-selector {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 15px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+    padding: 12px;
+    border-radius: 6px;
+    background-color: #f5f9ff;
+    border: 1px solid #e0e9ff;
+}
+
+.col-exercise.exercise-selector:hover {
+    background-color: #e6f0ff;
+    border-color: #c0d6ff;
+    transform: translateY(-2px);
+    box-shadow: 0 3px 10px rgba(0, 97, 255, 0.1);
+}
+
+.exercise-selector-icon {
+    position: absolute;
+    right: 12px;
+    font-size: 12px;
+    color: #0061ff;
+    transition: transform 0.2s ease;
+}
+
+.col-exercise.exercise-selector:hover .exercise-selector-icon {
+    transform: translateY(2px);
 }
 
 /* Fix for the exercise name and description alignment */
@@ -207,11 +245,13 @@
 /* Standardized input styling for all inputs */
 .col-reps input, .col-sets input, .col-weight input {
     width: 80px;
-    padding: 8px;
+    padding: 10px;
     border: 1px solid #ddd;
-    border-radius: 4px;
+    border-radius: 6px;
     text-align: center;
     background-color: black;
+    font-size: 15px;
+    transition: all 0.2s ease;
 }
 
 /* Make inputs more distinct on hover/focus */
@@ -219,7 +259,7 @@
 .col-reps input:focus, .col-sets input:focus, .col-weight input:focus {
     border-color: #0061ff;
     outline: none;
-    box-shadow: 0 0 3px rgba(0, 97, 255, 0.3);
+    box-shadow: 0 0 8px rgba(0, 97, 255, 0.2);
 }
 
 .col-actions {
@@ -232,10 +272,10 @@
     background-color: #2e7d32;
     color: white;
     text-decoration: none;
-    padding: 6px 12px;
-    border-radius: 4px;
+    padding: 8px 14px;
+    border-radius: 6px;
     font-size: 14px;
-    transition: background-color 0.3s;
+    transition: all 0.3s;
     display: flex;
     align-items: center;
     gap: 5px;
@@ -243,6 +283,8 @@
 
 .video-link:hover {
     background-color: #1b5e20;
+    transform: translateY(-2px);
+    box-shadow: 0 3px 10px rgba(46, 125, 50, 0.2);
 }
 
 .fa-youtube-play {
@@ -308,7 +350,7 @@
     background-color: #0061ff;
     color: white;
     border: none;
-    padding: 8px 12px;
+    padding: 10px 12px;
     border-radius: 6px;
     cursor: pointer;
     font-weight: 600;
@@ -336,6 +378,168 @@
     line-height: 1;
     text-align: center;
     display: block;
+}
+
+/* Enhanced Exercise Picker Modal */
+.exercise-picker-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.exercise-picker-content {
+    background-color: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 80vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    animation: scaleIn 0.3s ease;
+}
+
+@keyframes scaleIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.exercise-picker-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px;
+    background-color: #0061ff;
+    color: white;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.exercise-picker-header h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.close-picker-button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0 5px;
+    line-height: 1;
+    transition: transform 0.2s;
+}
+
+.close-picker-button:hover {
+    transform: scale(1.2);
+}
+
+.exercise-picker-list {
+    padding: 5px;
+    overflow-y: auto;
+    max-height: calc(80vh - 70px);
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 10px;
+    padding: 20px;
+}
+
+.exercise-picker-item {
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #e6e6e6;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.exercise-picker-item:hover {
+    background-color: #f0f7ff;
+    border-color: #c0d6ff;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 97, 255, 0.1);
+}
+
+.exercise-picker-name {
+    font-weight: 600;
+    font-size: 16px;
+    color: #333;
+}
+
+.exercise-picker-muscle {
+    font-size: 14px;
+    color: #666;
+    padding-top: 5px;
+    border-top: 1px dashed #eee;
+}
+
+.no-exercises-message {
+    text-align: center;
+    color: #666;
+    padding: 30px;
+    grid-column: 1 / -1;
+}
+
+/* New reset button styling */
+.reset-exercises-button {
+    background-color: #e53935;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 14px 22px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 20px auto;
+    display: block;
+    width: auto;
+    box-shadow: 0 2px 5px rgba(229, 57, 53, 0.3);
+}
+
+.reset-exercises-button:hover {
+    background-color: #d32f2f;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(229, 57, 53, 0.4);
+}
+
+.reset-exercises-button:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(229, 57, 53, 0.4);
+}
+
+.reset-exercises-button i {
+    margin-right: 8px;
+}
+
+/* Empty state message for exercise table */
+.empty-message {
+    text-align: center;
+    padding: 40px 20px;
+    color: #757575;
+    font-size: 16px;
+    font-style: italic;
+    background-color: #f8f8f8;
+    border-radius: 8px;
+    margin: 15px 0;
 }
 
 /* Responsive adjustments */
@@ -368,6 +572,10 @@
         width: 70px;
         padding: 6px;
         font-size: 14px;
+    }
+
+    .exercise-picker-list {
+        grid-template-columns: 1fr;
     }
 }
 

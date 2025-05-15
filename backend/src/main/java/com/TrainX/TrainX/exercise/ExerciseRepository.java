@@ -21,4 +21,6 @@ public interface ExerciseRepository extends JpaRepository<ExerciseEntity, Long> 
     List<ExerciseEntity> findByCaminoFitness_IdCFAndLevel_IdLevel(Long caminoFitnessId, Long levelId);
 
     List<ExerciseEntity> findByCaminoFitness(CaminoFitnessEntity caminoFitness);
+
+    List<ExerciseEntity> findByLevel_IdLevel(Long levelId);
 }

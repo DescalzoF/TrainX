@@ -19,6 +19,11 @@ const ExerciseView = () => {
     const [showResetModal, setShowResetModal] = useState(false);
     const [latestCompletions, setLatestCompletions] = useState({});
     const [loadingCompletions, setLoadingCompletions] = useState(true);
+    const [availableExercises, setAvailableExercises] = useState([]);
+    const [loadingAvailableExercises, setLoadingAvailableExercises] = useState(false);
+    const [isOtroCamino, setIsOtroCamino] = useState(false);
+    const [showExercisePicker, setShowExercisePicker] = useState(false);
+    const [currentRow, setCurrentRow] = useState(null);
 
     const { currentUser } = useAuth();
     const { updateXP, refreshXP } = useXP();
@@ -41,6 +46,7 @@ const ExerciseView = () => {
         setJustCompletedId(null);
         setExerciseInputs({});
         setLatestCompletions({});
+        setAvailableExercises([]);
 
         if (!currentUser?.id) {
             setLoading(false);
@@ -72,6 +78,9 @@ const ExerciseView = () => {
             const caminoFitnessId = localStorage.getItem("caminoFitnessId");
             const levelId = localStorage.getItem("levelId") || "principiante";
 
+            // Check if user selected "Otro" camino (id = 5)
+            setIsOtroCamino(caminoFitnessId === "5");
+
             try {
                 const response = await axios.get(
                     "http://localhost:8080/api/users/exerciseDetails",
@@ -81,6 +90,11 @@ const ExerciseView = () => {
                 if (response.data && typeof response.data === 'object') {
                     setUserDetails(response.data);
                     await fetchExercises(response.data.caminoFitnessId, response.data.levelId, axiosConfig);
+
+                    // Fetch available exercises for the current level only if it's "Otro" camino
+                    if (response.data.caminoFitnessId === 5 || response.data.caminoFitnessId === "5") {
+                        await fetchAvailableExercises(response.data.levelId, axiosConfig);
+                    }
                 } else {
                     throw new Error("Formato de respuesta inválido");
                 }
@@ -94,12 +108,39 @@ const ExerciseView = () => {
                     };
                     setUserDetails(fallback);
                     await fetchExercises(caminoFitnessId, levelId, axiosConfig);
+
+                    // Fetch available exercises for the current level only if it's "Otro" camino
+                    if (caminoFitnessId === "5") {
+                        await fetchAvailableExercises(levelId, axiosConfig);
+                    }
                 } else {
                     throw new Error("No se pudo obtener la información del camino fitness y nivel.");
                 }
             }
         } catch (err) {
             handleError(err);
+        }
+    };
+
+    const fetchAvailableExercises = async (levelId, axiosConfig) => {
+        try {
+            setLoadingAvailableExercises(true);
+            const response = await axios.get(
+                `http://localhost:8080/api/exercises/level/${levelId}`,
+                axiosConfig
+            );
+
+            if (Array.isArray(response.data)) {
+                setAvailableExercises(response.data);
+            } else {
+                console.warn("La respuesta de ejercicios por nivel no es un array:", response.data);
+                setAvailableExercises([]);
+            }
+        } catch (error) {
+            console.error("Error fetching available exercises:", error);
+            setAvailableExercises([]);
+        } finally {
+            setLoadingAvailableExercises(false);
         }
     };
 
@@ -334,6 +375,85 @@ const ExerciseView = () => {
         setShowResetModal(false);
     };
 
+    // Open exercise picker for a specific row
+    const openExercisePicker = (rowIndex) => {
+        setCurrentRow(rowIndex);
+        setShowExercisePicker(true);
+    };
+
+    // Close exercise picker
+    const closeExercisePicker = () => {
+        setShowExercisePicker(false);
+        setCurrentRow(null);
+    };
+
+    // Select an exercise from the picker
+    const selectExercise = (exercise) => {
+        // Create a new array with the selected exercise replacing the one at currentRow
+        const updatedExercises = [...exercises];
+
+        // Prepare the enriched exercise object
+        const enrichedExercise = {
+            ...exercise,
+            id: String(exercise.id),
+            sets: exercise.sets || 3,
+            reps: exercise.reps || 12,
+            xpFitnessReward: exercise.xpFitnessReward || 50
+        };
+
+        // If currentRow is within the array bounds, replace it
+        if (currentRow !== null && currentRow >= 0 && currentRow < updatedExercises.length) {
+            updatedExercises[currentRow] = enrichedExercise;
+            setExercises(updatedExercises);
+
+            // Initialize input refs for the new exercise
+            const id = String(exercise.id);
+            setExerciseInputs(prev => ({
+                ...prev,
+                [id]: {
+                    sets: exercise.sets || 3,
+                    reps: exercise.reps || 12,
+                    weight: 0
+                }
+            }));
+
+            // Initialize the input ref
+            if (!inputRefs.current[id]) {
+                inputRefs.current[id] = {
+                    sets: null,
+                    reps: null,
+                    weight: null
+                };
+            }
+        } else {
+            // If currentRow is not valid, add as a new exercise
+            setExercises(prev => [...prev, enrichedExercise]);
+
+            // Initialize input refs for the new exercise
+            const id = String(exercise.id);
+            setExerciseInputs(prev => ({
+                ...prev,
+                [id]: {
+                    sets: exercise.sets || 3,
+                    reps: exercise.reps || 12,
+                    weight: 0
+                }
+            }));
+
+            // Initialize the input ref
+            if (!inputRefs.current[id]) {
+                inputRefs.current[id] = {
+                    sets: null,
+                    reps: null,
+                    weight: null
+                };
+            }
+        }
+
+        // Close the exercise picker
+        closeExercisePicker();
+    };
+
     // Get default value for an input field with fallbacks
     const getDefaultValue = (exerciseId, field, defaultVal) => {
         const id = String(exerciseId);
@@ -377,133 +497,183 @@ const ExerciseView = () => {
         <div className="exercises-view-container">
             <h1>Programa de Entrenamiento de {username}</h1>
             <div className="content-container">
-                {/* Weekly Challenges Section - Now using the separate component */}
+                {/* Weekly Challenges Section */}
                 <DesafiosSemanales />
                 <AdminDesafioSemanales />
 
-                {/* Exercises Section */}
+                {/* Main workout area */}
                 <div className="sessions-panel">
-                    <div className="session-card active">
-                        <div className="session-header">
-                            <h3>Cuerpo Completo</h3>
-                        </div>
-                        <div className="session-details">
-                            {loadingCompletions ? (
-                                <div className="loading-mini">
-                                    <p>Cargando historial de ejercicios...</p>
-                                </div>
-                            ) : (
-                                <div className="exercises-table">
-                                    <div className="table-header">
-                                        <div className="col-exercise">Ejercicio</div>
-                                        <div className="col-description">Descripción</div>
-                                        <div className="col-reps">Repeticiones</div>
-                                        <div className="col-sets">Series</div>
-                                        <div className="col-weight">Peso (kg)</div>
-                                        <div className="col-xp">XP</div>
-                                        <div className="col-actions">Acciones</div>
+                    <div className="workout-area">
+                        <div className="session-card active">
+                            <div className="session-header">
+                                <h3>Cuerpo Completo</h3>
+                            </div>
+                            <div className="session-details">
+                                {loadingCompletions ? (
+                                    <div className="loading-mini">
+                                        <p>Cargando historial de ejercicios...</p>
                                     </div>
-                                    {exercises.length > 0 ? (
-                                        exercises.map(ex => {
-                                            const id = String(ex.id);
-                                            // Only show completed style if this is the just completed exercise
-                                            const completed = justCompletedId === id && completedExerciseIds[id];
-                                            const xp = ex.xpFitnessReward;
+                                ) : (
+                                    <div className="exercises-table">
+                                        <div className="table-header">
+                                            <div className="col-exercise">Ejercicio</div>
+                                            <div className="col-description">Descripción</div>
+                                            <div className="col-reps">Repeticiones</div>
+                                            <div className="col-sets">Series</div>
+                                            <div className="col-weight">Peso (kg)</div>
+                                            <div className="col-xp">XP</div>
+                                            <div className="col-actions">Acciones</div>
+                                        </div>
+                                        {exercises.length > 0 ? (
+                                            exercises.map((ex, index) => {
+                                                const id = String(ex.id);
+                                                // Only show completed style if this is the just completed exercise
+                                                const completed = justCompletedId === id && completedExerciseIds[id];
+                                                const xp = ex.xpFitnessReward;
 
-                                            // Get previous completion values or defaults
-                                            const defaultSets = getDefaultValue(id, 'sets', ex.sets);
-                                            const defaultReps = getDefaultValue(id, 'reps', ex.reps);
-                                            const defaultWeight = getDefaultValue(id, 'weight', 0);
+                                                // Get previous completion values or defaults
+                                                const defaultSets = getDefaultValue(id, 'sets', ex.sets);
+                                                const defaultReps = getDefaultValue(id, 'reps', ex.reps);
+                                                const defaultWeight = getDefaultValue(id, 'weight', 0);
 
-                                            // Initialize refs if needed
-                                            if (!inputRefs.current[id]) {
-                                                inputRefs.current[id] = {
-                                                    sets: null,
-                                                    reps: null,
-                                                    weight: null
-                                                };
-                                            }
+                                                // Initialize refs if needed
+                                                if (!inputRefs.current[id]) {
+                                                    inputRefs.current[id] = {
+                                                        sets: null,
+                                                        reps: null,
+                                                        weight: null
+                                                    };
+                                                }
 
-                                            return (
-                                                <div className={`table-row ${completed ? 'completed-row' : ''}`} key={id}>
-                                                    <div className="col-exercise"><strong>{ex.name}</strong></div>
-                                                    <div className="col-description"><p className="exercise-description">{ex.description}</p></div>
-                                                    <div className="col-reps">
-                                                        <input
-                                                            type="number"
-                                                            min="1"
-                                                            step="1"
-                                                            defaultValue={defaultReps}
-                                                            ref={el => inputRefs.current[id].reps = el}
-                                                            onChange={(e) => handleInputChange(id, 'reps', e.target.value)}
-                                                            disabled={completedExerciseIds[id]}
-                                                        />
-                                                    </div>
-                                                    <div className="col-sets">
-                                                        <input
-                                                            type="number"
-                                                            min="1"
-                                                            step="1"
-                                                            defaultValue={defaultSets}
-                                                            ref={el => inputRefs.current[id].sets = el}
-                                                            onChange={(e) => handleInputChange(id, 'sets', e.target.value)}
-                                                            disabled={completedExerciseIds[id]}
-                                                        />
-                                                    </div>
-                                                    <div className="col-weight">
-                                                        <input
-                                                            type="number"
-                                                            min="0"
-                                                            step="0.5"
-                                                            defaultValue={defaultWeight}
-                                                            ref={el => inputRefs.current[id].weight = el}
-                                                            onChange={(e) => handleInputChange(id, 'weight', e.target.value)}
-                                                            disabled={completedExerciseIds[id]}
-                                                        />
-                                                    </div>
-                                                    <div className="col-xp">
-                                                        <button
-                                                            className={`xp-reward-button ${completed ? 'completed' : ''}`}
-                                                            onClick={() => completeExercise(id, xp)}
-                                                            disabled={completedExerciseIds[id]}
+                                                return (
+                                                    <div className={`table-row ${completed ? 'completed-row' : ''}`} key={`${id}-${index}`}>
+                                                        <div
+                                                            className={`col-exercise ${isOtroCamino ? 'exercise-selector' : ''}`}
+                                                            onClick={isOtroCamino ? () => openExercisePicker(index) : undefined}
                                                         >
-                                                            {completed ? <span className="completed-text">✓ Completado</span> : `+${xp} XP`}
-                                                        </button>
+                                                            <strong>{ex.name}</strong>
+                                                            {isOtroCamino && <span className="exercise-selector-icon">▼</span>}
+                                                        </div>
+                                                        <div className="col-description"><p className="exercise-description">{ex.description}</p></div>
+                                                        <div className="col-reps">
+                                                            <input
+                                                                type="number"
+                                                                min="1"
+                                                                step="1"
+                                                                defaultValue={defaultReps}
+                                                                ref={el => inputRefs.current[id].reps = el}
+                                                                onChange={(e) => handleInputChange(id, 'reps', e.target.value)}
+                                                                disabled={completedExerciseIds[id]}
+                                                            />
+                                                        </div>
+                                                        <div className="col-sets">
+                                                            <input
+                                                                type="number"
+                                                                min="1"
+                                                                step="1"
+                                                                defaultValue={defaultSets}
+                                                                ref={el => inputRefs.current[id].sets = el}
+                                                                onChange={(e) => handleInputChange(id, 'sets', e.target.value)}
+                                                                disabled={completedExerciseIds[id]}
+                                                            />
+                                                        </div>
+                                                        <div className="col-weight">
+                                                            <input
+                                                                type="number"
+                                                                min="0"
+                                                                step="0.5"
+                                                                defaultValue={defaultWeight}
+                                                                ref={el => inputRefs.current[id].weight = el}
+                                                                onChange={(e) => handleInputChange(id, 'weight', e.target.value)}
+                                                                disabled={completedExerciseIds[id]}
+                                                            />
+                                                        </div>
+                                                        <div className="col-xp">
+                                                            <button
+                                                                className={`xp-reward-button ${completed ? 'completed' : ''}`}
+                                                                onClick={() => completeExercise(id, xp)}
+                                                                disabled={completedExerciseIds[id]}
+                                                            >
+                                                                {completed ? <span className="completed-text">✓ Completado</span> : `+${xp} XP`}
+                                                            </button>
+                                                        </div>
+                                                        <div className="col-actions">
+                                                            {ex.videoUrl && (
+                                                                <a href={ex.videoUrl} target="_blank" rel="noopener noreferrer" className="video-link">
+                                                                    <i className="fa fa-youtube-play"></i> Video
+                                                                </a>
+                                                            )}
+                                                            {latestCompletions[id] && (
+                                                                <span className="last-completed" title={`Última vez completado: ${new Date(latestCompletions[id].completedAt).toLocaleDateString()}`}>
+                                                                    <i className="fa fa-history"></i>
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                     </div>
-                                                    <div className="col-actions">
-                                                        {ex.videoUrl && (
-                                                            <a href={ex.videoUrl} target="_blank" rel="noopener noreferrer" className="video-link">
-                                                                <i className="fa fa-youtube-play"></i> Video
-                                                            </a>
-                                                        )}
-                                                        {latestCompletions[id] && (
-                                                            <span className="last-completed" title={`Última vez completado: ${new Date(latestCompletions[id].completedAt).toLocaleDateString()}`}>
-                                                                <i className="fa fa-history"></i>
-                                                            </span>
-                                                        )}
-                                                    </div>
+                                                );
+                                            })
+                                        ) : (
+                                            <div className="table-row empty-message">
+                                                <div style={{ padding: '20px', textAlign: 'center' }}>
+                                                    {isOtroCamino
+                                                        ? "Haga clic en \"Agregar ejercicio\" para comenzar"
+                                                        : "No hay ejercicios disponibles para este camino"
+                                                    }
                                                 </div>
-                                            );
-                                        })
-                                    ) : (
-                                        <div className="table-row"><div style={{ padding: '20px', textAlign: 'center' }}>No se encontraron ejercicios</div></div>
-                                    )}
-                                </div>
-                            )}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                    </div>
 
-                    {/* Cambiar Camino button - Moved inside the sessions-panel after exercise list */}
-                    <div className="cambiar-camino-container">
-                        <button
-                            className="cambiar-camino-button"
-                            onClick={openResetModal}
-                        >
-                            Cambiar Camino
-                        </button>
+                        {/* Cambiar Camino button */}
+                        <div className="cambiar-camino-container">
+                            <button
+                                className="cambiar-camino-button"
+                                onClick={openResetModal}
+                            >
+                                Cambiar Camino
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
+
+            {/* Exercise Picker Modal - Only shown for Otro camino */}
+            {isOtroCamino && showExercisePicker && (
+                <div className="exercise-picker-modal">
+                    <div className="exercise-picker-content">
+                        <div className="exercise-picker-header">
+                            <h3>Seleccionar Ejercicio</h3>
+                            <button className="close-picker-button" onClick={closeExercisePicker}>×</button>
+                        </div>
+
+                        {loadingAvailableExercises ? (
+                            <div className="loading-mini">
+                                <p>Cargando ejercicios disponibles...</p>
+                            </div>
+                        ) : (
+                            <div className="exercise-picker-list">
+                                {availableExercises.length > 0 ? (
+                                    availableExercises.map(exercise => (
+                                        <div
+                                            key={exercise.id}
+                                            className="exercise-picker-item"
+                                            onClick={() => selectExercise(exercise)}
+                                        >
+                                            <div className="exercise-picker-name">{exercise.name}</div>
+                                            <div className="exercise-picker-muscle">{exercise.muscleGroup}</div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p className="no-exercises-message">No hay ejercicios disponibles para este nivel</p>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
 
             {/* Reset Camino Modal */}
             {showResetModal && (
