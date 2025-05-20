@@ -25,6 +25,7 @@ const ExerciseView = () => {
     const [showExercisePicker, setShowExercisePicker] = useState(false);
     const [currentRow, setCurrentRow] = useState(null);
 
+
     const { currentUser } = useAuth();
     const { updateXP, refreshXP } = useXP();
     const username = currentUser?.username || "Usuario";
