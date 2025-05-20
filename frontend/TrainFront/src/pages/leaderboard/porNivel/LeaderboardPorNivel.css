@@ -1,0 +1,169 @@
+.leaderboard-wrapper {
+    max-width: 1100px;
+    margin: 60px auto;
+    padding: 20px;
+    background-color: #0b0f1a;
+    border-radius: 20px;
+    box-shadow: 0 0 30px rgba(0, 162, 255, 0.3);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: white;
+    animation: fadeIn 1s ease-in;
+    margin-top: 140px;
+}
+
+.leaderboard-title {
+    text-align: center;
+    font-size: 2.5rem;
+    color: #00aaff;
+    margin-bottom: 40px;
+}
+
+
+.leaderboard-header {
+    background-color: #1c1f27;
+    font-weight: bold;
+    border-bottom: 2px solid #00aaff;
+}
+
+.leaderboard-row:hover {
+    background-color: #1a1f2a;
+    transform: scale(1.01);
+}
+.leaderboard-header,
+.leaderboard-row {
+    display: grid;
+    grid-template-columns:
+        60px     /* # */
+        2.2fr    /* Usuario */
+        1.5fr    /* Camino */
+        1.5fr    /* Día Frecuente */
+        1.3fr    /* Sesiones */
+        1.6fr    /* XP Total */
+        1.4fr;   /* Racha */
+
+    align-items: center;
+    padding: 14px 32px;
+    border-radius: 12px;
+    background-color: #141922;
+    transition: transform 0.2s, background-color 0.3s;
+    column-gap: 36px;
+}
+
+.rank-number {
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #00aaff;
+}
+
+.user-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-photo {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #00aaff;
+}
+
+.username {
+    font-weight: 500;
+    color: white;
+}
+
+.xp-cell {
+    font-weight: bold;
+    color: #ffffff;
+    background: linear-gradient(90deg, #00c6ff, #0072ff);
+    padding: 6px 12px;
+    border-radius: 20px;
+    text-align: center;
+}
+
+.streak-cell {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    gap: 6px;
+    font-weight: bold;
+}
+
+.streak-up {
+    color: #00ff88;
+}
+
+.streak-down {
+    color: #ff4c4c;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    } to {
+          opacity: 1;
+          transform: translateY(0);
+      }
+}
+
+@media screen and (max-width: 768px) {
+    .leaderboard-header,
+    .leaderboard-row {
+        grid-template-columns: 30px 1.8fr 1fr 1fr;
+        font-size: 0.9rem;
+    }
+
+    .xp-cell,
+    .streak-cell {
+        display: none;
+    }
+
+    .leaderboard-title {
+        font-size: 1.8rem;
+    }
+}
+
+.current-user-row {
+    background-color: #112233 !important;
+    border: 2px solid #00aaff;
+    box-shadow: 0 0 12px #00aaff80;
+}
+.streak-number {
+    padding-left: 15px;
+}
+.session-number {
+    padding-left: 30px;
+}
+
+.xp-name {
+    padding-left: 15px;
+}
+
+.day-name {
+    padding-right: 10px;
+}
+.cf-name {
+    padding-left: 9px;
+}
+.level-title {
+    text-align: center;
+    font-size: 1.8rem;
+    color: white;
+    margin-bottom: 30px;
+    margin-top: 60px; /* antes era -30px */
+}
+
+.leaderboard-section {
+    margin-bottom: 60px; /* separación entre secciones */
+}
+
+.leaderboard-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px; /* añade margen superior respecto al título */
+}
+

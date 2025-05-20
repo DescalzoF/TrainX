@@ -232,7 +232,7 @@ function Navbar() {
                 return;
             }
 
-            if (path === '/progress') {
+            if (path === '/progress' || path.startsWith('/leaderboard')) {
                 if (!hasChosenCaminoFitness()) {
                     return; // Stay on the same page if camino not chosen
                 }

@@ -17,6 +17,8 @@ import Gimnasios from './pages/gimnasios/Gimnasios.jsx';
 import Progress from './pages/progress/Progress.jsx';
 import LeaderboardGeneral from './pages/leaderboard/general/LeaderboardGeneral.jsx';
 import './App.css';
+import LeaderboardPorNivel from "./pages/leaderboard/porNivel/LeaderboardPorNivel.jsx";
+import LeaderboardSemanal from "./pages/leaderboard/semanal/LeaderboardSemanal.jsx";
 
 const ProtectedRoute = ({ children }) => {
     const { isLoggedIn, isLoading } = useAuth();
@@ -159,6 +161,22 @@ function AppContent() {
                         element={
                             <ProtectedRoute>
                                 <LeaderboardGeneral />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/leaderboard-por-nivel"
+                        element={
+                            <ProtectedRoute>
+                                <LeaderboardPorNivel />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/leaderboard-semanal"
+                        element={
+                            <ProtectedRoute>
+                                <LeaderboardSemanal/>
                             </ProtectedRoute>
                         }
                     />

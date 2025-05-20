@@ -4,6 +4,8 @@ import com.TrainX.TrainX.User.UserEntity;
 import com.TrainX.TrainX.User.UserRepository;
 import com.TrainX.TrainX.exercise.ExerciseEntity;
 import com.TrainX.TrainX.exercise.ExerciseRepository;
+import com.TrainX.TrainX.leaderboards.LeaderboardGeneralDTO;
+import com.TrainX.TrainX.leaderboards.LeaderboardSemanalDTO;
 import com.TrainX.TrainX.xpFitness.XpFitnessService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -410,4 +412,91 @@ public class ExerciseCompletionService {
                 ))
                 .collect(Collectors.toList());
     }
+
+    @Transactional(readOnly = true)
+    public List<LeaderboardGeneralDTO> getGeneralLeaderboard() {
+        List<UserEntity> users = userRepository.findAll();
+
+        return users.stream()
+                .map(user -> {
+                    ExtendedExerciseCompletionStatisticsDTO stats = getExtendedStatsForUser(user.getId());
+                    Long totalXp = 0L;
+                    if (user.getXpFitnessEntity() != null) {
+                        // Reemplaza 'getTotalXp()' con el método o campo correcto de tu XpFitnessEntity
+                        totalXp = user.getXpFitnessEntity().getTotalXp(); // <-- Cambia esto si el nombre es diferente
+                    }
+
+                    return new LeaderboardGeneralDTO(
+                            user.getId(),
+                            user.getUsername(),
+                            user.getUserPhoto(),
+                            user.getCaminoFitnessActual() != null ? user.getCaminoFitnessActual().getNameCF() : "N/A",
+                            user.getLevel() != null ? user.getLevel().getNameLevel() : "N/A",
+                            totalXp,
+                            stats != null ? stats.getCurrentStreak() : 0,
+                            stats != null ? stats.getMostFrequentDay() : "N/A",
+                            stats != null ? stats.getTotalSessions() : 0
+                    );
+                })
+                .sorted(Comparator.comparingLong(LeaderboardGeneralDTO::getTotalXp).reversed())
+                .collect(Collectors.toList());
+    }
+    @Transactional(readOnly = true)
+    public List<LeaderboardSemanalDTO> getWeeklyLeaderboard() {
+        List<UserEntity> users = userRepository.findAll(); // Obtener todos los usuarios
+
+        List<LeaderboardSemanalDTO> weeklyLeaderboard = users.stream()
+                .map(user -> {
+                    // Para cada usuario, obtener sus finalizaciones de ejercicio
+                    List<ExerciseCompletionEntity> completions = exerciseCompletionRepository.findByUserId(user.getId());
+
+                    // Calcular el inicio y fin de la semana actual
+                    LocalDate today = LocalDate.now();
+                    LocalDate startOfWeek = today.with(WeekFields.of(Locale.forLanguageTag("es")).dayOfWeek(), 1); // Lunes
+                    LocalDate endOfWeek = startOfWeek.plusDays(6); // Domingo
+
+                    // Filtrar las finalizaciones de la semana actual y calcular métricas
+                    int weeklyXp = 0;
+                    double totalWeight = 0.0; // Total de peso levantado en la semana
+                    Set<LocalDate> weeklyWorkoutDays = new HashSet<>(); // Para contar sesiones/días de entrenamiento
+                    int weeklyExercises = 0; // Contador de ejercicios completados
+                    int totalWeeklyReps = 0; // Total de repeticiones en la semana
+
+                    for (ExerciseCompletionEntity completion : completions) {
+                        LocalDate completionDate = completion.getCompletedAt().toLocalDate();
+                        // Verificar si la finalización está dentro de la semana actual
+                        if (!completionDate.isBefore(startOfWeek) && !completionDate.isAfter(endOfWeek)) {
+                            weeklyXp += completion.getXpReward().intValue();
+                            totalWeight += completion.getWeight() * completion.getSets() * completion.getReps(); // Total de peso levantado
+                            weeklyWorkoutDays.add(completionDate); // Añadir el día para contar sesiones
+                            weeklyExercises++; // Contar el ejercicio individual
+                            totalWeeklyReps += completion.getReps() * completion.getSets(); // Total de repeticiones
+                        }
+                    }
+
+                    // Aquí decides si weeklyExercisesCompleted cuenta ejercicios individuales o días de entrenamiento
+                    // Usaremos weeklyExercises para contar el total de actividades en la semana.
+                    // Si quieres contar días de entrenamiento, usa weeklyWorkoutDays.size().
+                    int weeklyActivityCount = weeklyExercises;
+
+
+                    // Crear el DTO Semanal para el usuario
+                    return new LeaderboardSemanalDTO(
+                            user.getId(),
+                            user.getUsername(),
+                            user.getUserPhoto(),
+                            weeklyXp,
+                            weeklyActivityCount,
+                            totalWeight,
+                            user.getLevel() != null ? user.getLevel().getNameLevel() : "N/A",
+                            totalWeeklyReps
+                    );
+                })
+                // Ordenar por XP Semanal de forma descendente
+                .sorted(Comparator.comparingInt(LeaderboardSemanalDTO::getWeeklyXp).reversed())
+                .collect(Collectors.toList());
+
+        return weeklyLeaderboard;
+    }
+
 }

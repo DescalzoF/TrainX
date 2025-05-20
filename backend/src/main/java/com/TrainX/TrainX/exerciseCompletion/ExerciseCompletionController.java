@@ -1,6 +1,8 @@
 package com.TrainX.TrainX.exerciseCompletion;
 
 import com.TrainX.TrainX.User.UserEntity;
+import com.TrainX.TrainX.leaderboards.LeaderboardGeneralDTO;
+import com.TrainX.TrainX.leaderboards.LeaderboardSemanalDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -105,4 +107,16 @@ public class ExerciseCompletionController {
 
         return ResponseEntity.ok(convertToResponseDTO(latestCompletion));
     }
+
+    @GetMapping("/leaderboard-general")
+    public ResponseEntity<List<LeaderboardGeneralDTO>> getGeneralLeaderboard() {
+        List<LeaderboardGeneralDTO> leaderboard = exerciseCompletionService.getGeneralLeaderboard();
+        return ResponseEntity.ok(leaderboard);
+    }
+    @GetMapping("/leaderboard-semanal")
+    public ResponseEntity<List<LeaderboardSemanalDTO>> getWeeklyLeaderboard() {
+        List<LeaderboardSemanalDTO> weeklyLeaderboard = exerciseCompletionService.getWeeklyLeaderboard();
+        return ResponseEntity.ok(weeklyLeaderboard);
+    }
+
 }
