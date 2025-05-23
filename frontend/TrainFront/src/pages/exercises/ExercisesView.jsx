@@ -24,7 +24,12 @@ const ExerciseView = () => {
     const [isOtroCamino, setIsOtroCamino] = useState(false);
     const [showExercisePicker, setShowExercisePicker] = useState(false);
     const [currentRow, setCurrentRow] = useState(null);
+    const [userRole, setUserRole] = useState(null);
+    const [loadingRole, setLoadingRole] = useState(true);
 
+    // Admin logic from gimnasios.jsx
+    const [isAdmin, setIsAdmin] = useState(false);
+    const [adminActive, setAdminActive] = useState(false);
 
     const { currentUser } = useAuth();
     const { updateXP, refreshXP } = useXP();
@@ -38,6 +43,41 @@ const ExerciseView = () => {
         console.log("Current completedExerciseIds:", completedExerciseIds);
     }, [completedExerciseIds]);
 
+    // Fetch user role
+    const fetchUserRole = async () => {
+        try {
+            const token = localStorage.getItem("jwtToken") || localStorage.getItem("token");
+            if (!token) {
+                setLoadingRole(false);
+                return;
+            }
+
+            const response = await axios.get(
+                "http://localhost:8080/api/users/role",
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    }
+                }
+            );
+
+            if (response.data && response.data.role) {
+                setUserRole(response.data.role);
+                // Set isAdmin based on the role
+                const adminStatus = response.data.role === 'ADMIN';
+                setIsAdmin(adminStatus);
+                console.log("User role:", response.data.role, "Is Admin:", adminStatus);
+            }
+        } catch (error) {
+            console.error("Error fetching user role:", error);
+            setUserRole("USER"); // Default to USER role if there's an error
+            setIsAdmin(false);
+        } finally {
+            setLoadingRole(false);
+        }
+    };
+
     // Reset state when user changes
     useEffect(() => {
         setCompletedExerciseIds({});
@@ -48,15 +88,21 @@ const ExerciseView = () => {
         setExerciseInputs({});
         setLatestCompletions({});
         setAvailableExercises([]);
+        setUserRole(null);
+        setIsAdmin(false);
+        setAdminActive(false);
 
         if (!currentUser?.id) {
             setLoading(false);
+            setLoadingRole(false);
             return;
         }
 
         setLoading(true);
         setLoadingCompletions(true);
+        setLoadingRole(true);
         refreshXP();
+        fetchUserRole();
         fetchUserData();
     }, [currentUser, refreshXP]);
 
@@ -470,7 +516,7 @@ const ExerciseView = () => {
         return defaultVal;
     };
 
-    if (loading) {
+    if (loading || loadingRole) {
         return (
             <div className="loading-container">
                 <div className="spinner"></div>
@@ -497,10 +543,26 @@ const ExerciseView = () => {
     return (
         <div className="exercises-view-container">
             <h1>Programa de Entrenamiento de {username}</h1>
+
+            {/* Admin Toggle Button - Only show if user is admin */}
+            {isAdmin && (
+                <div className="admin-toggle-container">
+                    <button
+                        className={`admin-toggle-button ${adminActive ? 'active' : ''}`}
+                        onClick={() => setAdminActive(!adminActive)}
+                    >
+                        {adminActive ? 'Salir del Modo Admin' : 'Modo Admin'}
+                    </button>
+                </div>
+            )}
+
             <div className="content-container">
-                {/* Weekly Challenges Section */}
-                <DesafiosSemanales />
-                <AdminDesafioSemanales />
+                {/* Weekly Challenges Section - Conditional rendering based on admin mode */}
+                {isAdmin && adminActive ? (
+                    <AdminDesafioSemanales />
+                ) : (
+                    <DesafiosSemanales />
+                )}
 
                 {/* Main workout area */}
                 <div className="sessions-panel">

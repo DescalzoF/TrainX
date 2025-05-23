@@ -629,10 +629,10 @@
     color: #7f8c8d;
 }
 
-.gym-rating {
+.gym-actions {
     display: flex;
+    gap: 12px;
     align-items: center;
-    gap: 2px;
 }
 
 .gym-actions {
@@ -641,35 +641,70 @@
 }
 
 .edit-gym-button, .delete-gym-button {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
+    min-width: 80px;
+    height: 40px;
+    border-radius: 12px;
     display: flex;
     justify-content: center;
     align-items: center;
+    gap: 6px;
     border: none;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 8px 12px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .edit-gym-button {
-    background-color: #3498db;
+    background: linear-gradient(135deg, #3498db, #2980b9);
     color: white;
 }
 
 .edit-gym-button:hover {
-    background-color: #2980b9;
-    transform: scale(1.1);
+    background: linear-gradient(135deg, #2980b9, #1f5f8b);
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+}
+
+.edit-gym-button:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow: 0 2px 6px rgba(52, 152, 219, 0.3);
 }
 
 .delete-gym-button {
-    background-color: #e74c3c;
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
     color: white;
 }
 
 .delete-gym-button:hover {
-    background-color: #c0392b;
-    transform: scale(1.1);
+    background: linear-gradient(135deg, #c0392b, #a93226);
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.4);
+}
+
+.delete-gym-button:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow: 0 2px 6px rgba(231, 76, 60, 0.3);
+}
+
+/* Add subtle animation on load */
+.edit-gym-button, .delete-gym-button {
+    animation: buttonSlideIn 0.3s ease-out;
+}
+
+@keyframes buttonSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
 /* Responsive Design */

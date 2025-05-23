@@ -607,14 +607,14 @@ const AdminGymManagement = ({ mapInstance, updateGyms, userLocation }) => {
                                     onClick={() => startEditing(gym)}
                                     title="Editar gimnasio"
                                 >
-                                    <FaEdit />
+                                    <FaEdit /> Editar
                                 </button>
                                 <button
                                     className="delete-gym-button"
                                     onClick={() => deleteGym(gym.id)}
                                     title="Eliminar gimnasio"
                                 >
-                                    <FaTrash />
+                                    <FaTrash /> Borrar
                                 </button>
                             </div>
                         </div>
