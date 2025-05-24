@@ -192,8 +192,36 @@ public class DuelService {
             userRepository.save(user);
         }
 
+        // Get all other pending duels where the user is either challenger or challenged
+        List<DuelEntity> otherPendingDuels = duelRepository.findByUserAndStatus(user, DuelStatus.PENDING)
+                .stream()
+                .filter(d -> !d.getId().equals(duelId))
+                .collect(Collectors.toList());
+
+        // Reject all other pending duels and return bet amounts
+        for (DuelEntity pendingDuel : otherPendingDuels) {
+            // Return bet coins to the challenger if bet was made
+            if (pendingDuel.getBetAmount() > 0) {
+                // If the current user is the challenger, return coins to them
+                if (pendingDuel.getChallenger().getId().equals(user.getId())) {
+                    user.setCoins(user.getCoins() + pendingDuel.getBetAmount());
+                } else {
+                    // Return coins to the other challenger
+                    UserEntity challenger = pendingDuel.getChallenger();
+                    challenger.setCoins(challenger.getCoins() + pendingDuel.getBetAmount());
+                    userRepository.save(challenger);
+                }
+            }
+            pendingDuel.setStatus(DuelStatus.REJECTED);
+            duelRepository.save(pendingDuel);
+        }
+
+        // After rejecting all other duels, accept this one
         duel.setStatus(DuelStatus.ACTIVE);
         duelRepository.save(duel);
+
+        // Save the user if their coins were updated
+        userRepository.save(user);
     }
 
     @Transactional

@@ -330,3 +330,371 @@
         justify-content: center;
     }
 }
+/* Brawl Stars-style petition toast notification */
+.weekly-duel__brawl-toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    transform: translateX(100%) scale(0.8);
+    background: linear-gradient(135deg, #2b4f81 0%, #1a365d 100%);
+    border-radius: 16px;
+    padding: 20px 30px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    color: white;
+    text-align: center;
+    z-index: 1100;
+    opacity: 0;
+    pointer-events: none;
+    animation: brawlToastIn 0.4s ease forwards, brawlToastOut 0.4s ease 2.5s forwards;
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    max-width: 350px;
+    width: auto;
+}
+
+.weekly-duel__brawl-toast::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    background: linear-gradient(45deg, #a0aec0, transparent, #718096);
+    border-radius: 20px;
+    z-index: -1;
+    opacity: 0.6;
+    animation: glowRotate 3s linear infinite;
+}
+
+.weekly-duel__brawl-toast-icon {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    display: block;
+    color: #f6e05e;
+    text-shadow: 0 0 10px rgba(246, 224, 94, 0.5);
+}
+
+.weekly-duel__brawl-toast-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    /* Brawl Stars text style with shadow outline */
+    color: white;
+    text-shadow:
+            -3px -3px 0 #000,
+            3px -3px 0 #000,
+            -3px 3px 0 #000,
+            3px 3px 0 #000,
+            0 -3px 0 #000,
+            0 3px 0 #000,
+            -3px 0 0 #000,
+            3px 0 0 #000;
+    transform: scale(1, 1.1);
+}
+
+.weekly-duel__brawl-toast-message {
+    font-size: 1.1rem;
+    margin: 0;
+    font-weight: 700;
+    /* Brawl Stars secondary text style */
+    color: white;
+    text-shadow:
+            -1px -1px 0 #000,
+            1px -1px 0 #000,
+            -1px 1px 0 #000,
+            1px 1px 0 #000;
+    letter-spacing: 0.5px;
+}
+
+.weekly-duel__brawl-toast-stars {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.weekly-duel__brawl-toast-star {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 50%;
+    animation: starFloat 2s ease-out forwards;
+}
+
+/* Star shapes with different sizes and colors */
+.weekly-duel__brawl-toast-star:nth-child(3n) {
+    background-color: rgba(246, 224, 94, 0.8);
+    width: 8px;
+    height: 8px;
+}
+
+.weekly-duel__brawl-toast-star:nth-child(3n+1) {
+    background-color: rgba(255, 255, 255, 0.9);
+    width: 6px;
+    height: 6px;
+}
+
+.weekly-duel__brawl-toast-star:nth-child(3n+2) {
+    background-color: rgba(66, 153, 225, 0.7);
+    width: 7px;
+    height: 7px;
+}
+
+@keyframes brawlToastIn {
+    0% {
+        opacity: 0;
+        transform: translateX(100%) scale(0.8);
+    }
+    80% {
+        transform: translateX(0) scale(1.05);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+@keyframes brawlToastOut {
+    0% {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(20px) scale(0.8);
+    }
+}
+
+@keyframes starFloat {
+    0% {
+        opacity: 0;
+        transform: translate(0, 0) scale(0);
+    }
+    20% {
+        opacity: 1;
+        transform: translate(var(--tx, 10px), var(--ty, -20px)) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(var(--tx, 20px), var(--ty, -40px)) scale(0);
+    }
+}
+
+@keyframes glowRotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .weekly-duel__brawl-toast {
+        padding: 15px 20px;
+    }
+
+    .weekly-duel__brawl-toast-icon {
+        font-size: 2rem;
+    }
+
+    .weekly-duel__brawl-toast-title {
+        font-size: 1.2rem;
+    }
+
+    .weekly-duel__brawl-toast-message {
+        font-size: 1rem;
+    }
+}
+/* Professional toast notification */
+.bet-duel__pro-toast {
+    position: fixed;
+    top: 25px;
+    right: 25px;
+    width: 320px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    z-index: 1000;
+    transform: translateY(0);
+    opacity: 1;
+    animation: proToastIn 0.4s ease-out, proToastOut 0.3s ease 2.7s forwards;
+    border-left: 5px solid #38a169;
+}
+
+.bet-duel__pro-toast--success {
+    border-left-color: #38a169;
+}
+
+.bet-duel__pro-toast--hide {
+    animation: proToastHide 0.3s ease forwards;
+}
+
+.bet-duel__pro-toast::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    width: 100%;
+    background: #e2e8f0;
+}
+
+.bet-duel__pro-toast::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    width: 100%;
+    background: #38a169;
+    z-index: 1;
+    animation: toastTimer 3s linear forwards;
+}
+
+.bet-duel__pro-toast-content {
+    display: flex;
+    padding: 16px;
+}
+
+.bet-duel__pro-toast-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    margin-right: 16px;
+    font-size: 24px;
+    color: #38a169;
+    flex-shrink: 0;
+}
+
+.bet-duel__pro-toast-message {
+    flex: 1;
+}
+
+.bet-duel__pro-toast-message h4 {
+    margin: 0 0 4px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.bet-duel__pro-toast-message p {
+    margin: 0;
+    font-size: 14px;
+    color: #718096;
+}
+
+@keyframes proToastIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes proToastOut {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+}
+
+@keyframes proToastHide {
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+@keyframes toastTimer {
+    from {
+        width: 100%;
+    }
+    to {
+        width: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .bet-duel__pro-toast {
+        width: calc(100% - 50px);
+        top: 15px;
+        right: 15px;
+    }
+}
+/* Too many requests toast notification */
+.bet-duel__pro-toast--warning {
+    border-left-color: #0061ff;
+}
+
+.bet-duel__pro-toast--warning::before {
+    background: #0061ff;
+}
+
+.bet-duel__pro-toast--warning .bet-duel__pro-toast-icon {
+    color: #0061ff;
+}
+
+.bet-duel__pro-toast--warning .bet-duel__pro-toast-icon i {
+    animation: pulseWarning 1.5s infinite;
+}
+
+@keyframes pulseWarning {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+.bet-duel__limit-reached-container {
+    text-align: center;
+    padding: 10px;
+}
+
+.bet-duel__limit-reached-icon {
+    font-size: 48px;
+    color: #ed8936;
+    margin-bottom: 15px;
+    animation: floatIcon 2s ease-in-out infinite;
+}
+
+.bet-duel__limit-reached-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 10px;
+}
+
+.bet-duel__limit-reached-message {
+    font-size: 14px;
+    color: #718096;
+    margin-bottom: 15px;
+    line-height: 1.5;
+}
+
+@keyframes floatIcon {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}

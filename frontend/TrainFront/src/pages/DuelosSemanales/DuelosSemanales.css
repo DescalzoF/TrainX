@@ -947,14 +947,14 @@
     width: 50px;
     height: 50px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #e53e3e 0%, #fc8181 100%);
+    background: linear-gradient(135deg, #1a365d 0%, #4299e1 100%); /* Changed from red to blue */
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
     font-weight: bold;
     font-size: 1.5rem;
-    box-shadow: 0 4px 10px rgba(229, 62, 62, 0.3);
+    box-shadow: 0 4px 10px rgba(66, 153, 225, 0.3); /* Updated shadow color to match blue */
 }
 
 .weekly-duel__challenger-details {
@@ -1016,15 +1016,15 @@
 }
 
 .weekly-duel__reject-button {
-    background-color: #a0aec0;
+    background-color: #e53e3e; /* Changed from gray to red */
     color: white;
-    box-shadow: 0 3px 10px rgba(160, 174, 192, 0.2);
+    box-shadow: 0 3px 10px rgba(229, 62, 62, 0.2); /* Updated shadow */
 }
 
 .weekly-duel__reject-button:hover {
-    background-color: #cbd5e0;
+    background-color: #c53030; /* Darker red on hover */
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(160, 174, 192, 0.3);
+    box-shadow: 0 5px 15px rgba(229, 62, 62, 0.3); /* Updated shadow */
 }
 
 .weekly-duel__no-pending {
@@ -1266,4 +1266,191 @@
 
 .weekly-duel__new-search i {
     margin-right: 8px;
+}
+
+/* Toast notification system */
+.weekly-duel__toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 350px;
+    display: flex;
+    align-items: center;
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    animation: toastSlideIn 0.3s ease forwards, toastFadeOut 0.3s ease 3.7s forwards;
+    overflow: hidden;
+}
+
+.weekly-duel__toast::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 5px;
+    height: 100%;
+}
+
+.weekly-duel__toast--success {
+    border-left: 5px solid #48bb78;
+}
+
+.weekly-duel__toast--success::before {
+    background-color: #48bb78;
+}
+
+.weekly-duel__toast--error {
+    border-left: 5px solid #e53e3e;
+}
+
+.weekly-duel__toast--error::before {
+    background-color: #e53e3e;
+}
+
+.weekly-duel__toast--info {
+    border-left: 5px solid #4299e1;
+}
+
+.weekly-duel__toast--info::before {
+    background-color: #4299e1;
+}
+
+.weekly-duel__toast-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    margin-right: 12px;
+}
+
+.weekly-duel__toast--success .weekly-duel__toast-icon {
+    color: #48bb78;
+    background-color: rgba(72, 187, 120, 0.1);
+}
+
+.weekly-duel__toast--error .weekly-duel__toast-icon {
+    color: #e53e3e;
+    background-color: rgba(229, 62, 62, 0.1);
+}
+
+.weekly-duel__toast--info .weekly-duel__toast-icon {
+    color: #4299e1;
+    background-color: rgba(66, 153, 225, 0.1);
+}
+
+.weekly-duel__toast-content {
+    flex: 1;
+}
+
+.weekly-duel__toast-content p {
+    margin: 0;
+    color: #2d3748;
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+.weekly-duel__toast-close {
+    background: transparent;
+    border: none;
+    color: #a0aec0;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    border-radius: 50%;
+    transition: background-color 0.2s, color 0.2s;
+    margin-left: 8px;
+}
+
+.weekly-duel__toast-close:hover {
+    background-color: #f7fafc;
+    color: #718096;
+}
+
+/* Progress bar animation for toast */
+.weekly-duel__toast::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    width: 100%;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.1));
+    animation: toastProgress 4s linear forwards;
+}
+
+.weekly-duel__toast--success::after {
+    background: linear-gradient(to right, rgba(72, 187, 120, 0.3), rgba(72, 187, 120, 0.7));
+}
+
+.weekly-duel__toast--error::after {
+    background: linear-gradient(to right, rgba(229, 62, 62, 0.3), rgba(229, 62, 62, 0.7));
+}
+
+.weekly-duel__toast--info::after {
+    background: linear-gradient(to right, rgba(66, 153, 225, 0.3), rgba(66, 153, 225, 0.7));
+}
+
+/* Toast animations */
+@keyframes toastSlideIn {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes toastFadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+@keyframes toastProgress {
+    from {
+        width: 100%;
+    }
+    to {
+        width: 0%;
+    }
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 768px) {
+    .weekly-duel__toast {
+        width: calc(100% - 40px);
+        max-width: 350px;
+    }
+}
+
+@media (max-width: 480px) {
+    .weekly-duel__toast {
+        width: calc(100% - 30px);
+        top: 10px;
+        right: 15px;
+        padding: 12px;
+    }
+
+    .weekly-duel__toast-icon {
+        width: 30px;
+        height: 30px;
+        font-size: 1.2rem;
+    }
 }

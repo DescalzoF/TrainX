@@ -45,6 +45,108 @@ const BetDuelButton = ({ userId, onDuelSent }) => {
 
     const handleSliderChange = (e) => setBetAmount(parseInt(e.target.value));
 
+    const showProfessionalToast = () => {
+        // Create toast container
+        const toast = document.createElement('div');
+        toast.className = 'bet-duel__pro-toast bet-duel__pro-toast--success';
+
+        // Create toast content
+        const content = document.createElement('div');
+        content.className = 'bet-duel__pro-toast-content';
+
+        // Add icon
+        const iconContainer = document.createElement('div');
+        iconContainer.className = 'bet-duel__pro-toast-icon';
+        const icon = document.createElement('i');
+        icon.className = 'fa fa-check-circle';
+        iconContainer.appendChild(icon);
+
+        // Add message container
+        const messageContainer = document.createElement('div');
+        messageContainer.className = 'bet-duel__pro-toast-message';
+
+        // Add title and description
+        const title = document.createElement('h4');
+        title.textContent = 'Desafío Enviado';
+
+        const description = document.createElement('p');
+        description.textContent = 'Tu solicitud de duelo ha sido enviada con éxito';
+
+        messageContainer.appendChild(title);
+        messageContainer.appendChild(description);
+
+        // Assemble the toast
+        content.appendChild(iconContainer);
+        content.appendChild(messageContainer);
+        toast.appendChild(content);
+
+        // Add to document
+        document.body.appendChild(toast);
+
+        // Remove after animation completes
+        setTimeout(() => {
+            if (document.body.contains(toast)) {
+                toast.classList.add('bet-duel__pro-toast--hide');
+                setTimeout(() => {
+                    if (document.body.contains(toast)) {
+                        document.body.removeChild(toast);
+                    }
+                }, 300);
+            }
+        }, 3000);
+    };
+
+    const showLimitReachedToast = () => {
+        // Create toast container
+        const toast = document.createElement('div');
+        toast.className = 'bet-duel__pro-toast bet-duel__pro-toast--warning';
+
+        // Create toast content
+        const content = document.createElement('div');
+        content.className = 'bet-duel__pro-toast-content';
+
+        // Add icon
+        const iconContainer = document.createElement('div');
+        iconContainer.className = 'bet-duel__pro-toast-icon';
+        const icon = document.createElement('i');
+        icon.className = 'fa fa-exclamation-triangle';
+        iconContainer.appendChild(icon);
+
+        // Add message container with more detailed content
+        const messageContainer = document.createElement('div');
+        messageContainer.className = 'bet-duel__pro-toast-message';
+
+        // Add title and description
+        const title = document.createElement('h4');
+        title.textContent = 'Límite de Desafíos Alcanzado';
+
+        const description = document.createElement('p');
+        description.textContent = 'Has alcanzado el número máximo de solicitudes pendientes. Espera a que respondan.';
+
+        messageContainer.appendChild(title);
+        messageContainer.appendChild(description);
+
+        // Assemble the toast
+        content.appendChild(iconContainer);
+        content.appendChild(messageContainer);
+        toast.appendChild(content);
+
+        // Add to document
+        document.body.appendChild(toast);
+
+        // Remove after animation completes
+        setTimeout(() => {
+            if (document.body.contains(toast)) {
+                toast.classList.add('bet-duel__pro-toast--hide');
+                setTimeout(() => {
+                    if (document.body.contains(toast)) {
+                        document.body.removeChild(toast);
+                    }
+                }, 300);
+            }
+        }, 3000);
+    };
+
     const handleSubmit = async () => {
         if (betAmount < 0) {
             setError('La apuesta no puede ser negativa');
@@ -60,10 +162,9 @@ const BetDuelButton = ({ userId, onDuelSent }) => {
         setError(null);
 
         try {
-            // Send betAmount as a number, not a string
             const requestData = {
                 challengedUserId: userId,
-                betAmount: betAmount  // Keep as number
+                betAmount: betAmount
             };
 
             console.log('Sending duel challenge:', requestData);
@@ -77,14 +178,25 @@ const BetDuelButton = ({ userId, onDuelSent }) => {
 
             console.log('Duel challenge response:', response.data);
             setShowModal(false);
+            showProfessionalToast(); // Show the professional toast
             if (onDuelSent) onDuelSent();
         } catch (err) {
             console.error('Error sending duel request:', err);
             if (err.response) {
                 console.error('Response status:', err.response.status);
                 console.error('Response data:', err.response.data);
+
+                // Check if the error is due to too many pending requests
+                if (err.response.status === 429 ||
+                    (err.response.data?.message &&
+                        err.response.data.message.includes('limit'))) {
+                    showLimitReachedToast();
+                } else {
+                    showLimitReachedToast();
+                }
+            } else {
+                showLimitReachedToast();
             }
-            setError(err.response?.data?.message || 'Error al enviar solicitud');
         } finally {
             setLoading(false);
         }

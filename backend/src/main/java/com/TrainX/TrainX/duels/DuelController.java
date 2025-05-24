@@ -127,15 +127,19 @@ public class DuelController {
     @GetMapping("/pending")
     public ResponseEntity<PendingDuelsResponseDTO> getPendingDuels(
             @AuthenticationPrincipal UserEntity currentUser) {
-        List<DuelEntity> duels = duelService.getPendingDuels(currentUser);
-        List<DuelResponseDTO> duelsDTO = duels.stream()
+        List<DuelEntity> allPendingDuels = duelService.getPendingDuels(currentUser);
+
+        // Filter to only include duels where the current user is the challenged user
+        List<DuelEntity> incomingChallenges = allPendingDuels.stream()
+                .filter(duel -> duel.getChallenged().getId().equals(currentUser.getId()))
+                .collect(Collectors.toList());
+
+        List<DuelResponseDTO> duelsDTO = incomingChallenges.stream()
                 .map(this::convertToResponseDTO)
                 .collect(Collectors.toList());
 
-        // Count only the pending duels where current user is the challenged user (not the challenger)
-        int pendingRequestsCount = (int) duels.stream()
-                .filter(duel -> duel.getChallenged().getId().equals(currentUser.getId()))
-                .count();
+        // Count is the same as the filtered list size
+        int pendingRequestsCount = incomingChallenges.size();
 
         PendingDuelsResponseDTO response = new PendingDuelsResponseDTO();
         response.setPendingDuels(duelsDTO);
