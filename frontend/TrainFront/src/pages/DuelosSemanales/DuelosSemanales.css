@@ -1,0 +1,1456 @@
+.weekly-duel {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    font-family: 'Roboto', sans-serif;
+    color: #333;
+    background-color: #f8f9fa;
+}
+
+.weekly-duel__header {
+    text-align: center;
+    margin-bottom: 3rem;
+    position: relative;
+    padding-top: 7rem; /* Increased padding to push content below navbar */
+}
+
+.weekly-duel__header h1 {
+    font-size: 2.5rem;
+    color: #1a365d;
+    margin-bottom: 0.5rem;
+    position: relative;
+    display: inline-block;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.weekly-duel__header h1::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, #1a365d, #4299e1);
+    border-radius: 2px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.weekly-duel__header p {
+    font-size: 1.1rem;
+    color: #4a5568;
+    max-width: 600px;
+    margin: 1rem auto;
+}
+
+.weekly-duel__search {
+    display: flex;
+    justify-content: center;
+    margin: 3rem 0;
+}
+
+.weekly-duel__search-button {
+    background: linear-gradient(135deg, #1a365d 0%, #4299e1 100%);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    padding: 1rem 2rem;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+.weekly-duel__search-button::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transform: rotate(45deg);
+    animation: shimmer 3s infinite;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.weekly-duel__search-button:hover::before {
+    opacity: 1;
+}
+
+.weekly-duel__search-button:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 15px 25px rgba(0, 0, 0, 0.15);
+}
+
+.weekly-duel__search-button:disabled {
+    background: #a0aec0;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.weekly-duel__search-icon {
+    font-size: 1.5rem;
+    position: relative;
+    z-index: 2;
+}
+
+/* Enhanced Clash-style search animation container */
+.weekly-duel__animation {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 350px;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    background: radial-gradient(circle at center, rgba(66, 153, 225, 0.05) 0%, rgba(26, 54, 93, 0.1) 100%);
+    border-radius: 16px;
+    box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.05);
+}
+
+.weekly-duel__battlefield {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0.8;
+}
+
+.weekly-duel__magnifier {
+    width: 100px;
+    height: 100px;
+    position: relative;
+    transform-origin: center;
+    filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.2));
+    z-index: 10;
+}
+
+.weekly-duel__magnifier-glass {
+    width: 70px;
+    height: 70px;
+    border: 10px solid #1a365d;
+    border-radius: 50%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+}
+
+.weekly-duel__magnifier-glass::before {
+    content: '';
+    position: absolute;
+    top: -10%;
+    left: -10%;
+    width: 40%;
+    height: 40%;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    filter: blur(2px);
+}
+
+.weekly-duel__magnifier-handle {
+    width: 12px;
+    height: 50px;
+    background-color: #1a365d;
+    position: absolute;
+    bottom: -10px;
+    right: 5px;
+    transform: rotate(-45deg);
+    transform-origin: top center;
+    border-radius: 6px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+
+.weekly-duel__glow {
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(66, 153, 225, 0.7) 0%, rgba(66, 153, 225, 0) 70%);
+    animation: clanGlowPulse 2s infinite;
+    mix-blend-mode: screen;
+    filter: blur(10px);
+    z-index: 5;
+}
+
+.weekly-duel__rays {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    z-index: 4;
+    opacity: 0.7;
+    animation: raysSpin 10s linear infinite;
+}
+
+.weekly-duel__ray {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 2px;
+    background: linear-gradient(to bottom, rgba(66, 153, 225, 0), rgba(66, 153, 225, 0.5) 50%, rgba(66, 153, 225, 0));
+    transform-origin: center top;
+}
+
+.weekly-duel__ray--1 { height: 100px; transform: translateX(-50%) rotate(0deg); }
+.weekly-duel__ray--2 { height: 90px; transform: translateX(-50%) rotate(45deg); }
+.weekly-duel__ray--3 { height: 100px; transform: translateX(-50%) rotate(90deg); }
+.weekly-duel__ray--4 { height: 90px; transform: translateX(-50%) rotate(135deg); }
+.weekly-duel__ray--5 { height: 100px; transform: translateX(-50%) rotate(180deg); }
+.weekly-duel__ray--6 { height: 90px; transform: translateX(-50%) rotate(225deg); }
+.weekly-duel__ray--7 { height: 100px; transform: translateX(-50%) rotate(270deg); }
+.weekly-duel__ray--8 { height: 90px; transform: translateX(-50%) rotate(315deg); }
+
+.weekly-duel__searching-text {
+    font-size: 1.7rem;
+    font-weight: bold;
+    color: #1a365d;
+    margin-top: 4rem;
+    text-align: center;
+    text-shadow: 0 2px 10px rgba(66, 153, 225, 0.3);
+    animation: textPulse 2s infinite;
+    position: relative;
+    z-index: 10;
+}
+
+.weekly-duel__searching-text::after {
+    content: '...';
+    animation: ellipsis 1.5s infinite;
+}
+
+.weekly-duel__particles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 3;
+}
+
+/* First, define default values for the custom properties */
+.weekly-duel__particle {
+    position: absolute;
+    background-color: rgba(66, 153, 225, 0.4);
+    border-radius: 50%;
+    width: 8px;
+    height: 8px;
+    filter: blur(1px);
+    animation: floatParticle 3s infinite linear;
+    --tx: 50px;  /* Default x-translation */
+    --ty: -50px; /* Default y-translation */
+}
+
+/* Then set specific values for each particle */
+.weekly-duel__particle--1 { top: 30%; left: 40%; animation-delay: 0s; --tx: 60px; --ty: -40px; }
+.weekly-duel__particle--2 { top: 60%; left: 60%; animation-delay: 0.5s; --tx: 40px; --ty: -60px; }
+.weekly-duel__particle--3 { top: 40%; left: 65%; animation-delay: 1s; --tx: -50px; --ty: -50px; }
+.weekly-duel__particle--4 { top: 70%; left: 35%; animation-delay: 1.5s; --tx: -40px; --ty: -70px; }
+.weekly-duel__particle--5 { top: 50%; left: 30%; animation-delay: 2s; --tx: 50px; --ty: -30px; }
+.weekly-duel__particle--6 { top: 30%; left: 60%; animation-delay: 2.5s; --tx: 30px; --ty: -60px; }
+
+.weekly-duel__clouds {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+}
+
+.weekly-duel__cloud {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 50px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.weekly-duel__cloud::before,
+.weekly-duel__cloud::after {
+    content: '';
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+}
+
+.weekly-duel__cloud--1 {
+    width: 100px;
+    height: 40px;
+    top: 20%;
+    left: -100px;
+    animation: clanCloudMove 15s linear infinite;
+}
+
+.weekly-duel__cloud--1::before {
+    width: 50px;
+    height: 50px;
+    top: -20px;
+    right: 15px;
+}
+
+.weekly-duel__cloud--1::after {
+    width: 40px;
+    height: 40px;
+    top: -15px;
+    left: 20px;
+}
+
+.weekly-duel__cloud--2 {
+    width: 80px;
+    height: 35px;
+    top: 50%;
+    right: -80px;
+    animation: clanCloudMove 18s linear infinite reverse;
+}
+
+.weekly-duel__cloud--2::before {
+    width: 40px;
+    height: 40px;
+    top: -18px;
+    right: 10px;
+}
+
+.weekly-duel__cloud--2::after {
+    width: 35px;
+    height: 35px;
+    top: -15px;
+    left: 15px;
+}
+
+.weekly-duel__cloud--3 {
+    width: 90px;
+    height: 38px;
+    bottom: 25%;
+    left: -90px;
+    animation: clanCloudMove 20s linear infinite;
+    animation-delay: 5s;
+}
+
+.weekly-duel__cloud--3::before {
+    width: 45px;
+    height: 45px;
+    top: -18px;
+    right: 12px;
+}
+
+.weekly-duel__cloud--3::after {
+    width: 38px;
+    height: 38px;
+    top: -16px;
+    left: 18px;
+}
+
+/* Enhanced User cards - RENAMED CLASSES START HERE */
+.weekly-duel__rivals {
+    margin-top: 2rem;
+    animation: fadeIn 0.5s ease-in-out;
+    position: relative;
+}
+
+.weekly-duel__rivals::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #4299e1, transparent);
+    border-radius: 3px;
+}
+
+.weekly-duel__rivals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2.5rem;
+    margin: 3rem 0 2rem;
+}
+
+.weekly-duel__rival-container {
+    perspective: 1200px;
+    height: 380px;
+}
+
+.weekly-duel__rival {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    border-radius: 15px;
+    overflow: hidden;
+    transform-style: preserve-3d;
+    transition: transform 0.7s, box-shadow 0.3s;
+    animation: revealCard 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+    opacity: 0;
+    animation-delay: calc(var(--i, 0) * 0.15s);
+    --i: 0;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.05);
+    background: linear-gradient(135deg, #2c3e50 0%, #1a365d 100%);
+    border: 2px solid #4299e1;
+}
+
+.weekly-duel__rival::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #4299e1, #63b3ed, #4299e1);
+    z-index: 10;
+}
+
+.weekly-duel__rival:hover {
+    transform: translateY(-15px) rotateY(5deg);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15), 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.weekly-duel__rival-banner {
+    height: 100px;
+    background: linear-gradient(90deg, #1a365d, #4299e1);
+    position: relative;
+    overflow: hidden;
+}
+
+.weekly-duel__rival-banner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj4KPGRlZnM+CiAgPHBhdHRlcm4gaWQ9InBhdHRlcm4iIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHdpZHRoPSIxMCIgaGVpZ2h0PSIxMCI+CiAgICA8cGF0aCBkPSJNLTUsNSBsNSwtNSBsNSw1IiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS1vcGFjaXR5PSIwLjEiIHN0cm9rZS13aWR0aD0iMC41IiBmaWxsPSJub25lIi8+CiAgPC9wYXR0ZXJuPgo8L2RlZnM+CjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjcGF0dGVybikiLz4KPC9zdmc+');
+    opacity: 0.3;
+}
+
+.weekly-duel__rival-banner::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 30px;
+    background: linear-gradient(to top right, #1a365d 0%, #1a365d 50%, transparent 50%);
+}
+
+.weekly-duel__path-badge {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+    border-radius: 8px;
+    padding: 3px 10px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: white;
+    z-index: 2;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+}
+
+.weekly-duel__duel-icon {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(5px);
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    color: white;
+    z-index: 2;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.weekly-duel__duel-icon:hover {
+    transform: scale(1.15) rotate(15deg);
+    background: rgba(255, 255, 255, 0.35);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+.weekly-duel__rival-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 1.5rem 1.5rem;
+    position: relative;
+    z-index: 1;
+    height: calc(100% - 100px);
+    background-color: white;
+}
+
+.weekly-duel__rival-profile {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1a365d 0%, #4299e1 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: -55px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15), 0 5px 10px rgba(0, 0, 0, 0.05);
+    position: relative;
+    z-index: 2;
+    overflow: hidden;
+}
+
+.weekly-duel__rival-profile::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    animation: shimmerRotate 3s infinite linear;
+}
+
+.weekly-duel__rival-profile span {
+    color: white;
+    font-size: 3.2rem;
+    font-weight: bold;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.weekly-duel__rival-username {
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: #1a365d;
+    margin: 1.2rem 0 0.5rem;
+    text-align: center;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+
+.weekly-duel__rival-attributes {
+    width: 100%;
+    margin-top: 1.2rem;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.weekly-duel__attribute-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.7rem 1rem;
+    background-color: #f8fafc;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    transition: background-color 0.2s;
+}
+
+.weekly-duel__attribute-row:last-child {
+    border-bottom: none;
+}
+
+.weekly-duel__attribute-row:hover {
+    background-color: #f1f5f9;
+}
+
+.weekly-duel__attribute-label {
+    font-weight: 600;
+    color: #4a5568;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.weekly-duel__attribute-value {
+    font-weight: bold;
+    color: #1a365d;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background-color: rgba(66, 153, 225, 0.1);
+}
+
+/* Challenge button */
+.weekly-duel__battle-button {
+    margin-top: auto;
+    background: linear-gradient(90deg, #e53e3e, #fc8181);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    padding: 0.9rem 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 15px rgba(229, 62, 62, 0.2);
+}
+
+.weekly-duel__battle-button:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 25px rgba(229, 62, 62, 0.3);
+}
+
+.weekly-duel__battle-button::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transform: rotate(45deg);
+    animation: shimmer 2s infinite linear;
+    z-index: 1;
+}
+
+
+.weekly-duel__battle-button:hover::before {
+    animation-duration: 1s;
+}
+
+.weekly-duel__battle-button i {
+    font-size: 1.2rem;
+    position: relative;
+    z-index: 2;
+}
+
+.weekly-duel__battle-button span {
+    position: relative;
+    z-index: 2;
+}
+
+.weekly-duel__no-rivals {
+    text-align: center;
+    padding: 3rem 2rem;
+    background-color: #edf2f7;
+    border-radius: 15px;
+    border: 1px dashed #cbd5e0;
+    color: #4a5568;
+    font-size: 1.1rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.05);
+}
+
+.weekly-duel__no-rivals::before {
+    content: '⚠️';
+    font-size: 2.5rem;
+    display: block;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.weekly-duel__search-again {
+    display: block;
+    margin: 2.5rem auto 0;
+    background: transparent;
+    color: #1a365d;
+    border: 2px solid #1a365d;
+    border-radius: 30px;
+    padding: 0.8rem 2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.weekly-duel__search-again::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background: #1a365d;
+    z-index: -1;
+    transition: width 0.3s ease;
+    border-radius: 28px;
+}
+
+.weekly-duel__search-again:hover {
+    color: white;
+}
+
+.weekly-duel__search-again:hover::after {
+    width: 100%;
+}
+
+.weekly-duel__error {
+    text-align: center;
+    padding: 1.2rem;
+    background-color: #fff5f5;
+    border-radius: 12px;
+    border: 1px solid #fed7d7;
+    color: #e53e3e;
+    margin-bottom: 2rem;
+    box-shadow: 0 5px 15px rgba(229, 62, 62, 0.1);
+    position: relative;
+}
+
+.weekly-duel__error::before {
+    content: '⚠️';
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #fff5f5;
+    padding: 0 15px;
+    font-size: 1.2rem;
+}
+
+/* Enhanced Clash of Clans style animations */
+@keyframes clanSearchBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+}
+
+@keyframes clanSearchRotate {
+    0% { transform: rotate(-15deg); }
+    25% { transform: rotate(15deg); }
+    50% { transform: rotate(-8deg); }
+    75% { transform: rotate(8deg); }
+    100% { transform: rotate(-15deg); }
+}
+
+@keyframes clanSearchScale {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.1); }
+}
+
+@keyframes clanGlowPulse {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.3); }
+}
+
+@keyframes raysSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes floatParticle {
+    0% { transform: translate(0, 0); opacity: 0; }
+    30% { opacity: 1; }
+    70% { opacity: 1; }
+    100% { transform: translate(var(--tx), var(--ty)); opacity: 0; }
+}
+
+@keyframes clanCloudMove {
+    0% { transform: translateX(-100px); }
+    100% { transform: translateX(calc(100% + 100px)); }
+}
+
+@keyframes textPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+@keyframes ellipsis {
+    0% { content: '.'; }
+    33% { content: '..'; }
+    66% { content: '...'; }
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%) rotate(45deg); }
+    100% { transform: translateX(100%) rotate(45deg); }
+}
+
+@keyframes shimmerRotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes revealCard {
+    0% {
+        opacity: 0;
+        transform: translateY(40px) scale(0.8);
+    }
+    70% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .weekly-duel__rivals-grid {
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 2rem;
+    }
+
+    .weekly-duel__header {
+        font-size: 2rem;
+        padding-top: 6rem; /* Adjusted for mobile */
+    }
+
+    .weekly-duel__search-button {
+        padding: 0.8rem 1.5rem;
+        font-size: 1.1rem;
+    }
+
+    .weekly-duel__magnifier {
+        width: 80px;
+        height: 80px;
+    }
+
+    .weekly-duel__magnifier-glass {
+        width: 60px;
+        height: 60px;
+    }
+
+    .weekly-duel__info-section {
+        padding: 1.5rem;
+    }
+
+    .weekly-duel__info-content {
+        flex-direction: column;
+    }
+
+    .weekly-duel__info-highlight {
+        margin-top: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .weekly-duel__rivals-grid {
+        grid-template-columns: 1fr;
+        max-width: 300px;
+        margin: 0 auto;
+    }
+
+    .weekly-duel {
+        padding: 1rem;
+    }
+
+    .weekly-duel__header {
+        font-size: 1.8rem;
+        padding-top: 5rem; /* Further reduced for smaller screens */
+    }
+
+    .weekly-duel__animation {
+        height: 300px;
+    }
+}
+
+/* Pending Duels Section */
+.weekly-duel__pending {
+    margin: 0 0 3rem;
+    padding: 1.5rem;
+    background: linear-gradient(to bottom, #f8f9fa, #ffffff);
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(66, 153, 225, 0.15);
+    position: relative;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+.weekly-duel__pending--collapsed {
+    background: linear-gradient(to bottom, #f0f4f8, #f8f9fa);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.03);
+}
+.weekly-duel__pending::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #1a365d, #4299e1);
+    border-radius: 15px 15px 0 0;
+}
+
+.weekly-duel__pending-title {
+    font-size: 1.5rem;
+    color: #1a365d;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    justify-content: space-between;
+    padding-right: 10px;
+}
+
+.weekly-duel__pending-title i {
+    color: #e53e3e;
+    animation: bellShake 2s infinite;
+    transform-origin: top center;
+}
+
+.weekly-duel__pending-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    color: #718096;
+    gap: 12px;
+}
+
+.weekly-duel__loading-spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid rgba(66, 153, 225, 0.3);
+    border-radius: 50%;
+    border-top-color: #4299e1;
+    animation: spin 1s linear infinite;
+}
+
+.weekly-duel__pending-list {
+    display: grid;
+    gap: 1rem;
+}
+
+.weekly-duel__pending-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.weekly-duel__pending-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    border-color: rgba(66, 153, 225, 0.3);
+}
+
+.weekly-duel__challenger-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.weekly-duel__challenger-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1a365d 0%, #4299e1 100%); /* Changed from red to blue */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 1.5rem;
+    box-shadow: 0 4px 10px rgba(66, 153, 225, 0.3); /* Updated shadow color to match blue */
+}
+
+.weekly-duel__challenger-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.weekly-duel__challenger-details h3 {
+    font-size: 1.1rem;
+    margin: 0;
+    color: #2d3748;
+}
+
+.weekly-duel__challenger-level {
+    font-size: 0.9rem;
+    color: #718096;
+}
+
+.weekly-duel__status {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.weekly-duel__date {
+    font-size: 0.9rem;
+    color: #718096;
+}
+
+.weekly-duel__actions {
+    display: flex;
+    gap: 10px;
+}
+
+.weekly-duel__accept-button,
+.weekly-duel__reject-button {
+    padding: 0.5rem 1rem;
+    border-radius: 30px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.2s ease;
+}
+
+.weekly-duel__accept-button {
+    background-color: #48bb78;
+    color: white;
+    box-shadow: 0 3px 10px rgba(72, 187, 120, 0.2);
+}
+
+.weekly-duel__accept-button:hover {
+    background-color: #38a169;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(72, 187, 120, 0.3);
+}
+
+.weekly-duel__reject-button {
+    background-color: #e53e3e; /* Changed from gray to red */
+    color: white;
+    box-shadow: 0 3px 10px rgba(229, 62, 62, 0.2); /* Updated shadow */
+}
+
+.weekly-duel__reject-button:hover {
+    background-color: #c53030; /* Darker red on hover */
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(229, 62, 62, 0.3); /* Updated shadow */
+}
+
+.weekly-duel__no-pending {
+    padding: 2rem;
+    text-align: center;
+    color: #718096;
+    font-size: 1.1rem;
+}
+
+.weekly-duel__no-duels-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.7;
+}
+
+@keyframes bellShake {
+    0%, 50%, 100% { transform: rotate(0); }
+    5%, 15%, 25%, 35%, 45% { transform: rotate(8deg); }
+    10%, 20%, 30%, 40% { transform: rotate(-8deg); }
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .weekly-duel__pending-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .weekly-duel__status {
+        width: 100%;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 1rem;
+    }
+
+    .weekly-duel__date {
+        font-size: 0.8rem;
+    }
+
+    .weekly-duel__actions {
+        gap: 5px;
+    }
+
+    .weekly-duel__accept-button,
+    .weekly-duel__reject-button {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+    }
+}
+
+.weekly-duel__toggle-icon {
+    font-size: 1rem;
+    color: #4a5568;
+    transition: transform 0.3s ease;
+}
+
+.weekly-duel__pending--collapsed .weekly-duel__toggle-icon {
+    transform: rotate(180deg);
+}
+
+.weekly-duel__pending--collapsed:hover {
+    background: linear-gradient(to bottom, #e6f0f9, #f4f7fa);
+}
+
+.weekly-duel__pending--expanded {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+.weekly-duel__pending--expanded .weekly-duel__pending-title {
+    margin-bottom: 1.5rem;
+}
+
+.weekly-duel__pending--collapsed .weekly-duel__pending-title {
+    margin-bottom: 0;
+}
+
+/* New info section styles */
+.weekly-duel__info-section {
+    margin: 2rem 0;
+    padding: 2rem;
+    background: linear-gradient(to bottom, #edf2f7, #ffffff);
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(66, 153, 225, 0.2);
+}
+
+.weekly-duel__info-section h2 {
+    font-size: 1.8rem;
+    color: #1a365d;
+    margin-bottom: 1.5rem;
+    position: relative;
+    display: inline-block;
+}
+
+.weekly-duel__info-section h2::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, #1a365d, #4299e1);
+    border-radius: 2px;
+}
+
+.weekly-duel__info-content {
+    display: flex;
+    gap: 2rem;
+    align-items: stretch;
+}
+
+.weekly-duel__info-text {
+    flex: 3;
+}
+
+.weekly-duel__info-text p {
+    margin-bottom: 1rem;
+    line-height: 1.6;
+    color: #4a5568;
+}
+
+.weekly-duel__benefits {
+    list-style: none;
+    padding: 0;
+    margin: 1.5rem 0 0;
+}
+
+.weekly-duel__benefits li {
+    margin-bottom: 0.8rem;
+    padding-left: 1.5rem;
+    position: relative;
+    color: #2d3748;
+}
+
+.weekly-duel__benefits li i {
+    position: absolute;
+    left: 0;
+    top: 3px;
+    color: #4299e1;
+}
+
+.weekly-duel__info-highlight {
+    flex: 2;
+    background: linear-gradient(135deg, #1a365d 0%, #2b4f81 100%);
+    color: white;
+    border-radius: 12px;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(26, 54, 93, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.weekly-duel__info-highlight::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIj4KPGRlZnM+CiAgPHBhdHRlcm4gaWQ9InBhdHRlcm4iIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHdpZHRoPSIxMCIgaGVpZ2h0PSIxMCI+CiAgICA8cGF0aCBkPSJNLTUsNSBsNSwtNSBsNSw1IiBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS1vcGFjaXR5PSIwLjEiIHN0cm9rZS13aWR0aD0iMC41IiBmaWxsPSJub25lIi8+CiAgPC9wYXR0ZXJuPgo8L2RlZnM+CjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjcGF0dGVybikiLz4KPC9zdmc+');
+    opacity: 0.1;
+}
+
+.weekly-duel__info-icon {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.weekly-duel__info-highlight h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    font-weight: bold;
+}
+
+.weekly-duel__info-highlight p {
+    line-height: 1.5;
+    font-size: 1.05rem;
+}
+
+.weekly-duel__bet-amount {
+    display: block;
+    font-size: 0.9rem;
+    color: #e53e3e;
+    font-weight: 600;
+    margin-top: 0.2rem;
+}
+/* New search button for after results are shown */
+.weekly-duel__new-search {
+    display: block;
+    margin: 2rem auto;
+    background: linear-gradient(135deg, #1a365d 0%, #4299e1 100%);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.weekly-duel__new-search:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+}
+
+.weekly-duel__new-search::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transform: rotate(45deg);
+    animation: shimmer 3s infinite;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.weekly-duel__new-search:hover::before {
+    opacity: 1;
+}
+
+.weekly-duel__new-search i {
+    margin-right: 8px;
+}
+
+/* Toast notification system */
+.weekly-duel__toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 350px;
+    display: flex;
+    align-items: center;
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    animation: toastSlideIn 0.3s ease forwards, toastFadeOut 0.3s ease 3.7s forwards;
+    overflow: hidden;
+}
+
+.weekly-duel__toast::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 5px;
+    height: 100%;
+}
+
+.weekly-duel__toast--success {
+    border-left: 5px solid #48bb78;
+}
+
+.weekly-duel__toast--success::before {
+    background-color: #48bb78;
+}
+
+.weekly-duel__toast--error {
+    border-left: 5px solid #e53e3e;
+}
+
+.weekly-duel__toast--error::before {
+    background-color: #e53e3e;
+}
+
+.weekly-duel__toast--info {
+    border-left: 5px solid #4299e1;
+}
+
+.weekly-duel__toast--info::before {
+    background-color: #4299e1;
+}
+
+.weekly-duel__toast-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    margin-right: 12px;
+}
+
+.weekly-duel__toast--success .weekly-duel__toast-icon {
+    color: #48bb78;
+    background-color: rgba(72, 187, 120, 0.1);
+}
+
+.weekly-duel__toast--error .weekly-duel__toast-icon {
+    color: #e53e3e;
+    background-color: rgba(229, 62, 62, 0.1);
+}
+
+.weekly-duel__toast--info .weekly-duel__toast-icon {
+    color: #4299e1;
+    background-color: rgba(66, 153, 225, 0.1);
+}
+
+.weekly-duel__toast-content {
+    flex: 1;
+}
+
+.weekly-duel__toast-content p {
+    margin: 0;
+    color: #2d3748;
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+.weekly-duel__toast-close {
+    background: transparent;
+    border: none;
+    color: #a0aec0;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    border-radius: 50%;
+    transition: background-color 0.2s, color 0.2s;
+    margin-left: 8px;
+}
+
+.weekly-duel__toast-close:hover {
+    background-color: #f7fafc;
+    color: #718096;
+}
+
+/* Progress bar animation for toast */
+.weekly-duel__toast::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    width: 100%;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.1));
+    animation: toastProgress 4s linear forwards;
+}
+
+.weekly-duel__toast--success::after {
+    background: linear-gradient(to right, rgba(72, 187, 120, 0.3), rgba(72, 187, 120, 0.7));
+}
+
+.weekly-duel__toast--error::after {
+    background: linear-gradient(to right, rgba(229, 62, 62, 0.3), rgba(229, 62, 62, 0.7));
+}
+
+.weekly-duel__toast--info::after {
+    background: linear-gradient(to right, rgba(66, 153, 225, 0.3), rgba(66, 153, 225, 0.7));
+}
+
+/* Toast animations */
+@keyframes toastSlideIn {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes toastFadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+@keyframes toastProgress {
+    from {
+        width: 100%;
+    }
+    to {
+        width: 0%;
+    }
+}
+
+/* Media queries for responsiveness */
+@media (max-width: 768px) {
+    .weekly-duel__toast {
+        width: calc(100% - 40px);
+        max-width: 350px;
+    }
+}
+
+@media (max-width: 480px) {
+    .weekly-duel__toast {
+        width: calc(100% - 30px);
+        top: 10px;
+        right: 15px;
+        padding: 12px;
+    }
+
+    .weekly-duel__toast-icon {
+        width: 30px;
+        height: 30px;
+        font-size: 1.2rem;
+    }
+}
