@@ -34,6 +34,7 @@ public class DesafioSemanalController {
         desafioService.initializeDefaultDesafios();
     }
 
+    // Public endpoints - no admin restrictions
     @GetMapping
     public ResponseEntity<List<DesafioSemanal>> getAllDesafios() {
         return ResponseEntity.ok(desafioService.getAllDesafios());

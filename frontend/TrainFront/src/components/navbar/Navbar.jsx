@@ -9,6 +9,18 @@ import { IoIosLogOut } from "react-icons/io";
 import { useAuth } from '../../contexts/AuthContext.jsx';
 import XPBar from '../XPBar/XPBar';
 
+// Import shop assets
+import avatar1 from '../../assets/shop/avatars/avatar1.png';
+import avatar2 from '../../assets/shop/avatars/avatar2.png';
+
+import banner1 from '../../assets/shop/banners/banner1.png';
+import banner2 from '../../assets/shop/banners/banner2.png';
+import banner3 from '../../assets/shop/banners/banner3.png';
+
+import emblem1 from '../../assets/shop/emblems/emblem1.png';
+import emblem2 from '../../assets/shop/emblems/emblem2.png';
+import emblem3 from '../../assets/shop/emblems/emblem3.png';
+
 function Navbar() {
     const navigate = useNavigate();
     const { isLoggedIn, currentUser, logout, getCurrentCaminoFitnessId, hasChosenCaminoFitness } = useAuth();
@@ -16,13 +28,59 @@ function Navbar() {
     const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
     const [profilePicture, setProfilePicture] = useState(null);
     const [userCoins, setUserCoins] = useState(0);
+    const [activeShopItems, setActiveShopItems] = useState({});
     const dropdownRef = useRef(null);
-    // Add a ref for the interval to clean it up properly
     const coinPollingIntervalRef = useRef(null);
-    // Add a ref to track if we're using the default profile picture
     const isDefaultProfilePicture = useRef(false);
 
-    // Fetch user profile data (including coins and profile picture)
+    // Asset mappings for shop items
+    const shopAssetMappings = {
+        PROFILE_PICTURE: {
+            avatar1, avatar2
+        },
+        BANNER: {
+            banner1, banner2, banner3
+        },
+        EMBLEM: {
+            emblem1, emblem2, emblem3
+        }
+    };
+
+    const fetchActiveShopItems = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token || !isLoggedIn) {
+                return;
+            }
+
+            const response = await fetch('http://localhost:8080/api/shop/active-items', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log('Active shop items:', data); // Debug log
+                setActiveShopItems(data);
+
+                // Update profile picture if user has an active profile picture from shop
+                if (data.PROFILE_PICTURE) {
+                    const activeProfilePicture = shopAssetMappings.PROFILE_PICTURE[data.PROFILE_PICTURE];
+                    if (activeProfilePicture) {
+                        setProfilePicture(activeProfilePicture);
+                        localStorage.setItem('profilePicture', activeProfilePicture);
+                        isDefaultProfilePicture.current = false;
+                        console.log('Set active profile picture:', activeProfilePicture); // Debug log
+                        return;
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Error fetching active shop items:', error);
+        }
+    };
+
     const fetchUserProfile = async () => {
         try {
             const token = localStorage.getItem('token');
@@ -30,6 +88,9 @@ function Navbar() {
                 console.error('No token found or user not logged in');
                 return;
             }
+
+            // First fetch active shop items
+            await fetchActiveShopItems();
 
             // Fetch complete profile data from the profile endpoint
             const profileResponse = await fetch(`http://localhost:8080/api/profile/me`, {
@@ -46,30 +107,25 @@ function Navbar() {
                     setUserCoins(profileData.coins || 0);
                 }
 
-                // Update profile picture if available
-                if (profileData.userPhoto) {
+                // Only update profile picture from profile data if no active shop item exists
+                if (!activeShopItems.PROFILE_PICTURE && profileData.userPhoto) {
                     setProfilePicture(profileData.userPhoto);
                     localStorage.setItem('profilePicture', profileData.userPhoto);
                     isDefaultProfilePicture.current = false;
-                } else {
-                    // If no photo is provided from the server, mark as using default
+                } else if (!activeShopItems.PROFILE_PICTURE && !profileData.userPhoto) {
                     isDefaultProfilePicture.current = true;
+                    setProfilePicture(null);
                 }
             } else {
                 console.error('Failed to fetch user profile:', profileResponse.status);
-
-                // Fallback to coins-only endpoint if profile endpoint fails
                 fetchUserCoins();
             }
         } catch (error) {
             console.error('Error fetching user profile:', error);
-
-            // Fallback to coins-only endpoint if profile endpoint fails
             fetchUserCoins();
         }
     };
 
-    // Original coins-only fetch as fallback
     const fetchUserCoins = async () => {
         try {
             const token = localStorage.getItem('token');
@@ -95,34 +151,19 @@ function Navbar() {
         }
     };
 
-    // Effect for scroll detection and initial profile data loading
     useEffect(() => {
         const handleScroll = () => {
             setScrolled(window.scrollY > 50);
         };
         window.addEventListener('scroll', handleScroll);
 
-        // Check for stored profile picture immediately on component mount
-        const savedProfilePicture = localStorage.getItem('profilePicture');
-        if (savedProfilePicture) {
-            setProfilePicture(savedProfilePicture);
-            isDefaultProfilePicture.current = false;
-        } else {
-            isDefaultProfilePicture.current = true;
-        }
-
-        // Set up polling for user data if logged in
         if (isLoggedIn) {
-            // Fetch profile data immediately on login
             fetchUserProfile();
-
-            // Set up polling interval for continuous updates - every 10 seconds
             coinPollingIntervalRef.current = setInterval(() => {
                 fetchUserProfile();
-            }, 10000); // 10 seconds
+            }, 10000);
         }
 
-        // Clean up all event listeners and intervals
         return () => {
             window.removeEventListener('scroll', handleScroll);
             if (coinPollingIntervalRef.current) {
@@ -131,64 +172,55 @@ function Navbar() {
         };
     }, [isLoggedIn, currentUser]);
 
-    // Additional effect to handle login state changes and refetch profile when needed
     useEffect(() => {
         if (isLoggedIn) {
-            // When login state changes to true, fetch profile data
             fetchUserProfile();
-
-            // Set up interval if not already set
             if (!coinPollingIntervalRef.current) {
                 coinPollingIntervalRef.current = setInterval(() => {
                     fetchUserProfile();
                 }, 10000);
             }
         } else {
-            // Clear interval when logged out
             if (coinPollingIntervalRef.current) {
                 clearInterval(coinPollingIntervalRef.current);
                 coinPollingIntervalRef.current = null;
             }
-
-            // Reset user data when logged out
             setUserCoins(0);
             setProfilePicture(null);
+            setActiveShopItems({});
             isDefaultProfilePicture.current = true;
         }
     }, [isLoggedIn]);
 
-    // Custom event listeners for external updates to profile data
     useEffect(() => {
-        // Handler for coin updates
         const handleCoinUpdate = () => {
             fetchUserProfile();
         };
 
-        // Handler for profile picture updates
         const handleProfileUpdate = () => {
-            const updatedPicture = localStorage.getItem('profilePicture');
-            if (updatedPicture) {
-                setProfilePicture(updatedPicture);
-                isDefaultProfilePicture.current = false;
-            } else {
-                // If no picture in localStorage, we're using default, don't refetch
-                isDefaultProfilePicture.current = true;
-            }
+            fetchUserProfile();
         };
 
-        // Listen for custom events from other components
+        const handleShopItemUpdate = () => {
+            // Fetch both active items and profile to ensure sync
+            fetchActiveShopItems().then(() => {
+                fetchUserProfile();
+            });
+        };
+
         window.addEventListener('coinsUpdated', handleCoinUpdate);
         window.addEventListener('profilePictureUpdated', handleProfileUpdate);
+        window.addEventListener('shopItemActivated', handleShopItemUpdate);
         window.addEventListener('userLoggedIn', fetchUserProfile);
 
         return () => {
             window.removeEventListener('coinsUpdated', handleCoinUpdate);
             window.removeEventListener('profilePictureUpdated', handleProfileUpdate);
+            window.removeEventListener('shopItemActivated', handleShopItemUpdate);
             window.removeEventListener('userLoggedIn', fetchUserProfile);
         };
     }, []);
 
-    // Effect for handling clicks outside the dropdown
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -200,18 +232,16 @@ function Navbar() {
     }, []);
 
     const handleLogout = async () => {
-        // Clear the polling interval when logging out
         if (coinPollingIntervalRef.current) {
             clearInterval(coinPollingIntervalRef.current);
             coinPollingIntervalRef.current = null;
         }
 
         await logout();
-        // Reset local state
         setProfilePicture(null);
         setUserCoins(0);
+        setActiveShopItems({});
         isDefaultProfilePicture.current = true;
-        // Explicitly navigate to home page with replace to prevent back navigation
         navigate('/', { replace: true });
     };
 
@@ -234,7 +264,7 @@ function Navbar() {
 
             if (path === '/progress' || path.startsWith('/leaderboard')) {
                 if (!hasChosenCaminoFitness()) {
-                    return; // Stay on the same page if camino not chosen
+                    return;
                 }
             }
 
@@ -253,69 +283,96 @@ function Navbar() {
         navigate('/');
     };
 
-    // Handle image loading errors - with improved logic
     const handleProfileImageError = () => {
         console.log("Profile image failed to load");
-
-        // Only clear profile picture from state and local storage if it wasn't already the default
         if (!isDefaultProfilePicture.current) {
             setProfilePicture(null);
             localStorage.removeItem('profilePicture');
             isDefaultProfilePicture.current = true;
-            // We don't need to refetch if we're now using the default icon
         }
     };
 
+    // Get active items with proper fallbacks
+    const activeBanner = activeShopItems.BANNER ? shopAssetMappings.BANNER[activeShopItems.BANNER] : null;
+    const activeEmblem = activeShopItems.EMBLEM ? shopAssetMappings.EMBLEM[activeShopItems.EMBLEM] : null;
+    const activeProfilePicture = activeShopItems.PROFILE_PICTURE ? shopAssetMappings.PROFILE_PICTURE[activeShopItems.PROFILE_PICTURE] : null;
+
+    // Determine which profile picture to show (shop item takes precedence)
+    const displayProfilePicture = activeProfilePicture || profilePicture;
+
     return (
         <div className="navbar-container">
-            <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
+            <nav className={`navbar ${scrolled ? 'navbar-scrolled' : ''}`}>
                 <div className="navbar-logo" onClick={handleLogoClick} style={{ cursor: 'pointer' }}>
-                    <img src={logoImage} alt="TrainX Logo" className="logo-image" />
+                    <img src={logoImage} alt="TrainX Logo" className="navbar-logo-image" />
                     <span className="navbar-brand">TrainX</span>
                 </div>
 
                 <div className="navbar-links">
-                    <a href="" onClick={(e) => handleNavClick(e, '/camino')} className="nav-link">Camino Fitness</a>
-                    <a href="" onClick={(e) => handleNavClick(e, '/gyms')} className="nav-link">Gimnasios</a>
-                    <a href="" onClick={(e) => handleNavClick(e, '/progress')} className="nav-link">Progreso</a>
-                    <div className="dropdown">
-                        <a className="nav-link">
+                    <a href="" onClick={(e) => handleNavClick(e, '/camino')} className="navbar-nav-link">Camino Fitness</a>
+                    <a href="" onClick={(e) => handleNavClick(e, '/gyms')} className="navbar-nav-link">Gimnasios</a>
+                    <a href="" onClick={(e) => handleNavClick(e, '/progress')} className="navbar-nav-link">Progreso</a>
+                    <div className="navbar-dropdown">
+                        <a className="navbar-nav-link">
                             Leaderboard <MdOutlineArrowDropDown size={30}/>
                         </a>
-                        <div className="dropdown-content">
+                        <div className="navbar-dropdown-content">
                             <a href="" onClick={(e) => handleNavClick(e, '/leaderboard-general')}>General</a>
                             <a href="" onClick={(e) => handleNavClick(e, '/leaderboard-por-nivel')}>Por nivel</a>
                             <a href="" onClick={(e) => handleNavClick(e, '/leaderboard-semanal')}>Semanal</a>
                         </div>
                     </div>
-                    <a href="" onClick={(e) => handleNavClick(e, '/challenges')} className="nav-link">Duelos Semanales</a>
-                    <a href="" onClick={(e) => handleNavClick(e, '/forum')} className="nav-link">Foro</a>
+                    <a href="" onClick={(e) => handleNavClick(e, '/challenges')} className="navbar-nav-link">Duelos Semanales</a>
+                    <a href="" onClick={(e) => handleNavClick(e, '/forum')} className="navbar-nav-link">Foro</a>
                 </div>
 
                 <div className="navbar-menu">
                     {isLoggedIn ? (
-                        <div className="profile-container">
-                            <span className="welcome-text">Hola, {currentUser?.username}</span>
-                            <div className="profile-dropdown" ref={dropdownRef}>
-                                <button className="profile-button" onClick={toggleProfileDropdown}>
-                                    {profilePicture ? (
-                                        <img
-                                            src={profilePicture}
-                                            alt="Profile"
-                                            className="profile-image"
-                                            onError={handleProfileImageError}
-                                        />
-                                    ) : (
-                                        <CgProfile size={34} />
-                                    )}
+                        <div className="navbar-profile-container">
+                            <span className="navbar-welcome-text">Hola, {currentUser?.username}</span>
+                            <div className="navbar-profile-dropdown" ref={dropdownRef}>
+                                <button className="navbar-profile-button" onClick={toggleProfileDropdown}>
+                                    <div className="navbar-profile-display">
+                                        {/* Banner at the bottom */}
+                                        {activeBanner && (
+                                            <img
+                                                src={activeBanner}
+                                                alt="Banner"
+                                                className="navbar-profile-banner"
+                                            />
+                                        )}
+
+                                        {/* Profile picture or default icon */}
+                                        <div className="navbar-profile-picture-container">
+                                            {displayProfilePicture ? (
+                                                <img
+                                                    src={displayProfilePicture}
+                                                    alt="Profile"
+                                                    className="navbar-profile-image"
+                                                    onError={handleProfileImageError}
+                                                />
+                                            ) : (
+                                                <CgProfile size={34} />
+                                            )}
+                                        </div>
+
+                                        {/* Emblem surrounding the profile picture */}
+                                        {activeEmblem && (
+                                            <img
+                                                src={activeEmblem}
+                                                alt="Emblem"
+                                                className="navbar-profile-emblem"
+                                            />
+                                        )}
+                                    </div>
                                 </button>
                                 {profileDropdownOpen && (
-                                    <div className="profile-dropdown-content">
+                                    <div className="navbar-profile-dropdown-content">
                                         <a href="#" onClick={(e) => handleNavClick(e, '/perfil')}>
                                             Perfil <CgProfile size={20} style={{ marginLeft: '3px' }} />
                                         </a>
-                                        <a href="#" onClick={(e) => handleNavClick(e, '/tienda')} className="coins-link">
-                                            Monedas {userCoins} <FaCoins size={18} style={{ marginLeft: '3px', color: '#FFD700' }} />
+                                        <a href="#" onClick={(e) => handleNavClick(e, '/tienda')} className="navbar-coins-link">
+                                            Tienda {userCoins} <FaCoins size={18} style={{ marginLeft: '3px', color: '#FFD700' }} />
                                         </a>
                                         <a href="#" onClick={handleLogout}>
                                             Logout <IoIosLogOut size={20} style={{ marginLeft: '3px' }}/>
@@ -325,14 +382,13 @@ function Navbar() {
                             </div>
                         </div>
                     ) : (
-                        <div className="auth-buttons">
-                            <button onClick={() => navigate('/login')} className="login-button">Login</button>
-                            <button onClick={() => navigate('/signup')} className="signup-button">Sign Up</button>
+                        <div className="navbar-auth-buttons">
+                            <button onClick={() => navigate('/login')} className="navbar-login-button">Login</button>
+                            <button onClick={() => navigate('/signup')} className="navbar-signup-button">Sign Up</button>
                         </div>
                     )}
                 </div>
 
-                {/* Add XPBar component here */}
                 {isLoggedIn && <XPBar />}
             </nav>
         </div>

@@ -40,6 +40,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/api/caminoFitness/**").permitAll() // Permitir acceso sin login a algunas rutas
                         .requestMatchers("/api/profile/**").authenticated() // Solo autenticados
                         .requestMatchers("/api/gimnasios/").hasRole("ADMIN")
+                        .requestMatchers("/api/desafios-semanales/").authenticated()
                         .requestMatchers("/api/profile/update", "/api/profile/delete").authenticated()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN") // Rutas de administrador
                         .anyRequest().authenticated() // El resto requiere autenticación

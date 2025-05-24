@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { Award, Edit, Trash2, Plus, Save, X, AlertCircle, ChevronDown, ChevronUp, Check, Minimize, Maximize } from "lucide-react";
+import axios from "axios";
 import "./AdminDesafioSemanales.css";
 
 const AdminDesafioSemanales = () => {
@@ -22,58 +22,22 @@ const AdminDesafioSemanales = () => {
         type: "success"
     });
 
-    const API_BASE_URL = "http://localhost:8080/api";
-
     useEffect(() => {
         if (!collapsed) {
             fetchDesafios();
         }
     }, [collapsed]);
 
-    // Get authentication token from storage
-    const getAuthToken = () => {
-        // Try multiple possible token storage keys
-        const token = localStorage.getItem("jwtToken") ||
-            localStorage.getItem("token") ||
-            sessionStorage.getItem("jwtToken") ||
-            sessionStorage.getItem("token");
-
-        if (!token) {
-            console.error("No authentication token found");
-            return null;
-        }
-
-        return token;
-    };
-
-    // Create axios config with auth headers
-    const createAxiosConfig = () => {
-        const token = getAuthToken();
-
-        if (!token) {
-            throw new Error("No se encontró el token de autenticación.");
-        }
-
-        return {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
-            },
-            withCredentials: true
-        };
-    };
-
     const fetchDesafios = async () => {
         try {
             setLoading(true);
             setError(null);
 
-            const axiosConfig = createAxiosConfig();
+            const token = localStorage.getItem('token');
             const response = await axios.get(
-                `${API_BASE_URL}/desafios-semanales`,
-                axiosConfig
+                'http://localhost:8080/api/desafios-semanales',
+                { headers: { Authorization: `Bearer ${token}` } }
             );
-
             setDesafios(response.data);
         } catch (err) {
             console.error("Error fetching desafios:", err);
@@ -128,7 +92,6 @@ const AdminDesafioSemanales = () => {
         }
 
         try {
-            const axiosConfig = createAxiosConfig();
             let response;
 
             const dataToSend = {
@@ -137,23 +100,24 @@ const AdminDesafioSemanales = () => {
                 activo: formData.activo
             };
 
+            const token = localStorage.getItem('token');
+
             if (editingId) {
                 response = await axios.put(
-                    `${API_BASE_URL}/desafios-semanales/${editingId}`,
+                    `http://localhost:8080/api/desafios-semanales/${editingId}`,
                     dataToSend,
-                    axiosConfig
+                    { headers: { Authorization: `Bearer ${token}` } }
                 );
                 showNotification("Desafío actualizado con éxito", "success");
             } else {
                 response = await axios.post(
-                    `${API_BASE_URL}/desafios-semanales`,
+                    'http://localhost:8080/api/desafios-semanales',
                     dataToSend,
-                    axiosConfig
+                    { headers: { Authorization: `Bearer ${token}` } }
                 );
                 showNotification("Nuevo desafío creado con éxito", "success");
             }
 
-            // Reset form and fetch updated list
             resetForm();
             fetchDesafios();
 
@@ -187,12 +151,11 @@ const AdminDesafioSemanales = () => {
         }
 
         try {
-            const axiosConfig = createAxiosConfig();
+            const token = localStorage.getItem('token');
             await axios.delete(
-                `${API_BASE_URL}/desafios-semanales/${id}`,
-                axiosConfig
+                `http://localhost:8080/api/desafios-semanales/${id}`,
+                { headers: { Authorization: `Bearer ${token}` } }
             );
-
             showNotification("Desafío eliminado con éxito", "success");
             fetchDesafios();
         } catch (err) {
