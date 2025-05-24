@@ -1,0 +1,700 @@
+/* BetDuelButton.css */
+.bet-duel {
+    width: 100%;
+}
+
+.bet-duel__button {
+    width: 100%;
+}
+
+.bet-duel__overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.bet-duel__dialog {
+    background: white;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    animation: slideUp 0.4s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+    overflow: hidden;
+    position: relative;
+    transform: translateY(20px);
+    opacity: 0;
+    border: 2px solid #4299e1;
+}
+
+.bet-duel__header {
+    background: linear-gradient(90deg, #1a365d, #4299e1);
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+.bet-duel__header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+}
+
+.bet-duel__header h3 {
+    margin: 0;
+    font-size: 1.4rem;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.bet-duel__close-button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.8rem;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+.bet-duel__close-button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.bet-duel__content {
+    padding: 20px;
+}
+
+.bet-duel__coins-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: #f8fafc;
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    color: #1a365d;
+    font-weight: 500;
+}
+
+.bet-duel__coin-icon {
+    color: #f59e0b;
+    font-size: 1.4rem;
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.1));
+}
+
+.bet-duel__input-container {
+    margin-bottom: 15px;
+}
+
+.bet-duel__label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #4a5568;
+}
+
+.bet-duel__input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: white;
+    transition: all 0.2s;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+    -moz-appearance: textfield;
+}
+
+.bet-duel__input:focus {
+    border-color: #4299e1;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+}
+
+.bet-duel__input::-webkit-inner-spin-button,
+.bet-duel__input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.bet-duel__slider-container {
+    margin-top: 20px;
+}
+
+.bet-duel__slider {
+    width: 100%;
+    -webkit-appearance: none;
+    height: 8px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #1a365d, #4299e1);
+    outline: none;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.bet-duel__slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: white;
+    cursor: pointer;
+    border: 3px solid #4299e1;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s;
+}
+
+.bet-duel__slider::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: white;
+    cursor: pointer;
+    border: 3px solid #4299e1;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s;
+}
+
+.bet-duel__slider::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+}
+
+.bet-duel__slider::-moz-range-thumb:hover {
+    transform: scale(1.1);
+}
+
+.bet-duel__slider-values {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+    font-size: 0.9rem;
+    color: #718096;
+}
+
+.bet-duel__error {
+    background-color: #fff5f5;
+    color: #e53e3e;
+    padding: 12px;
+    border-radius: 8px;
+    border-left: 4px solid #e53e3e;
+    margin-top: 15px;
+    font-size: 0.9rem;
+    animation: errorShake 0.4s ease;
+}
+
+.bet-duel__footer {
+    background-color: #f8fafc;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.bet-duel__cancel-button,
+.bet-duel__send-button {
+    padding: 12px 20px;
+    border-radius: 30px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+.bet-duel__cancel-button {
+    background-color: transparent;
+    color: #4a5568;
+    border: 2px solid #cbd5e0;
+}
+
+.bet-duel__cancel-button:hover {
+    background-color: #f1f5f9;
+    border-color: #a0aec0;
+}
+
+.bet-duel__send-button {
+    background: linear-gradient(90deg, #e53e3e, #fc8181);
+    color: white;
+    border: none;
+    box-shadow: 0 5px 15px rgba(229, 62, 62, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.bet-duel__send-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(229, 62, 62, 0.3);
+}
+
+.bet-duel__send-button::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transform: rotate(45deg);
+    animation: shimmer 2s infinite linear;
+    z-index: 1;
+}
+
+.bet-duel__send-button i,
+.bet-duel__send-button span {
+    position: relative;
+    z-index: 2;
+}
+
+.bet-duel__send-button:disabled {
+    background: #a0aec0;
+    transform: none;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+.bet-duel__spinner {
+    width: 18px;
+    height: 18px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s linear infinite;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%) rotate(45deg); }
+    100% { transform: translateX(100%) rotate(45deg); }
+}
+
+@keyframes errorShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .bet-duel__dialog {
+        width: 95%;
+    }
+
+    .bet-duel__footer {
+        flex-direction: column;
+    }
+
+    .bet-duel__cancel-button,
+    .bet-duel__send-button {
+        width: 100%;
+        justify-content: center;
+    }
+}
+/* Brawl Stars-style petition toast notification */
+.weekly-duel__brawl-toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    transform: translateX(100%) scale(0.8);
+    background: linear-gradient(135deg, #2b4f81 0%, #1a365d 100%);
+    border-radius: 16px;
+    padding: 20px 30px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    color: white;
+    text-align: center;
+    z-index: 1100;
+    opacity: 0;
+    pointer-events: none;
+    animation: brawlToastIn 0.4s ease forwards, brawlToastOut 0.4s ease 2.5s forwards;
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    max-width: 350px;
+    width: auto;
+}
+
+.weekly-duel__brawl-toast::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    background: linear-gradient(45deg, #a0aec0, transparent, #718096);
+    border-radius: 20px;
+    z-index: -1;
+    opacity: 0.6;
+    animation: glowRotate 3s linear infinite;
+}
+
+.weekly-duel__brawl-toast-icon {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    display: block;
+    color: #f6e05e;
+    text-shadow: 0 0 10px rgba(246, 224, 94, 0.5);
+}
+
+.weekly-duel__brawl-toast-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    /* Brawl Stars text style with shadow outline */
+    color: white;
+    text-shadow:
+            -3px -3px 0 #000,
+            3px -3px 0 #000,
+            -3px 3px 0 #000,
+            3px 3px 0 #000,
+            0 -3px 0 #000,
+            0 3px 0 #000,
+            -3px 0 0 #000,
+            3px 0 0 #000;
+    transform: scale(1, 1.1);
+}
+
+.weekly-duel__brawl-toast-message {
+    font-size: 1.1rem;
+    margin: 0;
+    font-weight: 700;
+    /* Brawl Stars secondary text style */
+    color: white;
+    text-shadow:
+            -1px -1px 0 #000,
+            1px -1px 0 #000,
+            -1px 1px 0 #000,
+            1px 1px 0 #000;
+    letter-spacing: 0.5px;
+}
+
+.weekly-duel__brawl-toast-stars {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.weekly-duel__brawl-toast-star {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 50%;
+    animation: starFloat 2s ease-out forwards;
+}
+
+/* Star shapes with different sizes and colors */
+.weekly-duel__brawl-toast-star:nth-child(3n) {
+    background-color: rgba(246, 224, 94, 0.8);
+    width: 8px;
+    height: 8px;
+}
+
+.weekly-duel__brawl-toast-star:nth-child(3n+1) {
+    background-color: rgba(255, 255, 255, 0.9);
+    width: 6px;
+    height: 6px;
+}
+
+.weekly-duel__brawl-toast-star:nth-child(3n+2) {
+    background-color: rgba(66, 153, 225, 0.7);
+    width: 7px;
+    height: 7px;
+}
+
+@keyframes brawlToastIn {
+    0% {
+        opacity: 0;
+        transform: translateX(100%) scale(0.8);
+    }
+    80% {
+        transform: translateX(0) scale(1.05);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+@keyframes brawlToastOut {
+    0% {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(20px) scale(0.8);
+    }
+}
+
+@keyframes starFloat {
+    0% {
+        opacity: 0;
+        transform: translate(0, 0) scale(0);
+    }
+    20% {
+        opacity: 1;
+        transform: translate(var(--tx, 10px), var(--ty, -20px)) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(var(--tx, 20px), var(--ty, -40px)) scale(0);
+    }
+}
+
+@keyframes glowRotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .weekly-duel__brawl-toast {
+        padding: 15px 20px;
+    }
+
+    .weekly-duel__brawl-toast-icon {
+        font-size: 2rem;
+    }
+
+    .weekly-duel__brawl-toast-title {
+        font-size: 1.2rem;
+    }
+
+    .weekly-duel__brawl-toast-message {
+        font-size: 1rem;
+    }
+}
+/* Professional toast notification */
+.bet-duel__pro-toast {
+    position: fixed;
+    top: 25px;
+    right: 25px;
+    width: 320px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    z-index: 1000;
+    transform: translateY(0);
+    opacity: 1;
+    animation: proToastIn 0.4s ease-out, proToastOut 0.3s ease 2.7s forwards;
+    border-left: 5px solid #38a169;
+}
+
+.bet-duel__pro-toast--success {
+    border-left-color: #38a169;
+}
+
+.bet-duel__pro-toast--hide {
+    animation: proToastHide 0.3s ease forwards;
+}
+
+.bet-duel__pro-toast::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    width: 100%;
+    background: #e2e8f0;
+}
+
+.bet-duel__pro-toast::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    width: 100%;
+    background: #38a169;
+    z-index: 1;
+    animation: toastTimer 3s linear forwards;
+}
+
+.bet-duel__pro-toast-content {
+    display: flex;
+    padding: 16px;
+}
+
+.bet-duel__pro-toast-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    margin-right: 16px;
+    font-size: 24px;
+    color: #38a169;
+    flex-shrink: 0;
+}
+
+.bet-duel__pro-toast-message {
+    flex: 1;
+}
+
+.bet-duel__pro-toast-message h4 {
+    margin: 0 0 4px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.bet-duel__pro-toast-message p {
+    margin: 0;
+    font-size: 14px;
+    color: #718096;
+}
+
+@keyframes proToastIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes proToastOut {
+    from {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+}
+
+@keyframes proToastHide {
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}
+
+@keyframes toastTimer {
+    from {
+        width: 100%;
+    }
+    to {
+        width: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .bet-duel__pro-toast {
+        width: calc(100% - 50px);
+        top: 15px;
+        right: 15px;
+    }
+}
+/* Too many requests toast notification */
+.bet-duel__pro-toast--warning {
+    border-left-color: #0061ff;
+}
+
+.bet-duel__pro-toast--warning::before {
+    background: #0061ff;
+}
+
+.bet-duel__pro-toast--warning .bet-duel__pro-toast-icon {
+    color: #0061ff;
+}
+
+.bet-duel__pro-toast--warning .bet-duel__pro-toast-icon i {
+    animation: pulseWarning 1.5s infinite;
+}
+
+@keyframes pulseWarning {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+.bet-duel__limit-reached-container {
+    text-align: center;
+    padding: 10px;
+}
+
+.bet-duel__limit-reached-icon {
+    font-size: 48px;
+    color: #ed8936;
+    margin-bottom: 15px;
+    animation: floatIcon 2s ease-in-out infinite;
+}
+
+.bet-duel__limit-reached-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 10px;
+}
+
+.bet-duel__limit-reached-message {
+    font-size: 14px;
+    color: #718096;
+    margin-bottom: 15px;
+    line-height: 1.5;
+}
+
+@keyframes floatIcon {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}

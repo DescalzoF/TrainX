@@ -94,6 +94,7 @@
 .forgot-password-link {
     text-align: center;
     margin-top: 1rem;
+    margin-bottom: 0rem; /* Add this to reduce space */
     font-family: inherit;
 }
 
@@ -101,10 +102,30 @@
     color: #0061ff;
     cursor: pointer;
     text-decoration: underline;
+    margin-bottom: 0rem;
     transition: color 0.3s;
     font-family: inherit;
 }
 
 .forgot-password-link p:hover {
+    color: #0051a8;
+}
+
+
+.create-account-link {
+    text-align: center;
+    margin-top: 0; /* Change from 0.5rem to 0 */
+    font-family: inherit;
+}
+
+.create-account-link p {
+    color: #0061ff;
+    cursor: pointer;
+    text-decoration: underline;
+    transition: color 0.3s;
+    font-family: inherit;
+}
+
+.create-account-link p:hover {
     color: #0051a8;
 }

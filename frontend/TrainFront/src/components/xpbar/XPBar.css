@@ -1,5 +1,3 @@
-
-/* XPBar.css */
 .xp-bar-container {
     display: flex;
     align-items: center;
@@ -9,7 +7,7 @@
     width: 100%;
     height: 12px;
     background-color: rgba(0, 0, 0, 0.3);
-    z-index: 1; /* Lower z-index so dropdown shows above */
+    z-index: 1001; /* Higher z-index to ensure it shows above dropdown content */
 }
 
 .xp-bar-wrapper {
@@ -25,10 +23,11 @@
 .xp-bar-fill {
     height: 100%;
     background-color: #4a90e2; /* Matching the navbar's button blue color */
-    transition: width 0.5s ease-out;
+    transition: width 0.3s ease-out; /* Made transition faster for more responsive feel */
     position: absolute;
     top: 0;
     left: 0;
+    min-width: 4px; /* Ensures bar is always visible, even at 0% */
 }
 
 .xp-numbers {
@@ -45,8 +44,9 @@
     pointer-events: none;
 }
 
+/* Moved the level indicator to the right side and made it smaller */
 .level-indicator {
-    min-width: 90px; /* Made wider to accommodate "Principiante" */
+    min-width: 70px;
     padding: 0 10px;
     height: 100%;
     display: flex;
@@ -54,8 +54,7 @@
     justify-content: center;
     background-color: rgba(0, 0, 0, 0.5);
     color: white;
-    /* Increased font size from 10px to 11px */
-    font-size: 11px;
+    font-size: 10px;
     font-weight: bold;
     text-shadow: 1px 1px 1px rgba(0,0,0,0.9);
 }

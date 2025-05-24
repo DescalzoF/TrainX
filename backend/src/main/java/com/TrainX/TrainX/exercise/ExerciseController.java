@@ -1,5 +1,4 @@
 package com.TrainX.TrainX.exercise;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -80,6 +79,39 @@ public class ExerciseController {
             return ResponseEntity.noContent().build();
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/{caminoFitnessId}/{levelId}")
+    public ResponseEntity<List<ExerciseDTO>> getExercisesByPathVariables(
+            @PathVariable Long caminoFitnessId,
+            @PathVariable Long levelId) {
+
+        System.out.println("Endpoint /{caminoFitnessId}/{levelId} llamado con caminoFitnessId=" + caminoFitnessId + ", levelId=" + levelId);
+
+        List<ExerciseDTO> exercises = exerciseService.findExercisesByCaminoFitnessAndLevel(caminoFitnessId, levelId);
+
+        if (exercises.isEmpty()) {
+            System.out.println("No se encontraron ejercicios para estos parámetros");
+            return ResponseEntity.noContent().build();
+        } else {
+            System.out.println("Se encontraron " + exercises.size() + " ejercicios");
+            return ResponseEntity.ok(exercises);
+        }
+    }
+
+    @GetMapping("/level/{levelId}")
+    public ResponseEntity<List<ExerciseDTO>> getExercisesByLevel(@PathVariable Long levelId) {
+        System.out.println("Endpoint /level/{levelId} llamado con levelId=" + levelId);
+
+        List<ExerciseDTO> exercises = exerciseService.findExercisesByLevelId(levelId);
+
+        if (exercises.isEmpty()) {
+            System.out.println("No se encontraron ejercicios para el nivel");
+            return ResponseEntity.noContent().build();
+        } else {
+            System.out.println("Se encontraron " + exercises.size() + " ejercicios para el nivel");
+            return ResponseEntity.ok(exercises);
         }
     }
 }

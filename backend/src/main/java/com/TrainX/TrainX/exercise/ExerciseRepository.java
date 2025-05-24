@@ -15,4 +15,14 @@ public interface ExerciseRepository extends JpaRepository<ExerciseEntity, Long> 
     List<ExerciseEntity> findByCaminoFitness_IdCFAndLevel_NameLevel(Long idCF, String nameLevel);
 
     public List<ExerciseEntity> findByCaminoFitness_IdCF(Long idCF);
+
+    List<ExerciseEntity> findByCaminoFitnessAndLevel(CaminoFitnessEntity caminoFitness, LevelEntity level);
+
+    List<ExerciseEntity> findByCaminoFitness_IdCFAndLevel_IdLevel(Long caminoFitnessId, Long levelId);
+
+    List<ExerciseEntity> findByCaminoFitness(CaminoFitnessEntity caminoFitness);
+
+    List<ExerciseEntity> findByLevel_IdLevel(Long levelId);
+
+    List<ExerciseEntity> findByLevel(LevelEntity level);
 }

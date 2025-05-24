@@ -7,6 +7,7 @@ import axios from 'axios';
 function Signup() {
     const [formData, setFormData] = useState({
         username: '',
+        name: '',
         surname: '',
         password: '',
         confirmPassword: '',
@@ -106,12 +107,24 @@ function Signup() {
 
                     <div className="form-grid">
                         <div className="form-group">
-                            <label htmlFor="username">Nombre*</label>
+                            <label htmlFor="username">Usuario*</label>
                             <input
                                 type="text"
                                 id="username"
                                 name="username"
                                 value={formData.username}
+                                onChange={handleChange}
+                                required
+                            />
+                        </div>
+
+                        <div className="form-group">
+                            <label htmlFor="username">Nombre*</label>
+                            <input
+                                type="text"
+                                id="name"
+                                name="name"
+                                value={formData.name}
                                 onChange={handleChange}
                                 required
                             />

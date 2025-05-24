@@ -1,0 +1,193 @@
+/* LeaderboardSemanal.css */
+.sem-wrapper {
+    max-width: 1100px;
+    margin: 60px auto;
+    padding: 20px;
+    background-color: #0b0f1a;
+    border-radius: 20px;
+    box-shadow: 0 0 30px rgba(0, 162, 255, 0.3);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: white;
+    animation: sem-fadeIn 1s ease-in;
+    margin-top: 140px;
+}
+
+.sem-title {
+    text-align: center;
+    font-size: 2.5rem;
+    color: #00aaff;
+    margin-bottom: 40px;
+}
+
+.sem-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.sem-header {
+    background-color: #1c1f27;
+    font-weight: bold;
+    border-bottom: 2px solid #00aaff;
+}
+
+.sem-header,
+.sem-row {
+    display: grid;
+    /* Keep grid-template-columns to define the column tracks */
+    grid-template-columns:
+        60px       /* # (Rank) */
+        2fr        /* Usuario */
+        1fr        /* Nivel */
+        1fr        /* Ejercicios */
+        1.5fr      /* Peso Total Levantado (kg) */
+        1.2fr      /* Repes Totales */
+        1.3fr;     /* XP Semanal */
+    align-items: center;
+    padding: 14px 12px;
+    border-radius: 12px;
+    background-color: #141922;
+    transition: transform 0.2s, background-color 0.3s;
+    column-gap: 24px; /* Keep column gap */
+}
+
+/* Asignar columna explícita a cada elemento en el encabezado */
+.sem-header > div:nth-child(1) { grid-column: 1; } /* # */
+.sem-header > div:nth-child(2) { grid-column: 2; } /* Usuario */
+.sem-header > div:nth-child(3) { grid-column: 3; } /* Nivel */
+.sem-header > div:nth-child(4) { grid-column: 4; } /* Ejercicios */
+.sem-header > div:nth-child(5) { grid-column: 5; padding-left: 20px;} /* Peso Total Levantado (kg) */
+.sem-header > div:nth-child(6) { grid-column: 6; } /* Repes Totales */
+.sem-header > div:nth-child(7) { grid-column: 7; } /* XP Semanal */
+
+
+/* Asignar columna explícita a cada elemento en las filas */
+.sem-row .sem-rank         { grid-column: 1; } /* # */
+.sem-row .sem-user-cell    { grid-column: 2; } /* Usuario */
+.sem-row .sem-level        { grid-column: 3; } /* Nivel */
+.sem-row .sem-sessions     { grid-column: 4; } /* Ejercicios */
+.sem-row .sem-weight       { grid-column: 5; } /* Peso Total Levantado (kg) */
+.sem-row .sem-reps         { grid-column: 6; } /* Repes Totales */
+.sem-row .sem-xp-cell      { grid-column: 7; } /* XP Semanal */
+
+
+.sem-level {
+    text-align: left;
+    font-weight: 500;
+    color: white;
+    /* Align the element to the start (left) of its grid area */
+    justify-self: start;
+    margin-left: -10px;
+}
+
+.sem-row:hover {
+    background-color: #1a1f2a;
+    transform: scale(1.01);
+}
+
+.sem-rank {
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #00aaff;
+}
+
+.sem-user-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.sem-photo {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #00aaff;
+}
+
+.sem-username {
+    font-weight: 500;
+    color: white;
+}
+
+/* Specific styles for data cells */
+.sem-sessions,
+.sem-weight, /* Add padding here */
+.sem-reps {
+    /* Keep current styles like text-align if needed */
+    text-align: center; /* You can keep or remove this, padding-left will push it */
+    font-weight: bold;
+    padding-left: -5px; /* Adjust this value (e.g., 5px, 15px) as needed */
+}
+
+.sem-xp-cell {
+    font-weight: bold;
+    color: #ffffff;
+    background: linear-gradient(90deg, #00c6ff, #0072ff);
+    padding: 6px 12px;
+    border-radius: 20px;
+    text-align: center;
+}
+
+.sem-current-row {
+    background-color: #112233 !important;
+    border: 2px solid #00aaff;
+    box-shadow: 0 0 12px #00aaff80;
+}
+
+@keyframes sem-fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Mobile responsiveness */
+@media screen and (max-width: 768px) {
+    .sem-header,
+    .sem-row {
+        /* Grid for mobile: # | Usuario | Nivel */
+        grid-template-columns: 30px 1.8fr 1fr;
+        font-size: 0.9rem;
+        column-gap: 10px;
+    }
+
+    /* Explicitly position visible columns for mobile */
+    .sem-header > div:nth-child(1) { grid-column: 1; } /* # */
+    .sem-header > div:nth-child(2) { grid-column: 2; } /* Usuario */
+    .sem-header > div:nth-child(3) { grid-column: 3; } /* Nivel */
+
+    .sem-row .sem-rank         { grid-column: 1; } /* # */
+    .sem-row .sem-user-cell    { grid-column: 2; } /* Usuario */
+    .sem-row .sem-level        { grid-column: 3; } /* Nivel */
+
+
+    /* Hide the columns that are not part of the mobile grid template */
+    .sem-sessions,
+    .sem-weight,
+    .sem-reps,
+    .sem-xp-cell {
+        display: none;
+    }
+
+    .sem-title {
+        font-size: 1.8rem;
+    }
+
+    .sem-rank {
+        font-size: 1rem;
+    }
+
+    .sem-user-cell {
+        gap: 8px;
+    }
+
+    .sem-photo {
+        width: 30px;
+        height: 30px;
+    }
+}

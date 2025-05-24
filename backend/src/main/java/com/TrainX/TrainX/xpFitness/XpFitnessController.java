@@ -40,5 +40,14 @@ public class XpFitnessController {
         }
         return new ResponseEntity<>(xpFitness, HttpStatus.CREATED);
     }
-}
 
+    // Nuevo endpoint para resetear XP a 0 cuando se cambia de camino fitness
+    @PutMapping("/{userId}/reset")
+    public ResponseEntity<XpFitnessEntity> resetXpFitness(@PathVariable Long userId) {
+        XpFitnessEntity resetXp = xpFitnessService.resetXpFitness(userId);
+        if (resetXp == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // Si no existe el usuario o el XP Fitness
+        }
+        return new ResponseEntity<>(resetXp, HttpStatus.OK);
+    }
+}

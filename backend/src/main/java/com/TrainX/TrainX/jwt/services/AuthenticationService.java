@@ -44,6 +44,7 @@ public class AuthenticationService {
 
         UserEntity user = new UserEntity(
                 input.getUsername(),
+                input.getName(),
                 input.getEmail(),
                 input.getSurname(),
                 passwordEncoder.encode(input.getPassword()),

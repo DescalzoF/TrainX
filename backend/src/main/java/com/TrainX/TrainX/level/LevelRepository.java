@@ -1,5 +1,6 @@
 package com.TrainX.TrainX.level;
 
+import com.TrainX.TrainX.caminoFitness.CaminoFitnessEntity;
 import com.TrainX.TrainX.level.LevelEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -19,6 +20,5 @@ public interface LevelRepository extends JpaRepository<LevelEntity, Long> {
     List<LevelEntity> findByNameLevel(String nameLevel);
 
     Optional<LevelEntity> findByXpMinLessThanEqualAndXpMaxGreaterThanEqual(Long xpMin, Long xpMax);
-
 
 }

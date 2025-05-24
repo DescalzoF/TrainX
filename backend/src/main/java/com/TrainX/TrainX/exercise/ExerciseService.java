@@ -2,23 +2,30 @@ package com.TrainX.TrainX.exercise;
 
 import com.TrainX.TrainX.caminoFitness.CaminoFitnessEntity;
 import com.TrainX.TrainX.caminoFitness.CaminoFitnessService;
+import com.TrainX.TrainX.level.LevelEntity;
+import com.TrainX.TrainX.level.LevelService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ExerciseService {
 
     private final ExerciseRepository exerciseRepository;
     private final CaminoFitnessService caminoFitnessService;
+    private final LevelService levelService;
 
     @Autowired
-    public ExerciseService(ExerciseRepository exerciseRepository, CaminoFitnessService caminoFitnessService) {
+    public ExerciseService(ExerciseRepository exerciseRepository, CaminoFitnessService caminoFitnessService, LevelService levelService) {
         this.exerciseRepository = exerciseRepository;
         this.caminoFitnessService = caminoFitnessService;
+        this.levelService = levelService;
     }
 
     public List<ExerciseEntity> getAllExercises() {
@@ -81,5 +88,88 @@ public class ExerciseService {
 
     public List<ExerciseEntity> getExercisesByCaminoFitness(Long caminoFitnessId) {
         return exerciseRepository.findByCaminoFitness_IdCF(caminoFitnessId);
+    }
+
+    public List<ExerciseDTO> findExercisesByCaminoFitnessAndLevel(Long caminoFitnessId, Long levelId) {
+        // Registrar los parámetros de entrada para depuración
+        System.out.println("Buscando ejercicios para CaminoFitnessId: " + caminoFitnessId + ", LevelId: " + levelId);
+
+        try {
+            // Verificar si los IDs son válidos
+            if (caminoFitnessId == null || levelId == null) {
+                System.err.println("CaminoFitnessId o LevelId son nulos");
+                return new ArrayList<>();
+            }
+
+            // Obtener los ejercicios por caminoFitnessId y levelId
+            List<ExerciseEntity> exercises = exerciseRepository.findByCaminoFitness_IdCFAndLevel_IdLevel(caminoFitnessId, levelId);
+
+            // Registrar la cantidad de ejercicios encontrados
+            System.out.println("Se encontraron " + exercises.size() + " ejercicios");
+
+            // Convertir entidades a DTOs
+            return exercises.stream()
+                    .map(this::convertToDTO)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            // Registrar cualquier excepción que ocurra
+            System.err.println("Error al buscar ejercicios: " + e.getMessage());
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    private ExerciseDTO convertToDTO(ExerciseEntity entity) {
+        ExerciseDTO dto = new ExerciseDTO();
+        dto.setId(entity.getId());
+        dto.setName(entity.getName());
+        dto.setDescription(entity.getDescription());
+        dto.setMuscleGroup(entity.getMuscleGroup());
+        dto.setSets(entity.getSets());
+        dto.setReps(entity.getReps());
+        dto.setVideoUrl(entity.getVideoUrl());
+        dto.setXpFitnessReward(entity.getXpFitnessReward());
+        return dto;
+    }
+    public List<ExerciseDTO> findExercisesByLevelId(Long levelId) {
+        System.out.println("Buscando todos los ejercicios para LevelId: " + levelId);
+
+        try {
+            if (levelId == null) {
+                System.err.println("LevelId es nulo");
+                return new ArrayList<>();
+            }
+
+            // Obtener los ejercicios por levelId
+            List<ExerciseEntity> exercises = exerciseRepository.findByLevel_IdLevel(levelId);
+            return exercises.stream()
+                    .map(this::convertToDTO)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            System.err.println("Error al buscar ejercicios por nivel: " + e.getMessage());
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+
+    }
+
+    public ExerciseDTO updateDefaultExercise(ExerciseDTO exerciseDTO) {
+        // Obtener el ejercicio existente
+        ExerciseEntity existingExercise = exerciseRepository.findById(exerciseDTO.getId())
+                .orElseThrow(() -> new EntityNotFoundException("Exercise not found with id: " + exerciseDTO.getId()));
+
+        // Actualizar los campos del ejercicio existente
+        existingExercise.setName(exerciseDTO.getName());
+        existingExercise.setDescription(exerciseDTO.getDescription());
+        existingExercise.setMuscleGroup(exerciseDTO.getMuscleGroup());
+        existingExercise.setSets(exerciseDTO.getSets());
+        existingExercise.setReps(exerciseDTO.getReps());
+        existingExercise.setVideoUrl(exerciseDTO.getVideoUrl());
+        existingExercise.setXpFitnessReward(exerciseDTO.getXpFitnessReward());
+
+        // Guardar el ejercicio actualizado
+        ExerciseEntity updatedExercise = exerciseRepository.save(existingExercise);
+
+        return convertToDTO(updatedExercise);
     }
 }

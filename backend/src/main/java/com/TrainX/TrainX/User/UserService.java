@@ -2,15 +2,14 @@ package com.TrainX.TrainX.User;
 
 import com.TrainX.TrainX.caminoFitness.CaminoFitnessEntity;
 import com.TrainX.TrainX.caminoFitness.CaminoFitnessService;
+import com.TrainX.TrainX.jwt.dtos.UserXpWithLevelDTO;
 import com.TrainX.TrainX.level.LevelEntity;
 import com.TrainX.TrainX.level.LevelService;
 import com.TrainX.TrainX.xpFitness.XpFitnessEntity;
 import com.TrainX.TrainX.xpFitness.XpFitnessService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,15 +20,14 @@ public class UserService {
     private final UserRepository userRepository;
     private final CaminoFitnessService caminoFitnessService;
     private final XpFitnessService xpFitnessService;
+    private final LevelService levelService;
 
     @Autowired
-    private LevelService levelService;
-
-    @Autowired
-    public UserService(UserRepository userRepository, CaminoFitnessService caminoFitnessService, XpFitnessService xpFitnessService) {
+    public UserService(UserRepository userRepository, CaminoFitnessService caminoFitnessService, XpFitnessService xpFitnessService, LevelService levelService) {
         this.userRepository = userRepository;
         this.caminoFitnessService = caminoFitnessService;
         this.xpFitnessService = xpFitnessService;
+        this.levelService = levelService;
     }
 
     public List<UserEntity> listUsers() {
@@ -87,7 +85,7 @@ public class UserService {
         Optional<UserEntity> userOptional = userRepository.findByUsername(username);
         if (userOptional.isPresent()) {
             UserEntity user = userOptional.get();
-            if (user.getPassword().equals(password)) { // In production, use proper password hashing
+            if (user.getPassword().equals(password)) {
                 return user;
             }
         }
@@ -106,40 +104,43 @@ public class UserService {
             user.setCaminoFitnessActual(camino);
             userRepository.save(user);
         } catch (Exception e) {
-            e.printStackTrace();
             throw new RuntimeException("Error al asignar el Camino Fitness: " + e.getMessage());
         }
     }
 
-    // Ahora usando XpFitnessService para manejar XP
+    @Transactional
+    public void assignLevel(Long userId, Long levelId) {
+        try {
+            UserEntity user = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+            LevelEntity level = levelService.getLevelById(levelId)
+                    .orElseThrow(() -> new RuntimeException("Nivel no encontrado"));
+
+            user.setLevel(level);
+            userRepository.save(user);
+        } catch (Exception e) {
+            throw new RuntimeException("Error al asignar el Nivel: " + e.getMessage());
+        }
+    }
+
     @Transactional
     public UserEntity updateUserXP(Long userId, Long xpChange) {
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        // Usamos el XpFitnessService para actualizar el XP
-        XpFitnessEntity xpFitnessEntity = xpFitnessService.updateXpFitness(userId, xpChange); // Cambiar la llamada
+        XpFitnessEntity xpFitnessEntity = xpFitnessService.updateXpFitness(userId, xpChange);
 
-        // Actualizamos el nivel basado en el nuevo XP
-        Optional<LevelEntity> newLevelOpt = levelService.getLevelByXP(xpFitnessEntity.getTotalXp());
-        if (newLevelOpt.isPresent()) {
-            user.setLevel(newLevelOpt.get());
-        }
-
-        // Guardamos el usuario con su nuevo nivel y XP
-        userRepository.save(user);
-        return user;
-    }
-    @Transactional
-    public void assignLevel(Long userId, Long levelId) {
-        UserEntity user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-
-        LevelEntity level = levelService.getLevelById(levelId)
-                .orElseThrow(() -> new RuntimeException("Nivel no encontrado"));
-
-        user.setLevel(level);
-        userRepository.save(user);
+        return userRepository.findById(userId).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
     }
 
+    @Transactional(readOnly = true)
+    public UserXpWithLevelDTO getUserXpWithLevel(Long userId) {
+        return userRepository.getUserXpWithLevel(userId);
+    }
+
+    // New method for saving a user
+    public UserEntity saveUser(UserEntity user) {
+        return userRepository.save(user);
+    }
 }

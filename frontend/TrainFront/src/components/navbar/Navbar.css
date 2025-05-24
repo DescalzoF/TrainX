@@ -1,3 +1,9 @@
+.navbar-container {
+    position: relative;
+    width: 100%;
+    z-index: 1000;
+}
+
 .navbar {
     display: flex;
     justify-content: space-between;
@@ -10,11 +16,14 @@
     width: 100%;
     transition: all 0.3s ease;
     z-index: 1000;
+    /* Add padding bottom to make space for the XP bar */
+    padding-bottom: 32px;
 }
 
-.navbar.scrolled {
+.navbar.navbar-scrolled {
     background-color: #0D1117;
     padding: 10px 30px;
+    padding-bottom: 22px; /* Keep extra space for XP bar when scrolled */
 }
 
 .navbar-logo {
@@ -24,13 +33,13 @@
     gap: 10px;
 }
 
-.logo-image {
+.navbar-logo-image {
     height: 60px;
     width: auto;
     transition: all 0.3s ease;
 }
 
-.navbar.scrolled .logo-image {
+.navbar.navbar-scrolled .navbar-logo-image {
     height: 50px;
     width: auto;
 }
@@ -41,7 +50,7 @@
     transition: all 0.3s ease;
 }
 
-.navbar.scrolled .navbar-brand {
+.navbar.navbar-scrolled .navbar-brand {
     font-size: 20px;
 }
 
@@ -51,7 +60,7 @@
     margin: 0 auto;
 }
 
-.nav-link {
+.navbar-nav-link {
     color: white;
     text-decoration: none;
     margin: 0 15px;
@@ -59,18 +68,19 @@
     transition: color 0.3s ease;
 }
 
-.nav-link:hover {
+.navbar-nav-link:hover {
     color: #0061ff;
     text-decoration: none;
 }
 
 /* New specific styling for the leaderboard dropdown link */
-.dropdown .nav-link {
+.navbar-dropdown .navbar-nav-link {
     display: flex;
     align-items: center;
+    text-decoration: none;
 }
 
-.dropdown .nav-link svg {
+.navbar-dropdown .navbar-nav-link svg {
     display: inline-flex;
     position: relative;
     top: 0;
@@ -78,22 +88,24 @@
     margin-bottom: 2px;
 }
 
-.dropdown {
-    position: relative;
-    display: inline-block;
-}
-
-.dropdown-content {
+.navbar-dropdown-content {
     display: none;
     position: absolute;
-    background-color: #1a1a2e;
+    background-color: black;
     min-width: 160px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-    z-index: 1;
+    z-index: 1200; /* Increased from 1 to 1200 to be higher than XP bar */
     border-radius: 4px;
 }
 
-.dropdown-content a {
+/* Also, update the dropdown position to ensure it properly appears */
+.navbar-dropdown {
+    position: relative;
+    display: inline-block;
+    z-index: 1200; /* Added z-index here as well */
+}
+
+.navbar-dropdown-content a {
     color: white;
     padding: 12px 16px;
     text-decoration: none;
@@ -101,11 +113,13 @@
     transition: background-color 0.3s;
 }
 
-.dropdown-content a:hover {
-    background-color: #313146;
+.navbar-dropdown-content a:hover {
+    color: #0061ff;
+    background-color: black;
+    text-decoration: none;
 }
 
-.dropdown:hover .dropdown-content {
+.navbar-dropdown:hover .navbar-dropdown-content {
     display: block;
 }
 
@@ -115,16 +129,16 @@
     gap: 20px;
 }
 
-.auth-buttons {
+.navbar-auth-buttons {
     display: flex;
     gap: 10px;
 }
 
-.welcome-text {
+.navbar-welcome-text {
     font-size: 16px;
 }
 
-.logout-button {
+.navbar-logout-button {
     padding: 8px 16px;
     background-color: transparent;
     color: white;
@@ -135,12 +149,12 @@
     transition: all 0.3s;
 }
 
-.logout-button:hover {
+.navbar-logout-button:hover {
     background-color: white;
     color: #1a1a2e;
 }
 
-.navbar .login-button {
+.navbar .navbar-login-button {
     padding: 8px 16px;
     background-color: transparent;
     color: white;
@@ -151,12 +165,12 @@
     transition: all 0.3s;
 }
 
-.navbar .login-button:hover {
+.navbar .navbar-login-button:hover {
     background-color: white;
     color: #1a1a2e;
 }
 
-.navbar .signup-button {
+.navbar .navbar-signup-button {
     padding: 8px 16px;
     background-color: #4a90e2;
     color: white;
@@ -167,7 +181,7 @@
     transition: background-color 0.3s;
 }
 
-.navbar .signup-button:hover {
+.navbar .navbar-signup-button:hover {
     background-color: #3a7bc8;
 }
 
@@ -178,19 +192,61 @@
     }
 }
 
-/* Profile styles */
-.profile-container {
+/* Profile styles - Fixed for consistent sizing */
+.navbar-profile-container {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 15px;
 }
 
-.profile-dropdown {
+.navbar-profile-dropdown {
     position: relative;
-    display: inline-block;
+    z-index: 1300; /* Higher than navbar and XP bar */
 }
 
-.profile-button {
+.navbar-profile-dropdown-content {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    background-color: white;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    min-width: 180px;
+    z-index: 1400; /* Even higher for dropdown menu */
+    border-radius: 8px;
+    overflow: hidden;
+    margin-top: 8px;
+    /* Add a subtle border */
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.navbar-profile-dropdown-content a {
+    color: #333;
+    padding: 14px 18px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: background-color 0.2s ease;
+    font-weight: 500;
+}
+
+.navbar-profile-dropdown-content a:hover {
+    background-color: #f8f9fa;
+}
+
+/* Coin styling */
+.navbar-coins-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.navbar-coins-link svg {
+    color: #FFD700;
+}
+
+/* Profile Button - Main Container - FIXED SIZING */
+.navbar-profile-button {
     background: none;
     border: none;
     cursor: pointer;
@@ -198,45 +254,212 @@
     align-items: center;
     justify-content: center;
     color: #fff;
-    padding: 5px;
+    padding: 0;
     border-radius: 50%;
-    transition: background-color 0.3s;
-    width: 40px;
-    height: 40px;
-    overflow: hidden;
+    transition: all 0.3s ease;
+    width: 48px; /* Fixed consistent size */
+    height: 48px; /* Fixed consistent size */
+    min-width: 48px; /* Prevent shrinking */
+    min-height: 48px; /* Prevent shrinking */
+    position: relative;
+    overflow: visible; /* Allow decorative elements to extend beyond */
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    z-index: 1301; /* Ensure button itself is properly layered */
+    flex-shrink: 0; /* Prevent the button from shrinking */
 }
 
-.profile-button:hover {
+.navbar-profile-button:hover {
     background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: scale(1.05);
 }
 
-.profile-image {
+/* Profile Display Container - FIXED SIZING */
+.navbar-profile-display {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    overflow: visible; /* Allow decorative elements to extend beyond */
+}
+
+/* Profile Picture Container - FIXED SIZING AND POSITIONING */
+.navbar-profile-picture-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%; /* Same size as profile display */
+    height: 100%; /* Same size as profile display */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2; /* Above banner, below emblem */
+    border-radius: 50%;
+    overflow: hidden; /* Keep profile image circular */
+    background: transparent; /* Ensure no background color */
+}
+
+.navbar-profile-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
     border-radius: 50%;
-}
-
-.profile-dropdown-content {
-    position: absolute;
-    right: 0;
-    top: 100%;
-    background-color: white;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-    min-width: 160px;
-    z-index: 1000;
-    border-radius: 4px;
-    overflow: hidden;
-}
-
-.profile-dropdown-content a {
-    color: #333;
-    padding: 12px 16px;
-    text-decoration: none;
     display: block;
-    transition: background-color 0.2s;
+    flex-shrink: 0;
 }
 
-.profile-dropdown-content a:hover {
-    background-color: #f5f5f5;
+/* Default profile icon styling - FIXED SIZING */
+.navbar-profile-button svg {
+    flex-shrink: 0;
+    color: #fff;
+    z-index: 2;
+    width: 30px;
+    height: 30px;
+}
+
+/* Banner styling - FIXED POSITIONING */
+.navbar-profile-banner {
+    position: absolute;
+    bottom: -4px; /* Consistent positioning */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 130%; /* Proportional to button size */
+    height: 40%; /* Proportional to button size */
+    object-fit: cover;
+    border-radius: 0 0 50% 50%; /* Consistent curve */
+    z-index: 1; /* Behind profile picture */
+    opacity: 0.9;
+    pointer-events: none; /* Prevent interference with clicks */
+}
+
+/* Emblem styling - FIXED POSITIONING */
+.navbar-profile-emblem {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 140%; /* Proportional to button size */
+    height: 140%; /* Proportional to button size */
+    object-fit: contain;
+    z-index: 4; /* Above everything */
+    pointer-events: none; /* Allow clicks to pass through */
+    filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.3)); /* Subtle shadow for visibility */
+}
+
+/* Scrolled navbar adjustments - MAINTAIN PROPORTIONS */
+.navbar.navbar-scrolled .navbar-profile-button {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    min-height: 42px;
+    border-width: 1px;
+}
+
+.navbar.navbar-scrolled .navbar-profile-button svg {
+    width: 26px;
+    height: 26px;
+}
+
+.navbar.navbar-scrolled .navbar-profile-picture-container {
+    width: 100%; /* Keep same proportional relationship */
+    height: 100%;
+}
+
+.navbar.navbar-scrolled .navbar-profile-banner {
+    width: 130%; /* Keep same proportional relationship */
+    height: 40%;
+    bottom: -3px;
+}
+
+.navbar.navbar-scrolled .navbar-profile-emblem {
+    width: 140%; /* Keep same proportional relationship */
+    height: 140%;
+}
+
+/* Additional responsive adjustments - MAINTAIN ASPECT RATIOS */
+@media (max-width: 768px) {
+    .navbar-profile-container {
+        gap: 10px;
+    }
+
+    .navbar-welcome-text {
+        font-size: 14px;
+    }
+
+    .navbar-profile-button {
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    .navbar.navbar-scrolled .navbar-profile-button {
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+        min-height: 38px;
+    }
+
+    .navbar-profile-picture-container {
+        width: 100%;
+        height: 100%;
+    }
+
+    .navbar-profile-banner {
+        width: 125%;
+        height: 38%;
+    }
+
+    .navbar-profile-emblem {
+        width: 135%;
+        height: 135%;
+    }
+}
+
+@media (max-width: 480px) {
+    .navbar-profile-container {
+        gap: 8px;
+    }
+
+    .navbar-welcome-text {
+        font-size: 12px;
+    }
+
+    .navbar-profile-button {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+        min-height: 40px;
+    }
+
+    .navbar.navbar-scrolled .navbar-profile-button {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+        min-height: 36px;
+    }
+
+    .navbar-profile-dropdown-content {
+        min-width: 160px;
+        right: -10px; /* Slight adjustment for mobile */
+    }
+
+    .navbar-profile-picture-container {
+        width: 100%;
+        height: 100%;
+    }
+
+    .navbar-profile-banner {
+        width: 120%;
+        height: 35%;
+    }
+
+    .navbar-profile-emblem {
+        width: 130%;
+        height: 130%;
+    }
 }

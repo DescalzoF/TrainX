@@ -65,11 +65,6 @@ function CaminoFitness() {
         }
     };
 
-    const handleChangeCamino = () => {
-        setSelectedCamino(null);
-        setSelectedCaminoId(null);
-    };
-
     if (loading) {
         return (
             <div className="camino-container">

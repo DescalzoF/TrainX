@@ -1,35 +1,64 @@
 package com.TrainX.TrainX.xpFitness;
 
+import com.TrainX.TrainX.level.LevelService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class XpFitnessService {
 
-    @Autowired
-    private XpFitnessRepository xpFitnessRepository;
+    private final XpFitnessRepository xpFitnessRepository;
+    private final LevelService levelService;
 
-    // Método para obtener XP Fitness por usuario
-    public XpFitnessEntity getXpFitnessByUser(Long userId) {
-        return xpFitnessRepository.findById(userId).orElse(null); // Retorna null si no lo encuentra
+    @Autowired
+    public XpFitnessService(XpFitnessRepository xpFitnessRepository, LevelService levelService) {
+        this.xpFitnessRepository = xpFitnessRepository;
+        this.levelService = levelService;
     }
 
-    // Método para actualizar XP Fitness
+    public XpFitnessEntity getXpFitnessByUser(Long userId) {
+        return xpFitnessRepository.findByUser_Id(userId);
+    }
+
+    @Transactional
     public XpFitnessEntity updateXpFitness(Long userId, Long xpToAdd) {
         XpFitnessEntity xpFitness = getXpFitnessByUser(userId);
         if (xpFitness != null) {
-            xpFitness.addXp(xpToAdd); // Suma el XP nuevo
-            return xpFitnessRepository.save(xpFitness); // Guarda los cambios en la base de datos
+            xpFitness.addXp(xpToAdd);
+            XpFitnessEntity savedXpFitness = xpFitnessRepository.save(xpFitness);
+
+            levelService.checkAndUpdateUserLevel(userId, savedXpFitness.getTotalXp());
+
+            return savedXpFitness;
         }
         return null;
     }
 
-    // Método para crear un nuevo XpFitnessEntity (si no existe)
+    @Transactional
     public XpFitnessEntity createXpFitness(Long userId, Long initialXp) {
         XpFitnessEntity xpFitness = new XpFitnessEntity();
-        xpFitness.setTotalXp(initialXp); // Asignamos XP inicial
-        // Aquí deberías asociar el usuario a XpFitnessEntity, si es necesario
-        // xpFitness.setUser(user);
-        return xpFitnessRepository.save(xpFitness);
+        xpFitness.setTotalXp(initialXp != null ? initialXp : 0L);
+        XpFitnessEntity savedXpFitness = xpFitnessRepository.save(xpFitness);
+
+        levelService.checkAndUpdateUserLevel(userId, savedXpFitness.getTotalXp());
+
+        return savedXpFitness;
+    }
+
+    @Transactional
+    public XpFitnessEntity resetXpFitness(Long userId) {
+        XpFitnessEntity xpFitness = getXpFitnessByUser(userId);
+        if (xpFitness != null) {
+            // Resetear XP a 0
+            xpFitness.setTotalXp(0L);
+            XpFitnessEntity savedXpFitness = xpFitnessRepository.save(xpFitness);
+
+            // También actualiza el nivel del usuario ya que ahora tiene 0 XP
+            levelService.checkAndUpdateUserLevel(userId, 0L);
+
+            return savedXpFitness;
+        }
+        return null;
     }
 }

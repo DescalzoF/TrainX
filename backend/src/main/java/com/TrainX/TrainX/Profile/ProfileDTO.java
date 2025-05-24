@@ -1,5 +1,7 @@
 package com.TrainX.TrainX.Profile;
 
+import com.TrainX.TrainX.User.Role;
+
 import java.io.Serializable;
 
 public class ProfileDTO implements Serializable {
@@ -16,7 +18,7 @@ public class ProfileDTO implements Serializable {
     private String sex;
     private String userPhoto;
     private Boolean isPublic;
-    private String role;
+    private Role role;
     private Long coins;
 
     public ProfileDTO() {
@@ -71,7 +73,7 @@ public class ProfileDTO implements Serializable {
         return isPublic;
     }
 
-    public String getRole() {
+    public Role getRole() {
         return role;
     }
 
@@ -128,11 +130,18 @@ public class ProfileDTO implements Serializable {
         this.isPublic = isPublic;
     }
 
-    public void setRole(String role) {
+    public void setRole(Role role) {
         this.role = role;
     }
 
     public void setCoins(Long coins) {
         this.coins = coins;
+    }
+
+    private Long caminoFitnessId;
+
+    // Getter and setter for caminoFitnessId in ProfileDTO.java
+    public Long getCaminoFitnessId() {
+        return caminoFitnessId;
     }
 }

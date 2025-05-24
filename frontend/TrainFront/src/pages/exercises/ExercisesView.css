@@ -1,0 +1,662 @@
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css');
+
+.exercises-view-container {
+    max-width: 1500px;
+    margin: 120px auto;
+    padding: 20px;
+}
+.exercises-view-container h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #000000;
+    font-weight: 700;
+    font-size: 2.5rem;
+    position: relative;
+}
+.exercises-view-container h1:after {
+    content: '';
+    position: absolute;
+    width: 80px;
+    height: 4px;
+    background-color: #0061ff;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 2px;
+}
+/* Content layout */
+.content-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 25px;
+}
+.sessions-panel {
+    flex: 3 1 75%;
+}
+.exercise-selection-panel,
+.exercises-display {
+    flex: 1 1 100%;
+    margin-top: 20px;
+    padding: 25px;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.07);
+}
+@media (min-width: 992px) {
+    .sessions-panel {
+        flex: 2 1 60%;
+    }
+    .exercise-selection-panel,
+    .exercises-display {
+        flex: 1 1 35%;
+        margin-top: 0;
+    }
+}
+/* Loading and error states */
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 50px;
+    text-align: center;
+}
+.spinner {
+    border: 5px solid #f3f3f3;
+    border-top: 5px solid #0061ff;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+.error-container {
+    padding: 30px;
+    background-color: #fff9f9;
+    border-radius: 10px;
+    text-align: center;
+    border: 1px solid #ffdede;
+}
+.error-container h2 {
+    color: #d32f2f;
+    margin-bottom: 15px;
+}
+.retry-button {
+    background-color: #0061ff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    margin-top: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.retry-button:hover {
+    background-color: #0052d6;
+}
+.debug-info {
+    margin-top: 30px;
+    text-align: left;
+    background-color: #f5f5f5;
+    padding: 15px;
+    border-radius: 5px;
+    overflow-x: auto;
+}
+.debug-info pre {
+    font-family: monospace;
+    font-size: 14px;
+}
+
+/* Session cards styling */
+.session-card {
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+.session-card.active {
+    box-shadow: 0 5px 15px rgba(0, 97, 255, 0.1);
+    border-color: #000000;
+}
+.session-header {
+    padding: 15px 20px;
+    background-color: #e6f0ff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.session-card.active .session-header {
+    background-color: #e6f0ff;
+}
+.session-header h3 {
+    margin: 0;
+    color: #333;
+    font-size: 18px;
+    font-weight: 600;
+}
+.session-details {
+    padding: 20px;
+    background-color: white;
+    animation: slideDown 0.3s ease;
+}
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Exercise table styling */
+.exercises-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+.table-header, .table-row {
+    display: grid;
+    grid-template-columns: 1fr 2fr 0.7fr 0.7fr 0.7fr 0.7fr 1fr;
+    gap: 10px;
+    padding: 12px 0;
+    align-items: center;
+}
+.table-header {
+    font-weight: bold;
+    border-bottom: 2px solid #000000;
+    color: #000000;
+}
+.table-row {
+    border-bottom: 1px solid #eeeeee;
+    transition: background-color 0.2s ease;
+}
+.table-row:hover {
+    background-color: #f8f8f8;
+}
+.table-row:last-child {
+    border-bottom: none;
+}
+.col-exercise, .col-muscle, .col-sets, .col-reps, .col-weight, .col-actions, .col-xp {
+    padding: 8px 12px;
+}
+
+.col-description {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    color: black;
+}
+
+/* Enhanced exercise selector styling */
+.col-exercise.exercise-selector {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 15px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+    padding: 12px;
+    border-radius: 6px;
+    background-color: #f5f9ff;
+    border: 1px solid #e0e9ff;
+}
+
+.col-exercise.exercise-selector:hover {
+    background-color: #e6f0ff;
+    border-color: #c0d6ff;
+    transform: translateY(-2px);
+    box-shadow: 0 3px 10px rgba(0, 97, 255, 0.1);
+}
+
+.exercise-selector-icon {
+    position: absolute;
+    right: 12px;
+    font-size: 12px;
+    color: #0061ff;
+    transition: transform 0.2s ease;
+}
+
+.col-exercise.exercise-selector:hover .exercise-selector-icon {
+    transform: translateY(2px);
+}
+
+/* Fix for the exercise name and description alignment */
+.col-exercise {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 15px;
+}
+.exercise-name {
+    font-weight: 600;
+    flex: 0 0 auto;
+}
+.exercise-description {
+    font-size: 0.85rem;
+    color: black;
+    margin: 0;
+    flex: 1;
+}
+
+/* Standardized input styling for all inputs */
+.col-reps input, .col-sets input, .col-weight input {
+    width: 80px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    text-align: center;
+    background-color: black;
+    font-size: 15px;
+    transition: all 0.2s ease;
+}
+
+/* Make inputs more distinct on hover/focus */
+.col-reps input:hover, .col-sets input:hover, .col-weight input:hover,
+.col-reps input:focus, .col-sets input:focus, .col-weight input:focus {
+    border-color: #0061ff;
+    outline: none;
+    box-shadow: 0 0 8px rgba(0, 97, 255, 0.2);
+}
+
+.col-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+/* Update video link button styling */
+.video-link {
+    background-color: #2e7d32;
+    color: white;
+    text-decoration: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.video-link:hover {
+    background-color: #1b5e20;
+    transform: translateY(-2px);
+    box-shadow: 0 3px 10px rgba(46, 125, 50, 0.2);
+}
+
+.fa-youtube-play {
+    font-size: 16px;
+}
+
+.xp-success-box {
+    position: fixed;
+    top: 30px;
+    right: 30px;
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    font-family: 'Arial', sans-serif;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    animation: slideInRight 0.5s forwards, fadeOut 0.5s 3.5s forwards;
+    min-width: 250px;
+    max-width: 320px;
+}
+
+.xp-success-icon {
+    margin-right: 12px;
+    font-size: 24px;
+}
+
+.xp-success-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.xp-success-title {
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+.xp-success-message {
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+.xp-points {
+    font-weight: 700;
+    font-size: 18px;
+    margin-left: 5px;
+}
+
+@keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+.xp-reward-button {
+    background-color: #0061ff;
+    color: white;
+    border: none;
+    padding: 10px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+    font-family: 'Arial', sans-serif;
+    width: 100%;
+    max-width: 120px;
+}
+
+.xp-reward-button:hover:not(.completed) {
+    background-color: #0052d6;
+    transform: translateY(-2px);
+    box-shadow: 0 3px 8px rgba(0, 97, 255, 0.2);
+}
+
+.xp-reward-button.completed {
+    background-color: #2e7d32;
+    cursor: default;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.completed-text {
+    font-size: 0.8rem;
+    line-height: 1;
+    text-align: center;
+    display: block;
+}
+
+/* Enhanced Exercise Picker Modal */
+.exercise-picker-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.exercise-picker-content {
+    background-color: white;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 80vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    animation: scaleIn 0.3s ease;
+}
+
+@keyframes scaleIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.exercise-picker-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 25px;
+    background-color: #0061ff;
+    color: white;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.exercise-picker-header h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.close-picker-button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 0 5px;
+    line-height: 1;
+    transition: transform 0.2s;
+}
+
+.close-picker-button:hover {
+    transform: scale(1.2);
+}
+
+.exercise-picker-list {
+    padding: 5px;
+    overflow-y: auto;
+    max-height: calc(80vh - 70px);
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 10px;
+    padding: 20px;
+}
+
+.exercise-picker-item {
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #e6e6e6;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.exercise-picker-item:hover {
+    background-color: #f0f7ff;
+    border-color: #c0d6ff;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 97, 255, 0.1);
+}
+
+.exercise-picker-name {
+    font-weight: 600;
+    font-size: 16px;
+    color: #333;
+}
+
+.exercise-picker-muscle {
+    font-size: 14px;
+    color: #666;
+    padding-top: 5px;
+    border-top: 1px dashed #eee;
+}
+
+.no-exercises-message {
+    text-align: center;
+    color: #666;
+    padding: 30px;
+    grid-column: 1 / -1;
+}
+
+/* New reset button styling */
+.reset-exercises-button {
+    background-color: #e53935;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 14px 22px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin: 20px auto;
+    display: block;
+    width: auto;
+    box-shadow: 0 2px 5px rgba(229, 57, 53, 0.3);
+}
+
+.reset-exercises-button:hover {
+    background-color: #d32f2f;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(229, 57, 53, 0.4);
+}
+
+.reset-exercises-button:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(229, 57, 53, 0.4);
+}
+
+.reset-exercises-button i {
+    margin-right: 8px;
+}
+
+/* Empty state message for exercise table */
+.empty-message {
+    text-align: center;
+    padding: 40px 20px;
+    color: #757575;
+    font-size: 16px;
+    font-style: italic;
+    background-color: #f8f8f8;
+    border-radius: 8px;
+    margin: 15px 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .table-header, .table-row {
+        grid-template-columns: 2fr 1fr 0.5fr 0.5fr 0.5fr 0.5fr;
+        font-size: 14px;
+    }
+    .xp-success-box {
+        position: fixed;
+        top: 80px;
+        right: 30px;
+        background-color: #4CAF50;
+        color: white;
+        padding: 15px 25px;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        font-family: 'Arial', sans-serif;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        animation: slideInRight 0.5s forwards, fadeOut 0.5s 3.5s forwards;
+        min-width: 250px;
+        max-width: 320px;
+    }
+
+    /* Responsive adjustments for the inputs */
+    .col-reps input, .col-sets input, .col-weight input {
+        width: 70px;
+        padding: 6px;
+        font-size: 14px;
+    }
+
+    .exercise-picker-list {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .table-header, .table-row {
+        grid-template-columns: 1fr 2fr 0.5fr 0.5fr 0.5fr 0.5fr 0.5fr;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 576px) {
+    .table-header, .table-row {
+        grid-template-columns: 1fr;
+        gap: 5px;
+    }
+    .table-header {
+        display: none;
+    }
+    .col-exercise, .col-muscle, .col-sets, .col-reps, .col-weight, .col-actions {
+        padding: 5px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .col-exercise {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .exercise-name, .exercise-description {
+        width: 100%;
+    }
+    .col-exercise::before, .col-muscle::before, .col-sets::before, .col-reps::before, .col-weight::before {
+        content: attr(data-label);
+        text-transform: capitalize;
+        font-weight: bold;
+        color: #0061ff;
+    }
+    .col-actions {
+        justify-content: flex-start;
+    }
+    .xp-success-box {
+        left: 20px;
+        right: 20px;
+        max-width: none;
+    }
+
+    /* Small screen adjustments for inputs */
+    .col-reps input, .col-sets input, .col-weight input {
+        width: 60px;
+        margin-left: auto;
+    }
+}
+
+
+.cambiar-camino-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    width: 100%;
+}
+
+.cambiar-camino-button {
+    padding: 12px 25px;
+    background-color: #0061ff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.cambiar-camino-button:hover {
+    background-color: #357acb;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.cambiar-camino-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
