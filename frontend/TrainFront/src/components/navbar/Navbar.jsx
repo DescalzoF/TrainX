@@ -19,58 +19,57 @@ function Navbar() {
     const dropdownRef = useRef(null);
     // Add a ref for the interval to clean it up properly
     const coinPollingIntervalRef = useRef(null);
+    // Add a ref to track if we're using the default profile picture
+    const isDefaultProfilePicture = useRef(false);
 
-    useEffect(() => {
-        const handleScroll = () => {
-            setScrolled(window.scrollY > 50);
-        };
-        window.addEventListener('scroll', handleScroll);
-
-        const savedProfilePicture = localStorage.getItem('profilePicture');
-        if (savedProfilePicture) setProfilePicture(savedProfilePicture);
-
-        const handleProfileUpdate = () => {
-            const updatedPicture = localStorage.getItem('profilePicture');
-            if (updatedPicture) setProfilePicture(updatedPicture);
-        };
-        window.addEventListener('profilePictureUpdated', handleProfileUpdate);
-
-        // Fetch user coins immediately and set up polling if logged in
-        if (isLoggedIn) {
-            fetchUserCoins();
-
-            // Set up polling interval for continuous coin updates - every 10 seconds
-            coinPollingIntervalRef.current = setInterval(() => {
-                fetchUserCoins();
-            }, 10000); // Adjust the interval as needed (10000ms = 10 seconds)
-        }
-
-        // Clean up all event listeners and intervals
-        return () => {
-            window.removeEventListener('scroll', handleScroll);
-            window.removeEventListener('profilePictureUpdated', handleProfileUpdate);
-
-            // Clear the interval when component unmounts
-            if (coinPollingIntervalRef.current) {
-                clearInterval(coinPollingIntervalRef.current);
+    // Fetch user profile data (including coins and profile picture)
+    const fetchUserProfile = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token || !isLoggedIn) {
+                console.error('No token found or user not logged in');
+                return;
             }
-        };
-    }, [isLoggedIn, currentUser]);
 
-    // Custom event listener for coin updates from other components
-    useEffect(() => {
-        const handleCoinUpdate = () => {
+            // Fetch complete profile data from the profile endpoint
+            const profileResponse = await fetch(`http://localhost:8080/api/profile/me`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (profileResponse.ok) {
+                const profileData = await profileResponse.json();
+
+                // Update coins from profile data
+                if (profileData.coins !== undefined) {
+                    setUserCoins(profileData.coins || 0);
+                }
+
+                // Update profile picture if available
+                if (profileData.userPhoto) {
+                    setProfilePicture(profileData.userPhoto);
+                    localStorage.setItem('profilePicture', profileData.userPhoto);
+                    isDefaultProfilePicture.current = false;
+                } else {
+                    // If no photo is provided from the server, mark as using default
+                    isDefaultProfilePicture.current = true;
+                }
+            } else {
+                console.error('Failed to fetch user profile:', profileResponse.status);
+
+                // Fallback to coins-only endpoint if profile endpoint fails
+                fetchUserCoins();
+            }
+        } catch (error) {
+            console.error('Error fetching user profile:', error);
+
+            // Fallback to coins-only endpoint if profile endpoint fails
             fetchUserCoins();
-        };
+        }
+    };
 
-        // Listen for a custom event that can be triggered from anywhere when coins change
-        window.addEventListener('coinsUpdated', handleCoinUpdate);
-
-        return () => {
-            window.removeEventListener('coinsUpdated', handleCoinUpdate);
-        };
-    }, []);
-
+    // Original coins-only fetch as fallback
     const fetchUserCoins = async () => {
         try {
             const token = localStorage.getItem('token');
@@ -96,6 +95,100 @@ function Navbar() {
         }
     };
 
+    // Effect for scroll detection and initial profile data loading
+    useEffect(() => {
+        const handleScroll = () => {
+            setScrolled(window.scrollY > 50);
+        };
+        window.addEventListener('scroll', handleScroll);
+
+        // Check for stored profile picture immediately on component mount
+        const savedProfilePicture = localStorage.getItem('profilePicture');
+        if (savedProfilePicture) {
+            setProfilePicture(savedProfilePicture);
+            isDefaultProfilePicture.current = false;
+        } else {
+            isDefaultProfilePicture.current = true;
+        }
+
+        // Set up polling for user data if logged in
+        if (isLoggedIn) {
+            // Fetch profile data immediately on login
+            fetchUserProfile();
+
+            // Set up polling interval for continuous updates - every 10 seconds
+            coinPollingIntervalRef.current = setInterval(() => {
+                fetchUserProfile();
+            }, 10000); // 10 seconds
+        }
+
+        // Clean up all event listeners and intervals
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+            if (coinPollingIntervalRef.current) {
+                clearInterval(coinPollingIntervalRef.current);
+            }
+        };
+    }, [isLoggedIn, currentUser]);
+
+    // Additional effect to handle login state changes and refetch profile when needed
+    useEffect(() => {
+        if (isLoggedIn) {
+            // When login state changes to true, fetch profile data
+            fetchUserProfile();
+
+            // Set up interval if not already set
+            if (!coinPollingIntervalRef.current) {
+                coinPollingIntervalRef.current = setInterval(() => {
+                    fetchUserProfile();
+                }, 10000);
+            }
+        } else {
+            // Clear interval when logged out
+            if (coinPollingIntervalRef.current) {
+                clearInterval(coinPollingIntervalRef.current);
+                coinPollingIntervalRef.current = null;
+            }
+
+            // Reset user data when logged out
+            setUserCoins(0);
+            setProfilePicture(null);
+            isDefaultProfilePicture.current = true;
+        }
+    }, [isLoggedIn]);
+
+    // Custom event listeners for external updates to profile data
+    useEffect(() => {
+        // Handler for coin updates
+        const handleCoinUpdate = () => {
+            fetchUserProfile();
+        };
+
+        // Handler for profile picture updates
+        const handleProfileUpdate = () => {
+            const updatedPicture = localStorage.getItem('profilePicture');
+            if (updatedPicture) {
+                setProfilePicture(updatedPicture);
+                isDefaultProfilePicture.current = false;
+            } else {
+                // If no picture in localStorage, we're using default, don't refetch
+                isDefaultProfilePicture.current = true;
+            }
+        };
+
+        // Listen for custom events from other components
+        window.addEventListener('coinsUpdated', handleCoinUpdate);
+        window.addEventListener('profilePictureUpdated', handleProfileUpdate);
+        window.addEventListener('userLoggedIn', fetchUserProfile);
+
+        return () => {
+            window.removeEventListener('coinsUpdated', handleCoinUpdate);
+            window.removeEventListener('profilePictureUpdated', handleProfileUpdate);
+            window.removeEventListener('userLoggedIn', fetchUserProfile);
+        };
+    }, []);
+
+    // Effect for handling clicks outside the dropdown
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -107,12 +200,17 @@ function Navbar() {
     }, []);
 
     const handleLogout = async () => {
-        // Clear the coin polling interval when logging out
+        // Clear the polling interval when logging out
         if (coinPollingIntervalRef.current) {
             clearInterval(coinPollingIntervalRef.current);
+            coinPollingIntervalRef.current = null;
         }
 
         await logout();
+        // Reset local state
+        setProfilePicture(null);
+        setUserCoins(0);
+        isDefaultProfilePicture.current = true;
         // Explicitly navigate to home page with replace to prevent back navigation
         navigate('/', { replace: true });
     };
@@ -126,7 +224,6 @@ function Navbar() {
         if (!isLoggedIn) {
             navigate('/');
         } else {
-
             if (path === '/camino') {
                 if (hasChosenCaminoFitness()) {
                     const caminoId = getCurrentCaminoFitnessId();
@@ -154,6 +251,19 @@ function Navbar() {
             }
         }
         navigate('/');
+    };
+
+    // Handle image loading errors - with improved logic
+    const handleProfileImageError = () => {
+        console.log("Profile image failed to load");
+
+        // Only clear profile picture from state and local storage if it wasn't already the default
+        if (!isDefaultProfilePicture.current) {
+            setProfilePicture(null);
+            localStorage.removeItem('profilePicture');
+            isDefaultProfilePicture.current = true;
+            // We don't need to refetch if we're now using the default icon
+        }
     };
 
     return (
@@ -193,6 +303,7 @@ function Navbar() {
                                             src={profilePicture}
                                             alt="Profile"
                                             className="profile-image"
+                                            onError={handleProfileImageError}
                                         />
                                     ) : (
                                         <CgProfile size={34} />
@@ -201,13 +312,13 @@ function Navbar() {
                                 {profileDropdownOpen && (
                                     <div className="profile-dropdown-content">
                                         <a href="#" onClick={(e) => handleNavClick(e, '/perfil')}>
-                                            Perfil <CgProfile size={20} style={{ marginLeft: '8px' }} />
+                                            Perfil <CgProfile size={20} style={{ marginLeft: '3px' }} />
                                         </a>
                                         <a href="#" onClick={(e) => handleNavClick(e, '/tienda')} className="coins-link">
-                                            Monedas {userCoins} <FaCoins size={18} style={{ marginLeft: '8px', color: '#FFD700' }} />
+                                            Monedas {userCoins} <FaCoins size={18} style={{ marginLeft: '3px', color: '#FFD700' }} />
                                         </a>
                                         <a href="#" onClick={handleLogout}>
-                                            Logout <IoIosLogOut size={20} style={{ marginLeft: '8px' }}/>
+                                            Logout <IoIosLogOut size={20} style={{ marginLeft: '3px' }}/>
                                         </a>
                                     </div>
                                 )}

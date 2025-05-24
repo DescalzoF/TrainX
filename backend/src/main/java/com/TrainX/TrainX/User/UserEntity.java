@@ -117,7 +117,7 @@ public class UserEntity implements UserDetails {
         this.phoneNumber = phoneNumber;
         this.height = height;
         this.weight = weight;
-        this.userPhoto = userPhoto;
+        this.userPhoto = "";
         this.sex = sex;
         this.address = address;
         this.coins = coins != null ? coins : 0L;
