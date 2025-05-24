@@ -135,7 +135,7 @@ function Navbar() {
                 return;
             }
 
-            if (path === '/progress' || path.startsWith('/leaderboard')) {
+            if (path === '/progress' || path.startsWith('/leaderboard') || path === '/challenges') {
                 if (!hasChosenCaminoFitness()) {
                     return; // Stay on the same page if camino not chosen
                 }

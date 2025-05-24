@@ -19,6 +19,7 @@ import LeaderboardGeneral from './pages/leaderboard/general/LeaderboardGeneral.j
 import './App.css';
 import LeaderboardPorNivel from "./pages/leaderboard/porNivel/LeaderboardPorNivel.jsx";
 import LeaderboardSemanal from "./pages/leaderboard/semanal/LeaderboardSemanal.jsx";
+import Duel from "./pages/DuelosSemanales/DuelosSemanales.jsx";
 
 const ProtectedRoute = ({ children }) => {
     const { isLoggedIn, isLoading } = useAuth();
@@ -177,6 +178,14 @@ function AppContent() {
                         element={
                             <ProtectedRoute>
                                 <LeaderboardSemanal/>
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/challenges"
+                        element={
+                            <ProtectedRoute>
+                                <Duel/>
                             </ProtectedRoute>
                         }
                     />
