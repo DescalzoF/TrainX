@@ -23,7 +23,6 @@ import Tienda from './pages/tienda/Tienda.jsx';
 import Duel from "./pages/DuelosSemanales/DuelosSemanales.jsx";
 import DuelCompetition from "./pages/DuelCompetition/DuelCompetition.jsx";
 import DuelRouter from './pages/DuelRouter/DuelRouter.jsx';
-
 import Foro from "./pages/foro/Foro.jsx";
 
 const ProtectedRoute = ({ children }) => {

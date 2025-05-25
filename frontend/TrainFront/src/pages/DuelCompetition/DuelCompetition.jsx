@@ -272,7 +272,6 @@ const DuelCompetition = () => {
         }, 4000);
     };
 
-    // In the fetchActiveDuel function, extract and store the current username
     const fetchActiveDuel = async () => {
         setLoading(true);
         try {
@@ -283,13 +282,16 @@ const DuelCompetition = () => {
             if (response.data.hasActiveDuel) {
                 setActiveDuel(response.data);
 
-                // Check if current user is the challenger
-                const isChallenger = response.data.isCurrentUserChallenger;
-                setIsCurrentUserChallenger(isChallenger);
+                // Get the current username from localStorage
+                const currentUsername = localStorage.getItem('username');
+                setCurrentUsername(currentUsername || '');
 
-                // Extract current username
-                const username = isChallenger ? response.data.duel.challengerUsername : response.data.duel.challengedUsername;
-                setCurrentUsername(username || '');
+                const duel = response.data.duel;
+
+                // Determine if current user is challenger by comparing localStorage username
+                // with the challengerUsername from the duel data
+                const isChallenger = currentUsername === duel.challengerUsername;
+                setIsCurrentUserChallenger(isChallenger);
 
                 // Calculate progress
                 calculateProgress(response.data.duel, isChallenger);
@@ -471,15 +473,14 @@ const DuelCompetition = () => {
             </div>
         );
     }
-
     const duel = activeDuel.duel;
     const dailyProgress = generateDailyProgress(duel);
     const isCurrentUserWinning = progressData.currentUser.completed > progressData.opponent.completed;
     const isTied = progressData.currentUser.completed === progressData.opponent.completed;
 
-    // Get opponent username based on whether current user is challenger or not
+    // Get opponent username by comparing with current username from localStorage
     let opponentUsername;
-    if (isCurrentUserChallenger) {
+    if (currentUsername === duel.challengerUsername) {
         // If current user is challenger, opponent is the challenged user
         opponentUsername = duel.challengedUsername;
     } else {
@@ -587,25 +588,25 @@ const DuelCompetition = () => {
 
                     <div className="duel-competition__versus">
                         <div className="duel-competition__score">
-                            <span className={`duel-competition__score-value ${isCurrentUserWinning ? 'duel-competition__score-value--winning' : ''}`}>
-                                {progressData.currentUser.completed}
-                            </span>
+            <span className={`duel-competition__score-value ${isCurrentUserWinning ? 'duel-competition__score-value--winning' : ''}`}>
+                {progressData.currentUser.completed}
+            </span>
                             <span>-</span>
                             <span className={`duel-competition__score-value ${!isCurrentUserWinning && !isTied ? 'duel-competition__score-value--winning' : ''}`}>
-                                {progressData.opponent.completed}
-                            </span>
+                {progressData.opponent.completed}
+            </span>
                         </div>
                         <div className="duel-competition__bet">
                             <span className="duel-competition__bet-label">Apuesta</span>
                             <span className="duel-competition__bet-amount">
-                                <i className="fas fa-coins"></i> {duel.betAmount} monedas
-                            </span>
+                <i className="fas fa-coins"></i> {duel.betAmount} monedas
+            </span>
                         </div>
                     </div>
 
                     <div className="duel-competition__competitor">
                         <div className="duel-competition__competitor-avatar duel-competition__competitor-avatar--opponent">
-                            <span>{opponentUsername ? opponentUsername.charAt(0).toUpperCase() : 'T'}</span>
+                            <span>{opponentUsername ? opponentUsername.charAt(0).toUpperCase() : 'O'}</span>
                         </div>
                         <h2 className="duel-competition__competitor-name">{opponentUsername}</h2>
                     </div>
