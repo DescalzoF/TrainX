@@ -12,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -84,17 +85,31 @@ public class DuelController {
     }
 
     @PostMapping("/challenge")
-    public ResponseEntity<DuelResponseDTO> challengeUser(
+    public ResponseEntity<?> challengeUser(
             @AuthenticationPrincipal UserEntity currentUser,
             @RequestBody DuelChallengeRequestDTO request) {
         try {
+            // First deduct coins
+            if (request.getBetAmount() > 0) {
+                duelService.deductCoinsForDuel(currentUser.getId(), request.getBetAmount());
+            }
+
+            // Then create the duel without coin deduction
             DuelEntity duel = duelService.createDuel(
                     currentUser,
                     request.getChallengedUserId(),
                     request.getBetAmount());
+
             return ResponseEntity.status(HttpStatus.CREATED).body(convertToResponseDTO(duel));
         } catch (ResponseStatusException e) {
-            return ResponseEntity.status(e.getStatusCode()).build();
+            return ResponseEntity
+                    .status(e.getStatusCode())
+                    .body(Map.of("error", e.getReason()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "An unexpected error occurred"));
         }
     }
 

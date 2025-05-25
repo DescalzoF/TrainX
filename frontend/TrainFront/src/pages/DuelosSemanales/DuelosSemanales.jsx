@@ -78,7 +78,7 @@ const DuelosSemanales = () => {
             showToast(`Duelo con ${challengerUsername} aceptado con éxito`, 'success');
         } catch (err) {
             console.error('Error accepting duel:', err);
-            showToast('Error al aceptar el duelo', 'error');
+            showToast('Pocas monedas para el duelo', 'error');
         }
     };
 
