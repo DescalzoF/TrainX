@@ -83,6 +83,18 @@ public class DuelService {
                     "Bet amount cannot exceed your total coins");
         }
 
+        // Validate challenged user
+        if (challengedId == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Challenged user ID cannot be null");
+        }
+
+        // Check if user is challenging themselves
+        if (challenger.getId().equals(challengedId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "You cannot challenge yourself");
+        }
+
         UserEntity challenged = userRepository.findById(challengedId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Challenged user not found"));
@@ -109,12 +121,6 @@ public class DuelService {
         duel.setChallengerScore(0L);
         duel.setChallengedScore(0L);
         duel.setBetAmount(betAmount);
-
-        // Deduct coins from challenger's account if bet is made
-        if (betAmount > 0) {
-            challenger.setCoins(challenger.getCoins() - betAmount);
-            userRepository.save(challenger);
-        }
 
         DuelEntity savedDuel = duelRepository.save(duel);
 
@@ -420,5 +426,19 @@ public class DuelService {
             duel.setStatus(DuelStatus.REJECTED);
             duelRepository.save(duel);
         }
+    }
+
+    @Transactional
+    public void deductCoinsForDuel(Long userId, Long betAmount) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        if (user.getCoins() < betAmount) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Not enough coins for the bet");
+        }
+
+        user.setCoins(user.getCoins() - betAmount);
+        userRepository.save(user);
     }
 }
