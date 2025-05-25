@@ -21,6 +21,7 @@ import LeaderboardPorNivel from "./pages/leaderboard/porNivel/LeaderboardPorNive
 import LeaderboardSemanal from "./pages/leaderboard/semanal/LeaderboardSemanal.jsx";
 import Tienda from './pages/tienda/Tienda.jsx';
 import Duel from "./pages/DuelosSemanales/DuelosSemanales.jsx";
+import Foro from "./pages/foro/Foro.jsx";
 
 const ProtectedRoute = ({ children }) => {
     const { isLoggedIn, isLoading } = useAuth();
@@ -195,6 +196,14 @@ function AppContent() {
                         element={
                             <ProtectedRoute>
                                 <Tienda />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/foro"
+                        element={
+                            <ProtectedRoute>
+                                <Foro />
                             </ProtectedRoute>
                         }
                     />
