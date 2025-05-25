@@ -5,9 +5,9 @@
     margin: 110px auto 0 auto; /* Added top margin for navbar */
     padding: 20px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #0d47a1 0%, #1a237e 100%);
     min-height: calc(100vh - 80px); /* Adjust min-height to account for margin */
-    color: #333;
+    color: #f5f5f5;
 }
 
 /* Header Styles */
@@ -28,7 +28,7 @@
     margin: 0;
     font-size: 2.5rem;
     font-weight: 700;
-    background: linear-gradient(45deg, #667eea, #764ba2);
+    background: linear-gradient(45deg, #2196f3, #1a237e);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -138,9 +138,9 @@
 }
 
 .category-btn.active {
-    background: linear-gradient(45deg, #ffffff, #f8f9fa);
-    color: #333;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(45deg, #2196f3, #64b5f6);
+    color: white;
+    box-shadow: 0 5px 20px rgba(33, 150, 243, 0.3);
     transform: translateY(-2px);
 }
 
@@ -173,7 +173,7 @@
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    background: linear-gradient(90deg, transparent, rgba(33, 150, 243, 0.2), transparent);
     transition: left 0.5s;
 }
 
@@ -187,8 +187,8 @@
 }
 
 .shop-item.active {
-    border: 2px solid #4caf50;
-    box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
+    border: 2px solid #2196f3;
+    box-shadow: 0 0 20px rgba(33, 150, 243, 0.3);
 }
 
 .shop-item.active::after {
@@ -198,7 +198,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(45deg, rgba(76, 175, 80, 0.1), rgba(102, 187, 106, 0.1));
+    background: linear-gradient(45deg, rgba(33, 150, 243, 0.1), rgba(100, 181, 246, 0.1));
     pointer-events: none;
 }
 
@@ -228,7 +228,7 @@
     position: absolute;
     top: -10px;
     right: -10px;
-    background: linear-gradient(45deg, #4caf50, #66bb6a);
+    background: linear-gradient(45deg, #2196f3, #64b5f6);
     color: white;
     border-radius: 50%;
     width: 30px;
@@ -237,7 +237,7 @@
     align-items: center;
     justify-content: center;
     font-size: 0.8rem;
-    box-shadow: 0 2px 10px rgba(76, 175, 80, 0.4);
+    box-shadow: 0 2px 10px rgba(33, 150, 243, 0.4);
     animation: pulse 2s infinite;
 }
 
@@ -295,19 +295,19 @@
 }
 
 .purchase-btn {
-    background: linear-gradient(45deg, #667eea, #764ba2);
+    background: linear-gradient(45deg, #2196f3, #1a237e);
     color: white;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
 }
 
 .purchase-btn:hover:not(.disabled) {
-    background: linear-gradient(45deg, #5a6fd8, #6a4190);
+    background: linear-gradient(45deg, #1976d2, #0d47a1);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 6px 20px rgba(33, 150, 243, 0.4);
 }
 
 .purchase-btn.disabled {
-    background: linear-gradient(45deg, #bbb, #999);
+    background: linear-gradient(45deg, #9e9e9e, #757575);
     cursor: not-allowed;
     opacity: 0.6;
 }
@@ -335,15 +335,15 @@
 }
 
 .unequip-btn {
-    background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+    background: linear-gradient(45deg, #212121, #424242);
     color: white;
-    box-shadow: 0 4px 15px rgba(238, 90, 82, 0.3);
+    box-shadow: 0 4px 15px rgba(33, 33, 33, 0.3);
 }
 
 .unequip-btn:hover {
-    background: linear-gradient(45deg, #ff5252, #e53935);
+    background: linear-gradient(45deg, #000000, #212121);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(238, 90, 82, 0.4);
+    box-shadow: 0 6px 20px rgba(33, 33, 33, 0.4);
 }
 
 .unequip-btn::before {
