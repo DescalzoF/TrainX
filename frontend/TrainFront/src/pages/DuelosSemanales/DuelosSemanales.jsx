@@ -1,9 +1,12 @@
+import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './DuelosSemanales.css';
 import BetDuelButton from '../../components/BetDuelButton/BetDuelButton.jsx';
 
+
 const DuelosSemanales = () => {
+    const navigate = useNavigate();
     const [users, setUsers] = useState([]);
     const [pendingDuels, setPendingDuels] = useState([]);
     const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
@@ -63,23 +66,51 @@ const DuelosSemanales = () => {
         setPendingDuelsExpanded(!pendingDuelsExpanded);
     };
 
-    const handleAcceptDuel = async (duelId, challengerUsername) => {
+    const handleAcceptDuel = async (duelId, challengerUsername, betAmount) => {
+        setLoading(true);
         try {
-            await axios.post(`http://localhost:8080/api/duels/${duelId}/accept`, {}, {
+            // First check if user has enough coins
+            const userResponse = await axios.get('http://localhost:8080/api/users/current/coins', {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             });
 
-            // Update pending duels list
-            fetchPendingDuels();
+            const userCoins = userResponse.data.coins;
 
-            // Show success message with custom toast
-            showToast(`Duelo con ${challengerUsername} aceptado con éxito`, 'success');
-        } catch (err) {
-            console.error('Error accepting duel:', err);
-            showToast('Pocas monedas para el duelo', 'error');
+            // If user doesn't have enough coins, show error message and return
+            if (userCoins < betAmount) {
+                showToast(`Fondos insuficientes: Necesitas ${betAmount} monedas para aceptar este duelo.`, 'error');
+                setLoading(false);
+                return;
+            }
+
+            // If they have enough coins, proceed with accepting the duel
+            const response = await axios.post(
+                `http://localhost:8080/api/duels/${duelId}/accept`,
+                {},
+                {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                }
+            );
+
+            // Show success message
+            showToast(`Has aceptado el desafío de ${challengerUsername}`, 'success');
+
+            // Important: Wait longer to ensure backend processing is complete
+            setTimeout(() => {
+                // Use window.location instead of navigate for a full page reload and navigation
+                window.location.href = '/duel-competition';
+            }, 1000); // Increased to 1000ms (1 second)
+
+        } catch (error) {
+            console.error('Error accepting duel:', error);
+            showToast('No se pudo aceptar el desafío. Inténtalo de nuevo.', 'error');
+            setLoading(false);
         }
+        // Note: We're not setting loading to false if successful because we're navigating away
     };
 
     const handleRejectDuel = async (duelId, challengerUsername) => {
@@ -243,7 +274,7 @@ const DuelosSemanales = () => {
                                         <div className="weekly-duel__actions">
                                             <button
                                                 className="weekly-duel__accept-button"
-                                                onClick={() => handleAcceptDuel(duel.id, duel.challengerUsername)}
+                                                onClick={() => handleAcceptDuel(duel.id, duel.challengerUsername, duel.betAmount)}
                                             >
                                                 <i className="fa fa-check"></i>
                                                 <span>Aceptar</span>

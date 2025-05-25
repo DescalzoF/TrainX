@@ -172,6 +172,34 @@ public class DuelController {
 
         return ResponseEntity.ok(duelsDTO);
     }
+    @GetMapping("/active-duel")
+    public ResponseEntity<ActiveDuelResponseDTO> getActiveDuelForUser(
+            @AuthenticationPrincipal UserEntity currentUser) {
+        try {
+            List<DuelEntity> activeDuels = duelService.getActiveDuels(currentUser);
+
+            // Create response object
+            ActiveDuelResponseDTO response = new ActiveDuelResponseDTO();
+
+            // Check if user has any active duel
+            if (activeDuels.isEmpty()) {
+                response.setHasActiveDuel(false);
+                response.setDuel(null);
+            } else {
+                // Get the first active duel (a user should only have one)
+                DuelEntity activeDuel = activeDuels.get(0);
+                DuelResponseDTO duelDTO = convertToResponseDTO(activeDuel);
+
+                response.setHasActiveDuel(true);
+                response.setDuel(duelDTO);
+            }
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
     @GetMapping("/finished")
     public ResponseEntity<List<DuelResponseDTO>> getFinishedDuels(
