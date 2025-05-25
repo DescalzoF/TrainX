@@ -24,6 +24,7 @@ import Duel from "./pages/DuelosSemanales/DuelosSemanales.jsx";
 import DuelCompetition from "./pages/DuelCompetition/DuelCompetition.jsx";
 import DuelRouter from './pages/DuelRouter/DuelRouter.jsx';
 
+import Foro from "./pages/foro/Foro.jsx";
 
 const ProtectedRoute = ({ children }) => {
     const { isLoggedIn, isLoading } = useAuth();
@@ -220,6 +221,14 @@ function AppContent() {
                                 <DuelRouter>
                                     <Duel />
                                 </DuelRouter>
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/foro"
+                        element={
+                            <ProtectedRoute>
+                                <Foro />
                             </ProtectedRoute>
                         }
                     />

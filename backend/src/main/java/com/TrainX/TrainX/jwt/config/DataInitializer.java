@@ -986,7 +986,7 @@ public class DataInitializer {
                 10,
                 camino,
                 principiante,
-                "https://youtu.be/bench-press-empty",
+                "https://www.youtube.com/watch?v=jlFl7WJ1TzI&ab_channel=JeremyEthierenEspa%C3%B1ol",
                 35L,
                 0d
         ));
@@ -999,7 +999,7 @@ public class DataInitializer {
                 12,
                 camino,
                 principiante,
-                "https://youtu.be/bodyweight-squat",
+                "https://www.youtube.com/watch?v=lNwH67XzjVM&ab_channel=GabrielaAriasMadero",
                 28L,
                 0d
         ));

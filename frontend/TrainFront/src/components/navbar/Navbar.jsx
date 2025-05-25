@@ -323,7 +323,7 @@ function Navbar() {
                         </div>
                     </div>
                     <a href="" onClick={(e) => handleNavClick(e, '/challenges')} className="navbar-nav-link">Duelos Semanales</a>
-                    <a href="" onClick={(e) => handleNavClick(e, '/forum')} className="navbar-nav-link">Foro</a>
+                    <a href="" onClick={(e) => handleNavClick(e, '/foro')} className="navbar-nav-link">Foro</a>
                 </div>
 
                 <div className="navbar-menu">
