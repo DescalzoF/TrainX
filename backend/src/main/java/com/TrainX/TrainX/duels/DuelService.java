@@ -441,4 +441,8 @@ public class DuelService {
         user.setCoins(user.getCoins() - betAmount);
         userRepository.save(user);
     }
+    @Transactional(readOnly = true)
+    public List<DuelEntity> getUserDuelHistory(UserEntity user) {
+        return duelRepository.findByUserAndStatus(user, DuelStatus.FINISHED);
+    }
 }

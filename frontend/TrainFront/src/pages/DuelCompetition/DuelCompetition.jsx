@@ -180,7 +180,7 @@ const DuelCompetition = () => {
 
         setLoadingExercise(true);
         try {
-            const response = await axios.get(`http://localhost:8080/api/duels/${activeDuel.duel.id}/exercises/next`, {
+            const response = await axios.get(`http://localhost:8080/api/duels/${activeDuel.duel.id}/exercises`, {
                 withCredentials: true
             });
 

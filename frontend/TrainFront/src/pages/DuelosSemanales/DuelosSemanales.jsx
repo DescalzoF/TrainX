@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './DuelosSemanales.css';
 import BetDuelButton from '../../components/BetDuelButton/BetDuelButton.jsx';
+import DuelHistory from "../../components/Historial/DuelHistory.jsx";
 
 
 const DuelosSemanales = () => {
@@ -299,7 +300,7 @@ const DuelosSemanales = () => {
                     )
                 )}
             </div>
-
+            <DuelHistory />
             {/* Search Button or Animation Section */}
             {!showUsers && !searchingAnimation && (
                 <div className="weekly-duel__search">

@@ -289,4 +289,59 @@ public class DuelController {
         dto.setCompletedByChallenged(diaryExercise.getCompletedByChallenged());
         return dto;
     }
+    @GetMapping("/history")
+    public ResponseEntity<List<HistorialDuelDTO>> getUserDuelHistory(
+            @AuthenticationPrincipal UserEntity currentUser) {
+        try {
+            List<DuelEntity> finishedDuels = duelService.getUserDuelHistory(currentUser);
+            List<HistorialDuelDTO> historialDuels = finishedDuels.stream()
+                    .map(duel -> convertToHistorialDTO(duel, currentUser))
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.ok(historialDuels);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    private HistorialDuelDTO convertToHistorialDTO(DuelEntity duel, UserEntity currentUser) {
+        HistorialDuelDTO dto = new HistorialDuelDTO();
+
+        // Basic duel information
+        dto.setId(duel.getId());
+        dto.setChallengerUsername(duel.getChallenger().getUsername());
+        dto.setChallengedUsername(duel.getChallenged().getUsername());
+        dto.setStartDate(duel.getStartDate());
+        dto.setEndDate(duel.getEndDate());
+        dto.setChallengerScore(duel.getChallengerScore());
+        dto.setChallengedScore(duel.getChallengedScore());
+        dto.setBetAmount(duel.getBetAmount());
+
+        // Determine if current user was challenger
+        boolean isChallenger = duel.getChallenger().getId().equals(currentUser.getId());
+        dto.setWasUserChallenger(isChallenger);
+
+        // Set opponent username based on who the current user is
+        if (isChallenger) {
+            dto.setOpponentUsername(duel.getChallenged().getUsername());
+        } else {
+            dto.setOpponentUsername(duel.getChallenger().getUsername());
+        }
+
+        // Determine winner
+        UserEntity winner = duel.getWinner();
+        if (winner == null) {
+            // It's a tie
+            dto.setWinnerUsername("Empate");
+            dto.setUserWon(false);
+            dto.setWasTie(true);
+        } else {
+            dto.setWinnerUsername(winner.getUsername());
+            dto.setUserWon(winner.getId().equals(currentUser.getId()));
+            dto.setWasTie(false);
+        }
+
+        return dto;
+    }
 }
