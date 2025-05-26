@@ -276,13 +276,32 @@ public class DuelService {
 
     @Transactional(readOnly = true)
     public DuelDiaryExerciseEntity getTodaysExercise(Long duelId) {
+        // Get the duel first
+        DuelEntity duel = duelRepository.findById(duelId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Duel not found"));
+
         LocalDate today = LocalDate.now();
+
+        // If today is before the start date, explain that the duel hasn't started
+        if (today.isBefore(duel.getStartDate())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "The duel hasn't started yet. It will begin on " + duel.getStartDate());
+        }
+
+        // If today is after the end date, explain that the duel has ended
+        if (today.isAfter(duel.getEndDate())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "The duel has already ended on " + duel.getEndDate());
+        }
+
+        // Find the exercise for today
         List<DuelDiaryExerciseEntity> diaryExercises =
                 diaryExerciseRepository.findByDuelIdAndDate(duelId, today);
 
         if (diaryExercises.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    "No exercise scheduled for today in this duel");
+                    "No exercise found for today in this duel");
         }
 
         return diaryExercises.get(0);

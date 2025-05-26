@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { format, parseISO, addDays, endOfDay } from 'date-fns';
+import { format, parseISO, addDays } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useNavigate } from 'react-router-dom';
 import './DuelCompetition.css';
@@ -41,6 +41,7 @@ const DuelCompetition = () => {
         };
     }, []);
 
+    // Simplified timer useEffect
     useEffect(() => {
         let timer;
         if (activeDuel) {
@@ -51,26 +52,14 @@ const DuelCompetition = () => {
                     updateExerciseTimeRemaining();
                 }
             }, 1000);
-
-            // Check if duel has just started and show animation
-            if (!hasCheckedStartAnimationRef.current) {
-                checkDuelStartStatus();
-                hasCheckedStartAnimationRef.current = true;
-            }
-
-            // Check if duel has ended
-            checkDuelEndStatus();
-
-            // Fetch today's exercise
-            fetchTodayExercise();
         }
 
         return () => {
             if (timer) clearInterval(timer);
         };
-    }, [activeDuel]);
+    }, [activeDuel, exerciseDeadline]);
 
-    // Reset hasExpired when todayExercise changes
+    // In the useEffect that responds to todayExercise changes:
     useEffect(() => {
         if (todayExercise) {
             setHasExpired(false);
@@ -85,23 +74,49 @@ const DuelCompetition = () => {
                     23, 59, 59, 999
                 );
                 setExerciseDeadline(deadline);
-
-                // Setup timer for exercise
-                if (exerciseTimerRef.current) {
-                    clearInterval(exerciseTimerRef.current);
-                }
-
-                exerciseTimerRef.current = setInterval(() => {
-                    updateExerciseTimeRemaining(deadline);
-                }, 1000);
+                console.log("Exercise deadline set to:", deadline.toLocaleString());
             }
         }
     }, [todayExercise]);
 
+    // Fetch exercise when duel is loaded
+    useEffect(() => {
+        if (activeDuel && activeDuel.duel && activeDuel.duel.id) {
+            fetchTodayExercise();
+        }
+    }, [activeDuel]);
+
+    // Check for midnight to fetch new exercise
+    useEffect(() => {
+        const checkMidnightTimer = setInterval(() => {
+            const now = new Date();
+            const hour = now.getHours();
+            const minute = now.getMinutes();
+
+            // Check if it's midnight (00:00-00:01)
+            if (hour === 0 && minute < 1) {
+                console.log('Midnight passed, fetching new exercise');
+                fetchTodayExercise();
+            }
+        }, 30000); // Check every 30 seconds
+
+        return () => {
+            clearInterval(checkMidnightTimer);
+        };
+    }, []);
+
     const checkDuelEndStatus = () => {
         if (!activeDuel || !activeDuel.duel.endDate) return;
 
-        const endDate = new Date(activeDuel.duel.endDate);
+        const endDateObj = new Date(activeDuel.duel.endDate);
+
+        // Add one day to the end date and set to 23:59:59
+        const endDate = new Date(
+            endDateObj.getFullYear(),
+            endDateObj.getMonth(),
+            endDateObj.getDate() + 1, // Adding one day to the end date
+            23, 59, 59, 999
+        );
         const now = new Date();
 
         // Check if duel has ended
@@ -141,19 +156,24 @@ const DuelCompetition = () => {
         }
     };
 
+    // Fixed fetchTodayExercise function
     const fetchTodayExercise = async () => {
         if (!activeDuel || !activeDuel.duel.id) return;
 
         setLoadingExercise(true);
         try {
-            const response = await axios.get(`http://localhost:8080/api/duels/${activeDuel.duel.id}/exercises/today`, {
+            console.log('Fetching exercise for duel ID:', activeDuel.duel.id);
+            const response = await axios.get(`http://localhost:8080/api/duels/${activeDuel.duel.id}/exercise-today`, {
                 withCredentials: true
             });
 
-            if (response.data) {
-                setTodayExercise(response.data);
+            console.log('Exercise response:', response.data);
 
-                // Set deadline for this exercise
+            if (response.data && Object.keys(response.data).length > 0) {
+                setTodayExercise(response.data);
+                setHasExpired(false);
+
+                // Set deadline for this exercise - end of the current day (23:59:59)
                 if (response.data.date) {
                     const exerciseDate = new Date(response.data.date);
                     const deadline = new Date(
@@ -165,86 +185,56 @@ const DuelCompetition = () => {
                     setExerciseDeadline(deadline);
                 }
             } else {
+                console.log('No exercise data returned');
                 setTodayExercise(null);
             }
         } catch (err) {
             console.error("Error fetching today's exercise:", err);
+            if (err.response) {
+                console.error("Error status:", err.response.status);
+                console.error("Error data:", err.response.data);
+            }
             setTodayExercise(null);
         } finally {
             setLoadingExercise(false);
         }
     };
 
-    const fetchNextExercise = async () => {
-        if (!activeDuel || !activeDuel.duel.id) return;
-
-        setLoadingExercise(true);
-        try {
-            const response = await axios.get(`http://localhost:8080/api/duels/${activeDuel.duel.id}/exercises`, {
-                withCredentials: true
-            });
-
-            if (response.data) {
-                setTodayExercise(response.data);
-                showToast('Nuevo ejercicio disponible', 'info');
-
-                // Set deadline for this exercise
-                if (response.data.date) {
-                    const exerciseDate = new Date(response.data.date);
-                    const deadline = new Date(
-                        exerciseDate.getFullYear(),
-                        exerciseDate.getMonth(),
-                        exerciseDate.getDate(),
-                        23, 59, 59, 999
-                    );
-                    setExerciseDeadline(deadline);
-                }
-            } else {
-                setTodayExercise(null);
-            }
-        } catch (err) {
-            console.error("Error fetching next exercise:", err);
-            // Don't change todayExercise here to preserve the expired one
-        } finally {
-            setLoadingExercise(false);
-        }
-    };
-
+    // Keep the function for background calculations but don't display in UI
     const updateExerciseTimeRemaining = (deadline = exerciseDeadline) => {
-        if (!deadline) return;
+        if (!todayExercise || !todayExercise.date) return;
 
         const now = new Date();
-        if (now >= deadline) {
-            setExerciseTimeRemaining({ expired: true });
+        const exerciseDate = new Date(todayExercise.date);
+        const correctDeadline = new Date(
+            exerciseDate.getFullYear(),
+            exerciseDate.getMonth(),
+            exerciseDate.getDate(),
+            23, 59, 59, 999
+        );
 
-            // If just expired and not marked as expired yet, fetch the next exercise
-            if (!hasExpired) {
-                setHasExpired(true);
-                showToast('El tiempo para completar este ejercicio ha expirado', 'info');
-                fetchNextExercise(); // Automatically fetch next exercise when current expires
-            }
-            return;
-        }
-
-        const diff = deadline - now;
-        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        // Calculate time until end of the exercise day
+        const diff = Math.max(0, correctDeadline - now);
+        const hours = Math.floor(diff / (1000 * 60 * 60));
         const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-        setExerciseTimeRemaining({ hours, minutes, seconds, expired: false });
+        setExerciseTimeRemaining({
+            hours,
+            minutes,
+            seconds,
+            expired: false // Always allow completion
+        });
+
+        setHasExpired(false);
     };
 
     const completeExercise = async () => {
         if (!activeDuel || !todayExercise || !todayExercise.id) return;
 
-        // Check if exercise deadline has passed
-        if (exerciseTimeRemaining && exerciseTimeRemaining.expired) {
-            showToast('El tiempo para completar este ejercicio ha expirado', 'error');
-            return;
-        }
-
         setCompletingExercise(true);
         try {
+            console.log('Completing exercise ID:', todayExercise.id);
             await axios.post(`http://localhost:8080/api/duels/${activeDuel.duel.id}/exercises/${todayExercise.id}/complete`, {}, {
                 withCredentials: true
             });
@@ -256,6 +246,7 @@ const DuelCompetition = () => {
             fetchTodayExercise();
         } catch (err) {
             console.error("Error completing exercise:", err);
+            console.error("Error details:", err.response?.data || err.message);
             showToast('Error al completar el ejercicio', 'error');
         } finally {
             setCompletingExercise(false);
@@ -275,9 +266,12 @@ const DuelCompetition = () => {
     const fetchActiveDuel = async () => {
         setLoading(true);
         try {
+            console.log('Fetching active duel');
             const response = await axios.get('http://localhost:8080/api/duels/active-duel', {
                 withCredentials: true
             });
+
+            console.log('Active duel response:', response.data);
 
             if (response.data.hasActiveDuel) {
                 setActiveDuel(response.data);
@@ -295,11 +289,16 @@ const DuelCompetition = () => {
 
                 // Calculate progress
                 calculateProgress(response.data.duel, isChallenger);
+
+                // Check duel status
+                checkDuelStartStatus();
+                checkDuelEndStatus();
             } else {
                 setActiveDuel(null);
             }
         } catch (err) {
             console.error("Error fetching active duel:", err);
+            console.error("Error details:", err.response?.data || err.message);
             setError("No se pudo cargar el duelo activo. Inténtalo de nuevo más tarde.");
             showToast('Error al cargar el duelo activo', 'error');
         } finally {
@@ -352,7 +351,7 @@ const DuelCompetition = () => {
         // Parse the date from backend
         const startDateObj = new Date(startDateStr);
 
-        // Set time to 23:59:59 of the start date (essentially midnight)
+        // Set time to 23:59:59 of the start date
         const startDate = new Date(
             startDateObj.getFullYear(),
             startDateObj.getMonth(),
@@ -360,16 +359,20 @@ const DuelCompetition = () => {
             23, 59, 59, 999
         );
 
-        console.log('Original startDate string:', startDateStr);
-        console.log('Parsed date object:', startDateObj);
-        console.log('Start date set to end of day:', startDate);
-        console.log('Current time:', now);
-        console.log('Time difference (ms):', startDate - now);
-
         // If current time is past the start date, switch to end date countdown
         if (now >= startDate) {
             if (activeDuel.duel.endDate) {
-                const endDate = new Date(activeDuel.duel.endDate);
+                // Parse the end date from backend
+                const endDateObj = new Date(activeDuel.duel.endDate);
+
+                // Add one day to the end date and set to 23:59:59
+                const endDate = new Date(
+                    endDateObj.getFullYear(),
+                    endDateObj.getMonth(),
+                    endDateObj.getDate() + 1, // Adding one day to the end date
+                    23, 59, 59, 999
+                );
+
                 if (now >= endDate) {
                     setTimeRemaining({ days: 0, hours: 0, minutes: 0, seconds: 0 });
                 } else {
@@ -444,21 +447,6 @@ const DuelCompetition = () => {
         );
     }
 
-    if (error) {
-        return (
-            <div className="duel-competition duel-competition--with-margin">
-                <div className="duel-competition__error">
-                    <i className="fas fa-exclamation-triangle"></i>
-                    <h2>Algo salió mal</h2>
-                    <p>{error}</p>
-                    <button className="duel-competition__retry-button" onClick={fetchActiveDuel}>
-                        <i className="fas fa-sync-alt"></i> Reintentar
-                    </button>
-                </div>
-            </div>
-        );
-    }
-
     if (!activeDuel || !activeDuel.hasActiveDuel) {
         return (
             <div className="duel-competition duel-competition--with-margin">
@@ -494,8 +482,10 @@ const DuelCompetition = () => {
     // Check if duel has ended
     const duelEnded = duel.endDate && new Date() >= new Date(duel.endDate);
 
-    // Check if today's exercise is already completed
-    const isExerciseCompleted = todayExercise && todayExercise.completed;
+    // Check if today's exercise is already completed by the current user
+    const isExerciseCompleted = todayExercise &&
+        ((isCurrentUserChallenger && todayExercise.completedByChallenger) ||
+            (!isCurrentUserChallenger && todayExercise.completedByChallenged));
 
     // Check if exercise deadline has expired
     const isExerciseExpired = exerciseTimeRemaining && exerciseTimeRemaining.expired;
@@ -724,31 +714,14 @@ const DuelCompetition = () => {
                                 </span>
                             </div>
 
-                            {/* Exercise Deadline Countdown */}
-                            {!isExerciseCompleted && !isExerciseExpired && exerciseTimeRemaining && (
-                                <div className="duel-competition__exercise-deadline">
-                                    <h5>Tiempo restante para completar:</h5>
-                                    <div className="duel-competition__exercise-timer">
-                                        <span>{exerciseTimeRemaining.hours} horas</span>
-                                        <span>{exerciseTimeRemaining.minutes} minutos</span>
-                                        <span>{exerciseTimeRemaining.seconds} segundos</span>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Expired Message */}
-                            {isExerciseExpired && !isExerciseCompleted && (
-                                <div className="duel-competition__exercise-deadline">
-                                    <div className="duel-competition__expired">
-                                        <i className="fas fa-exclamation-circle"></i>
-                                        Tiempo expirado
-                                    </div>
-                                </div>
-                            )}
+                            {/* New description explaining the daily exercise system */}
+                            <div className="duel-competition__exercise-description-box">
+                                <p>Cada día se te asignará un nuevo ejercicio que puedes completar hasta el final del día para sumar puntos en el duelo.</p>
+                            </div>
 
                             <div className="duel-competition__exercise-content">
-                                <h2 className="duel-competition__exercise-name">{todayExercise.name}</h2>
-                                <p className="duel-competition__exercise-description">{todayExercise.description}</p>
+                                <h2 className="duel-competition__exercise-name">{todayExercise.exerciseName}</h2>
+                                <p className="duel-competition__exercise-description">{todayExercise.exerciseDescription}</p>
 
                                 {isExerciseCompleted ? (
                                     <div className="duel-competition__exercise-completed">
@@ -760,17 +733,12 @@ const DuelCompetition = () => {
                                         <button
                                             className="duel-competition__complete-button"
                                             onClick={completeExercise}
-                                            disabled={completingExercise || isExerciseExpired}
+                                            disabled={completingExercise}
                                         >
                                             {completingExercise ? (
                                                 <>
                                                     <div className="duel-competition__button-spinner"></div>
                                                     Completando...
-                                                </>
-                                            ) : isExerciseExpired ? (
-                                                <>
-                                                    <i className="fas fa-times-circle"></i>
-                                                    Tiempo expirado
                                                 </>
                                             ) : (
                                                 <>
