@@ -2,6 +2,8 @@ package com.TrainX.TrainX.jwt.config;
 
 import com.TrainX.TrainX.caminoFitness.CaminoFitnessEntity;
 import com.TrainX.TrainX.caminoFitness.CaminoFitnessRepository;
+import com.TrainX.TrainX.desafioSemanal.DesafioSemanal;
+import com.TrainX.TrainX.desafioSemanal.DesafioSemanalRepository;
 import com.TrainX.TrainX.exercise.ExerciseEntity;
 import com.TrainX.TrainX.exercise.ExerciseRepository;
 import com.TrainX.TrainX.level.LevelEntity;
@@ -15,6 +17,8 @@ import org.springframework.core.annotation.Order;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Configuration
 public class DataInitializer {
@@ -2934,5 +2938,36 @@ public class DataInitializer {
         ));
 
         exerciseRepository.saveAll(ejerciciosPro);
+    }
+
+    @Bean
+    @Order(4)
+    public CommandLineRunner loadDesafiosSemanales(DesafioSemanalRepository desafioRepository) {
+        return args -> {
+            if (desafioRepository.count() == 0) {
+                Map<String, Long> desafiosData = Map.of(
+                        "Corre 5km en menos de 30 minutos", 100L,
+                        "Realiza 40 flexiones sin descanso", 120L,
+                        "Completa 100 abdominales en un día", 150L,
+                        "Realiza 20 minutos de entrenamiento HIIT", 100L,
+                        "Haz 50 sentadillas con peso corporal", 130L,
+                        "Mantén una plancha durante 3 minutos acumulados", 110L,
+                        "Camina 10.000 pasos en un día", 90L,
+                        "Completa 3 sesiones de entrenamiento esta semana", 200L
+                );
+
+                List<DesafioSemanal> desafios = desafiosData.entrySet().stream()
+                        .map(entry -> {
+                            DesafioSemanal desafio = new DesafioSemanal();
+                            desafio.setDescripcion(entry.getKey());
+                            desafio.setValorMonedas(entry.getValue());
+                            desafio.setActivo(true);
+                            return desafio;
+                        })
+                        .collect(Collectors.toList());
+
+                desafioRepository.saveAll(desafios);
+            }
+        };
     }
 }

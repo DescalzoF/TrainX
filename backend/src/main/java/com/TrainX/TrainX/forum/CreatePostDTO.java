@@ -1,9 +1,10 @@
 package com.TrainX.TrainX.forum;
 
-import java.time.LocalDateTime;
-import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
-// DTO for creating a new post
+@Getter
+@Setter
 public class CreatePostDTO {
     private String title;
     private String content;
@@ -16,14 +17,4 @@ public class CreatePostDTO {
         this.content = content;
         this.category = category;
     }
-
-    // Getters and setters
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
-
-    public String getContent() { return content; }
-    public void setContent(String content) { this.content = content; }
-
-    public ForumCategory getCategory() { return category; }
-    public void setCategory(ForumCategory category) { this.category = category; }
 }

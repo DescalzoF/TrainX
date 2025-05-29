@@ -414,7 +414,7 @@
     min-height: 120px;
 }
 
-.form-actions {
+.forum-form-actions {
     display: flex;
     gap: 15px;
     justify-content: flex-end;
@@ -625,7 +625,7 @@
         padding: 20px;
     }
 
-    .form-actions {
+    .forum-form-actions {
         flex-direction: column;
     }
 

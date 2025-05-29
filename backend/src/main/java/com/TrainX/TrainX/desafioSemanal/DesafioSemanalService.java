@@ -8,10 +8,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class DesafioSemanalService {
@@ -111,11 +109,6 @@ public class DesafioSemanalService {
         return true;
     }
 
-    /**
-     * Gets the user's most recent completed challenge, if it's within the last 7 days
-     * @param userId The user ID
-     * @return Information about the most recent challenge completion within the last 7 days, or null if none exists
-     */
     public DesafioCompletionDTO getRecentCompletionForUser(Long userId) {
         Optional<DesafioCompletion> recentCompletion = completionRepository
                 .findFirstByUsuarioIdOrderByFechaCompletadoDesc(userId);
@@ -143,31 +136,5 @@ public class DesafioSemanalService {
         }
 
         return null;
-    }
-
-    public void initializeDefaultDesafios() {
-        if (desafioRepository.count() == 0) {
-            // Crear desafíos predeterminados si no existen
-            String[] descripciones = {
-                    "Corre 5km en menos de 30 minutos",
-                    "Realiza 40 flexiones sin descanso",
-                    "Completa 100 abdominales en un día",
-                    "Realiza 20 minutos de entrenamiento HIIT",
-                    "Haz 50 sentadillas con peso corporal",
-                    "Mantén una plancha durante 3 minutos acumulados",
-                    "Camina 10.000 pasos en un día",
-                    "Completa 3 sesiones de entrenamiento esta semana"
-            };
-
-            Long[] valores = {100L, 120L, 150L, 100L, 130L, 110L, 90L, 200L};
-
-            for (int i = 0; i < descripciones.length; i++) {
-                DesafioSemanal desafio = new DesafioSemanal();
-                desafio.setDescripcion(descripciones[i]);
-                desafio.setValorMonedas(valores[i]);
-                desafio.setActivo(true);
-                desafioRepository.save(desafio);
-            }
-        }
     }
 }

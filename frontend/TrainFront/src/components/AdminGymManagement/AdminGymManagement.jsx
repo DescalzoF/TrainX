@@ -781,7 +781,7 @@ const AdminGymManagement = ({ mapInstance, updateGyms, userLocation }) => {
                             </div>
                         </div>
 
-                        <div className="form-actions">
+                        <div className="admin-gym-form-actions">
                             <button type="submit" className="submit-button">
                                 {editingGym ? (
                                     <>

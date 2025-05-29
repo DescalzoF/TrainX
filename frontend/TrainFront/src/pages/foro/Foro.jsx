@@ -380,7 +380,7 @@ const Foro = () => {
                                 className="form-textarea"
                             />
 
-                            <div className="form-actions">
+                            <div className="forum-form-actions">
                                 <button type="submit" className="submit-btn">
                                     Publicar
                                 </button>
