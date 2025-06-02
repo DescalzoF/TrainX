@@ -167,7 +167,7 @@ const DuelHistory = () => {
                                     const opponentInitial = duel.opponentUsername.charAt(0).toUpperCase();
 
                                     return (
-                                        <div key={duel.id} className="duel-history__item" onClick={() => handleViewDuel(duel.id)}>
+                                        <div key={duel.id} className="duel-history__item">
                                             <div className="duel-history__item-ribbon duel-history__item-ribbon--right"></div>
                                             <div className="duel-history__item-ribbon duel-history__item-ribbon--left"></div>
 
