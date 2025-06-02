@@ -56,10 +56,6 @@ const DuelHistory = () => {
         }
     };
 
-    const handleViewDuel = (duelId) => {
-        navigate(`/duel-competition/${duelId}`);
-    };
-
     const getDuelOutcomeLabel = (duel) => {
         if (duel.wasTie) return 'Empate';
         return duel.userWon ? 'Victoria' : 'Derrota';
