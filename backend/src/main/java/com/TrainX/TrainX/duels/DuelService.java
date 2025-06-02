@@ -464,4 +464,21 @@ public class DuelService {
     public List<DuelEntity> getUserDuelHistory(UserEntity user) {
         return duelRepository.findByUserAndStatus(user, DuelStatus.FINISHED);
     }
+
+    public Long countUserDuelWins(Long userId) {
+        List<DuelEntity> finishedDuels = duelRepository.findAll().stream()
+                .filter(duel -> duel.getStatus() == DuelStatus.FINISHED)
+                .filter(duel -> duel.getChallenger().getId().equals(userId) || duel.getChallenged().getId().equals(userId))
+                .collect(Collectors.toList());
+
+        return finishedDuels.stream()
+                .filter(duel -> {
+                    if (duel.getChallenger().getId().equals(userId)) {
+                        return duel.getChallengerScore() > duel.getChallengedScore();
+                    } else {
+                        return duel.getChallengedScore() > duel.getChallengerScore();
+                    }
+                })
+                .count();
+    }
 }

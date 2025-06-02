@@ -237,6 +237,17 @@ public class DuelController {
         }
     }
 
+    @PostMapping("/check-expired")
+    public ResponseEntity<CheckExpiredDuelsResponseDTO> checkExpiredDuels() {
+        try {
+            duelService.checkExpiredDuels();
+            return ResponseEntity.ok(new CheckExpiredDuelsResponseDTO("Expired duels checked and updated."));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new CheckExpiredDuelsResponseDTO("Failed to check expired duels."));
+        }
+    }
+
     @GetMapping("/{duelId}/exercises")
     public ResponseEntity<List<DuelDiaryExerciseDTO>> getDuelExercises(
             @PathVariable Long duelId) {
@@ -303,6 +314,13 @@ public class DuelController {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    @GetMapping("/user/{userId}/wins")
+    public ResponseEntity<UserDuelWinsDTO> getUserDuelWins(@PathVariable Long userId) {
+        Long wins = duelService.countUserDuelWins(userId);
+        UserDuelWinsDTO dto = new UserDuelWinsDTO(userId, wins);
+        return ResponseEntity.ok(dto);
     }
 
     private HistorialDuelDTO convertToHistorialDTO(DuelEntity duel, UserEntity currentUser) {

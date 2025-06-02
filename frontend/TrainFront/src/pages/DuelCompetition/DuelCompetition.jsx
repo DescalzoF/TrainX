@@ -26,18 +26,27 @@ const DuelCompetition = () => {
     const [exerciseDeadline, setExerciseDeadline] = useState(null);
     const [exerciseTimeRemaining, setExerciseTimeRemaining] = useState(null);
     const [hasExpired, setHasExpired] = useState(false);
+    const [winnerMessage, setWinnerMessage] = useState('');
     const toastTimeoutRef = useRef(null);
     const hasCheckedStartAnimationRef = useRef(false);
     const exerciseTimerRef = useRef(null);
     const duelEndAnimationTimeoutRef = useRef(null);
+    const checkExpiredTimerRef = useRef(null);
 
     useEffect(() => {
         fetchActiveDuel();
+
+        // Check expired duels on component mount
+        checkExpiredDuels();
+
+        // Set up a timer to check expired duels every minute
+        checkExpiredTimerRef.current = setInterval(checkExpiredDuels, 60000);
 
         return () => {
             if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
             if (exerciseTimerRef.current) clearInterval(exerciseTimerRef.current);
             if (duelEndAnimationTimeoutRef.current) clearTimeout(duelEndAnimationTimeoutRef.current);
+            if (checkExpiredTimerRef.current) clearInterval(checkExpiredTimerRef.current);
         };
     }, []);
 
@@ -105,6 +114,25 @@ const DuelCompetition = () => {
         };
     }, []);
 
+    const checkExpiredDuels = async () => {
+        try {
+            console.log('Checking for expired duels...');
+            const response = await axios.post('http://localhost:8080/api/duels/check-expired', {}, {
+                withCredentials: true
+            });
+
+            console.log('Expired duels response:', response.data);
+
+            // After checking expired duels, fetch active duel again to get updated status
+            await fetchActiveDuel();
+
+            // Check if duel has ended
+            checkDuelEndStatus();
+        } catch (err) {
+            console.error('Error checking expired duels:', err);
+        }
+    };
+
     const checkDuelEndStatus = () => {
         if (!activeDuel || !activeDuel.duel.endDate) return;
 
@@ -127,6 +155,24 @@ const DuelCompetition = () => {
             const hasSeenEndAnimation = localStorage.getItem(`seen_duel_end_${activeDuel.duel.id}`);
 
             if (!hasSeenEndAnimation) {
+                // Determine winner message
+                const isCurrentUserWinning = progressData.currentUser.completed > progressData.opponent.completed;
+                const isTied = progressData.currentUser.completed === progressData.opponent.completed;
+                const opponentUsername = isCurrentUserChallenger ?
+                    activeDuel.duel.challengedUsername :
+                    activeDuel.duel.challengerUsername;
+
+                let message = '';
+                if (isCurrentUserWinning) {
+                    message = '¡Felicidades! Has ganado el duelo.';
+                } else if (!isCurrentUserWinning && !isTied) {
+                    message = `${opponentUsername} ha ganado el duelo.`;
+                } else {
+                    message = 'El duelo ha terminado en empate.';
+                }
+
+                setWinnerMessage(message);
+
                 // Show end animation
                 setDuelJustEnded(true);
                 localStorage.setItem(`seen_duel_end_${activeDuel.duel.id}`, 'true');
@@ -509,13 +555,7 @@ const DuelCompetition = () => {
                     <div className="duel-competition__start-animation-content">
                         <i className="fas fa-trophy duel-competition__start-animation-icon"></i>
                         <h2>¡El duelo ha finalizado!</h2>
-                        <p>
-                            {isCurrentUserWinning
-                                ? '¡Felicidades! Has ganado el duelo.'
-                                : !isCurrentUserWinning && !isTied
-                                    ? `${opponentUsername} ha ganado el duelo.`
-                                    : 'El duelo ha terminado en empate.'}
-                        </p>
+                        <p>{winnerMessage}</p>
                         <p className="duel-competition__redirect-message">Redirigiendo a la página de desafíos...</p>
                     </div>
                 </div>
@@ -578,19 +618,19 @@ const DuelCompetition = () => {
 
                     <div className="duel-competition__versus">
                         <div className="duel-competition__score">
-            <span className={`duel-competition__score-value ${isCurrentUserWinning ? 'duel-competition__score-value--winning' : ''}`}>
-                {progressData.currentUser.completed}
-            </span>
+                            <span className={`duel-competition__score-value ${isCurrentUserWinning ? 'duel-competition__score-value--winning' : ''}`}>
+                                {progressData.currentUser.completed}
+                            </span>
                             <span>-</span>
                             <span className={`duel-competition__score-value ${!isCurrentUserWinning && !isTied ? 'duel-competition__score-value--winning' : ''}`}>
-                {progressData.opponent.completed}
-            </span>
+                                {progressData.opponent.completed}
+                            </span>
                         </div>
                         <div className="duel-competition__bet">
                             <span className="duel-competition__bet-label">Apuesta</span>
                             <span className="duel-competition__bet-amount">
-                <i className="fas fa-coins"></i> {duel.betAmount} monedas
-            </span>
+                                <i className="fas fa-coins"></i> {duel.betAmount} monedas
+                            </span>
                         </div>
                     </div>
 

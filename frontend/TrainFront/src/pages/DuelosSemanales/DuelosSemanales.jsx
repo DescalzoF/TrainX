@@ -20,6 +20,7 @@ const DuelosSemanales = () => {
     const [sentRequestsCount, setSentRequestsCount] = useState(0);
     const [toast, setToast] = useState({ show: false, message: '', type: '' });
     const toastTimeoutRef = useRef(null);
+    const [userWins, setUserWins] = useState({});
 
     // Fetch pending duel requests on component mount
     useEffect(() => {
@@ -42,6 +43,30 @@ const DuelosSemanales = () => {
         toastTimeoutRef.current = setTimeout(() => {
             setToast(prev => ({ ...prev, show: false }));
         }, 4000);
+    };
+    const fetchUserWins = async (users) => {
+        try {
+            // Create an array of promises for all user win fetch requests
+            const winPromises = users.map(user =>
+                axios.get(`http://localhost:8080/api/duels/user/${user.id}/wins`, {
+                    withCredentials: true
+                })
+            );
+
+            // Wait for all requests to complete
+            const responses = await Promise.all(winPromises);
+
+            // Build a map of userId -> wins
+            const winsMap = {};
+            responses.forEach(response => {
+                const { userId, wins } = response.data;
+                winsMap[userId] = wins;
+            });
+
+            setUserWins(winsMap);
+        } catch (err) {
+            console.error('Error fetching user wins:', err);
+        }
     };
 
     const fetchPendingDuels = async () => {
@@ -143,13 +168,15 @@ const DuelosSemanales = () => {
             await new Promise(resolve => setTimeout(resolve, 2000));
 
             const response = await axios.get('http://localhost:8080/api/duels/users-same-level', {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
+                withCredentials: true
             });
 
-            setUsers(response.data);
+            const fetchedUsers = response.data;
+            setUsers(fetchedUsers);
             setShowUsers(true);
+
+            // Fetch wins for all users
+            await fetchUserWins(fetchedUsers);
         } catch (err) {
             console.error('Error fetching users:', err);
             setError('Error al buscar usuarios. Inténtalo de nuevo más tarde.');
@@ -380,7 +407,7 @@ const DuelosSemanales = () => {
                                                             Duelos ganados
                                                         </div>
                                                         <div className="weekly-duel__attribute-value">
-                                                            {user.wins || 0}
+                                                            {userWins[user.id] !== undefined ? userWins[user.id] : 0}
                                                         </div>
                                                     </div>
                                                     <div className="weekly-duel__attribute-row">
