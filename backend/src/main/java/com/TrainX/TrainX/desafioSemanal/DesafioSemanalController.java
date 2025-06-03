@@ -29,10 +29,11 @@ public class DesafioSemanalController {
         this.userService = userService;
     }
 
-    @GetMapping
+    @GetMapping()
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<DesafioSemanal>> getAllDesafios() {
-        return ResponseEntity.ok(desafioService.getAllDesafios());
+    public ResponseEntity<List<DesafioSemanalDTO>> getAllDesafios() {
+        List<DesafioSemanalDTO> desafios = desafioService.getAllDesafiosDTO();
+        return ResponseEntity.ok(desafios);
     }
 
     @GetMapping("/activos")

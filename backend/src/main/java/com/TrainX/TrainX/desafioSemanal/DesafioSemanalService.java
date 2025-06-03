@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class DesafioSemanalService {
@@ -30,6 +31,17 @@ public class DesafioSemanalService {
 
     public List<DesafioSemanal> getAllDesafios() {
         return desafioRepository.findAll();
+    }
+
+    public List<DesafioSemanalDTO> getAllDesafiosDTO() {
+        List<DesafioSemanal> desafios = desafioRepository.findAll();
+        return desafios.stream()
+                .map(desafio -> new DesafioSemanalDTO(
+                        desafio.getId(),
+                        desafio.getDescripcion(),
+                        desafio.getValorMonedas(),
+                        desafio.isActivo()))
+                .collect(Collectors.toList());
     }
 
     public List<DesafioSemanal> getActiveDesafios() {

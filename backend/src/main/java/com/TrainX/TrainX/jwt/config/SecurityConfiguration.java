@@ -41,9 +41,9 @@ public class SecurityConfiguration {
                         .requestMatchers("/api/profile/**").authenticated() // Solo autenticados
                         .requestMatchers("/api/gimnasios/").hasRole("ADMIN")
                         .requestMatchers("/api/forum/**").authenticated()
-                        .requestMatchers("/api/desafios-semanales/**").authenticated()
                         .requestMatchers("/api/profile/update", "/api/profile/delete").authenticated()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN") // Rutas de administrador
+                        .requestMatchers("/api/desafios-semanales/**").authenticated()
                         .anyRequest().authenticated() // El resto requiere autenticación
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
