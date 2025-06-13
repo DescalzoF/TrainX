@@ -3,6 +3,7 @@ package com.TrainX.TrainX.Profile;
 import com.TrainX.TrainX.User.Role;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 
 public class ProfileDTO implements Serializable {
 
@@ -14,12 +15,13 @@ public class ProfileDTO implements Serializable {
     private Long height;
     private String address;
     private String phoneNumber;
-    private String age;
+    private LocalDate dateOfBirth;
     private String sex;
     private String userPhoto;
     private Boolean isPublic;
     private Role role;
     private Long coins;
+    private Long caminoFitnessId;
 
     public ProfileDTO() {
     }
@@ -57,8 +59,8 @@ public class ProfileDTO implements Serializable {
         return phoneNumber;
     }
 
-    public String getAge() {
-        return age;
+    public LocalDate getDateOfBirth() {
+        return dateOfBirth;
     }
 
     public String getSex() {
@@ -114,8 +116,8 @@ public class ProfileDTO implements Serializable {
         this.phoneNumber = phoneNumber;
     }
 
-    public void setAge(String age) {
-        this.age = age;
+    public void setDateOfBirth(LocalDate dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
     }
 
     public void setSex(String sex) {
@@ -138,10 +140,12 @@ public class ProfileDTO implements Serializable {
         this.coins = coins;
     }
 
-    private Long caminoFitnessId;
 
     // Getter and setter for caminoFitnessId in ProfileDTO.java
     public Long getCaminoFitnessId() {
         return caminoFitnessId;
+    }
+    public void setCaminoFitnessId(Long caminoFitnessId) {
+        this.caminoFitnessId = caminoFitnessId;
     }
 }

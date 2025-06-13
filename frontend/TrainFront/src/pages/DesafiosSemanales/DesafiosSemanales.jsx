@@ -13,12 +13,35 @@ const DesafiosSemanales = () => {
     const [successMessage, setSuccessMessage] = useState("");
     const [coinsAnimation, setCoinsAnimation] = useState(null);
     const [timeRemaining, setTimeRemaining] = useState(null);
+    const [currentUser, setCurrentUser] = useState(null);
 
     const API_BASE_URL = "http://localhost:8080/api";
 
     useEffect(() => {
-        fetchDesafioStatus();
+        const fetchCurrentUser = async () => {
+            try {
+                const token = localStorage.getItem("jwtToken") || localStorage.getItem("token");
+                if (!token) return;
+                const response = await axios.get(
+                    `${API_BASE_URL}/users/currentUser`,
+                    { headers: { Authorization: `Bearer ${token}` } }
+                );
+                setCurrentUser(response.data.username);
+            } catch (err) {
+                setCurrentUser(null);
+            }
+        };
+        fetchCurrentUser();
     }, []);
+
+    useEffect(() => {
+        if (currentUser && currentUser !== "TrainXAdmin") {
+            fetchDesafioStatus();
+        } else if (currentUser === "TrainXAdmin") {
+            setLoading(false);
+        }
+        // eslint-disable-next-line
+    }, [currentUser]);
 
     // Format time remaining in a human-readable format
     const formatTimeRemaining = (hours) => {
@@ -81,8 +104,6 @@ const DesafiosSemanales = () => {
                 axiosConfig
             );
 
-            console.log("Estado response:", estadoResponse.data);
-
             // If user has completed a challenge recently, show it with time remaining
             if (estadoResponse.data.locked && estadoResponse.data.completedDesafio) {
                 setCompletedDesafio(estadoResponse.data.completedDesafio);
@@ -95,8 +116,6 @@ const DesafiosSemanales = () => {
                     axiosConfig
                 );
 
-                console.log("Pendientes response:", pendientesResponse.data);
-
                 if (pendientesResponse.data.desafio) {
                     setCurrentDesafio(pendientesResponse.data.desafio);
                 } else {
@@ -107,8 +126,6 @@ const DesafiosSemanales = () => {
                 setTimeRemaining(null);
             }
         } catch (err) {
-            console.error("Error fetching desafio status:", err);
-
             if (err.response) {
                 if (err.response.status === 401 || err.response.status === 403) {
                     setError("Error de autenticación. Por favor, inicia sesión nuevamente.");
@@ -136,8 +153,6 @@ const DesafiosSemanales = () => {
                 {},
                 axiosConfig
             );
-
-            console.log("Completar response:", response.data);
 
             // Show coins animation
             if (response.data.monedasGanadas) {
@@ -168,8 +183,6 @@ const DesafiosSemanales = () => {
             }, 3000);
 
         } catch (err) {
-            console.error("Error completing challenge:", err);
-
             if (err.response && err.response.data) {
                 if (err.response.data.horasRestantes) {
                     setError(`Ya has completado este desafío. Disponible nuevamente en ${formatTimeRemaining(err.response.data.horasRestantes)}`);
@@ -188,6 +201,11 @@ const DesafiosSemanales = () => {
             }, 5000);
         }
     };
+
+    // Hide for admin user
+    if (currentUser === "TrainXAdmin") {
+        return null;
+    }
 
     // Show loading state
     if (loading) {
@@ -287,7 +305,7 @@ const DesafiosSemanales = () => {
             )}
 
             <div className="challenges-list">
-                <div key={currentDesafio.id} className="challenge-card">
+                <div key={currentDesafio?.id} className="challenge-card">
                     {coinsAnimation && (
                         <div className="coins-animation">
                             <Coins size={16} className="coins-icon" />
@@ -299,10 +317,10 @@ const DesafiosSemanales = () => {
                         <div className="challenge-title">
                             <Award className="award-icon" size={24} />
                             <div>
-                                <h3>{currentDesafio.descripcion}</h3>
+                                <h3>{currentDesafio?.descripcion}</h3>
                                 <div className="reward-info">
                                     <Coins size={16} className="coins-icon-small" />
-                                    <span>{currentDesafio.valorMonedas} monedas</span>
+                                    <span>{currentDesafio?.valorMonedas} monedas</span>
                                 </div>
                             </div>
                         </div>
@@ -314,7 +332,7 @@ const DesafiosSemanales = () => {
                     {expanded && (
                         <div className="challenge-details">
                             <p>
-                                Completa este desafío para ganar {currentDesafio.valorMonedas} monedas.
+                                Completa este desafío para ganar {currentDesafio?.valorMonedas} monedas.
                                 Recuerda que solo puedes completar un desafío cada 7 días.
                             </p>
                             <button

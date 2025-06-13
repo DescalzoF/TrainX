@@ -262,7 +262,7 @@ function Navbar() {
                 return;
             }
 
-            if (path === '/progress' || path.startsWith('/leaderboard') || path === '/challenges'|| path === '/duelos'|| path === '/challenges') {
+            if (path === '/progress' || path.startsWith('/leaderboard') || path === '/challenges'|| path === '/duelos'|| path === '/challenges'|| path === '/foro') {
                 if (!hasChosenCaminoFitness()) {
                     return;
                 }

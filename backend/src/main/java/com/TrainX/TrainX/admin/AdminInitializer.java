@@ -14,6 +14,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+
 @Component
 public class AdminInitializer implements CommandLineRunner {
 
@@ -49,7 +51,7 @@ public class AdminInitializer implements CommandLineRunner {
             admin.setSurname("HQ");
             admin.setPassword(passwordEncoder.encode("admin123"));
             admin.setEmail("admin@trainxhq.com");
-            admin.setAge("35");
+            admin.setDateOfBirth(LocalDate.of(1985, 1, 1)); // Default admin birth date
             admin.setPhoneNumber("1122334455");
             admin.setHeight(180L);
             admin.setWeight(80L);

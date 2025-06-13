@@ -20,13 +20,19 @@ public class ProfileMapper {
         profileDTO.setHeight(user.getHeight());
         profileDTO.setAddress(user.getAddress());
         profileDTO.setPhoneNumber(user.getPhoneNumber());
-        profileDTO.setAge(user.getAge());
+        profileDTO.setDateOfBirth(user.getDateOfBirth());
         profileDTO.setSex(user.getSex());
         profileDTO.setUserPhoto(user.getUserPhoto());
         profileDTO.setIsPublic(user.getIsPublic());
         profileDTO.setCoins(user.getCoins());
+
+        if (user.getCaminoFitnessActual() != null) {
+            profileDTO.setCaminoFitnessId(user.getCaminoFitnessActual().getIdCF());
+        }
+
         return profileDTO;
     }
+
     public UserEntity updateUserFromDTO(UserEntity user, ProfileDTO profileDTO) {
         if (user == null || profileDTO == null) {
             return user;
@@ -38,7 +44,7 @@ public class ProfileMapper {
         user.setHeight(profileDTO.getHeight());
         user.setAddress(profileDTO.getAddress());
         user.setPhoneNumber(profileDTO.getPhoneNumber());
-        user.setAge(profileDTO.getAge());
+        user.setDateOfBirth(profileDTO.getDateOfBirth());
         user.setSex(profileDTO.getSex());
         user.setIsPublic(profileDTO.getIsPublic());
 

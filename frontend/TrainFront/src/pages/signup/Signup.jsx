@@ -11,7 +11,7 @@ function Signup() {
         surname: '',
         password: '',
         confirmPassword: '',
-        age: '',
+        dateOfBirth: '',
         phoneNumber: '',
         height: '',
         weight: '',
@@ -179,12 +179,12 @@ function Signup() {
                         </div>
 
                         <div className="form-group">
-                            <label htmlFor="age">Edad*</label>
+                            <label htmlFor="dateOfBirth">Fecha de Nacimiento*</label>
                             <input
-                                type="text"
-                                id="age"
-                                name="age"
-                                value={formData.age}
+                                type="date"
+                                id="dateOfBirth"
+                                name="dateOfBirth"
+                                value={formData.dateOfBirth}
                                 onChange={handleChange}
                                 required
                             />

@@ -53,7 +53,7 @@ public class ProfileService {
         // Actualización de campos básicos
         existingUser.setUsername(userDetails.getUsername());
         existingUser.setSurname(userDetails.getSurname());
-        existingUser.setAge(userDetails.getAge());
+        existingUser.setDateOfBirth(userDetails.getDateOfBirth());
         existingUser.setPhoneNumber(userDetails.getPhoneNumber());
         existingUser.setHeight(userDetails.getHeight());
         existingUser.setWeight(userDetails.getWeight());

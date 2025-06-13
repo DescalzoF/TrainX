@@ -3,6 +3,8 @@ package com.TrainX.TrainX.jwt.dtos;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 @Setter
 @Getter
 public class RegisterUserDto {
@@ -11,7 +13,7 @@ public class RegisterUserDto {
     private String surname;
     private String password;
     private String email;
-    private String age;
+    private LocalDate dateOfBirth;
     private String phoneNumber;
     private String address;
     private Long weight;
