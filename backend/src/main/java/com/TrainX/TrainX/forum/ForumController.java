@@ -1,238 +1,261 @@
 package com.TrainX.TrainX.forum;
 
+import com.TrainX.TrainX.User.UserEntity;
+import com.TrainX.TrainX.User.UserService;
+import com.TrainX.TrainX.forum.dto.CategoryDTO;
+import com.TrainX.TrainX.forum.dto.CommentDTO;
+import com.TrainX.TrainX.forum.dto.LikeDTO;
+import com.TrainX.TrainX.forum.dto.PostDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/forum")
-@CrossOrigin(origins = "*")
 public class ForumController {
 
-    private final ForumService forumService;
+    @Autowired
+    private ForumService forumService;
 
     @Autowired
-    public ForumController(ForumService forumService) {
-        this.forumService = forumService;
+    private UserService userService;
+
+    // --- DTO Conversion Methods ---
+    private CategoryDTO convertToCategoryDTO(CategoryEntity entity) {
+        CategoryDTO dto = new CategoryDTO();
+        dto.setId(entity.getId());
+        dto.setValue(entity.getValue());
+        dto.setLabel(entity.getLabel());
+        return dto;
     }
 
-    // Get all categories
+    private PostDTO convertToPostDTO(PostEntity entity) {
+        PostDTO dto = new PostDTO();
+        dto.setId(entity.getId());
+        dto.setTitle(entity.getTitle());
+        dto.setContent(entity.getContent());
+        dto.setCreatedAt(entity.getCreatedAt() != null ? entity.getCreatedAt().toString() : null);
+        dto.setAuthorName(entity.getAuthor() != null ? entity.getAuthor().getName() : null);
+        dto.setAuthorUsername(entity.getAuthor() != null ? entity.getAuthor().getUsername() : null);
+        dto.setAuthorPhoto(entity.getAuthor() != null ? entity.getAuthor().getUserPhoto() : null);
+        dto.setCategory(entity.getCategory() != null ? entity.getCategory().getValue() : null);
+
+        // Count likes for this post
+        Long likeCount = forumService.countLikesByPostId(entity.getId());
+        dto.setLikes(likeCount);
+
+        // Count comments for this post
+        Long commentCount = forumService.countCommentsByPostId(entity.getId());
+        dto.setCommentCount(commentCount);
+
+        return dto;
+    }
+
+    private CommentDTO convertToCommentDTO(CommentEntity entity) {
+        CommentDTO dto = new CommentDTO();
+        dto.setId(entity.getId());
+        dto.setContent(entity.getContent());
+        dto.setCreatedAt(entity.getCreatedAt() != null ? entity.getCreatedAt().toString() : null);
+        dto.setAuthorName(entity.getAuthor() != null ? entity.getAuthor().getName() : null);
+        dto.setAuthorUsername(entity.getAuthor() != null ? entity.getAuthor().getUsername() : null);
+        dto.setAuthorPhoto(entity.getAuthor() != null ? entity.getAuthor().getUserPhoto() : null);
+        dto.setPostId(entity.getPost() != null ? entity.getPost().getId() : null);
+        dto.setParentId(entity.getParent() != null ? entity.getParent().getId() : null);
+
+        // Count likes for this comment
+        Long likeCount = forumService.countLikesByCommentId(entity.getId());
+        dto.setLikes(likeCount);
+
+        return dto;
+    }
+
+    private LikeDTO convertToLikeDTO(LikeEntity entity) {
+        LikeDTO dto = new LikeDTO();
+        dto.setId(entity.getId());
+        dto.setUserId(entity.getUser() != null ? entity.getUser().getId() : null);
+        dto.setPostId(entity.getPost() != null ? entity.getPost().getId() : null);
+        dto.setCommentId(entity.getComment() != null ? entity.getComment().getId() : null);
+        return dto;
+    }
+
+    // --- Categories ---
     @GetMapping("/categories")
-    public ResponseEntity<Map<String, Object>> getCategories() {
-        List<Map<String, String>> categories = Arrays.stream(ForumCategory.values())
-                .map(category -> Map.of(
-                        "value", category.name(),
-                        "label", category.getDisplayName()
-                ))
-                .toList();
-        return ResponseEntity.ok(Map.of("categories", categories));
+    public List<CategoryDTO> getCategories() {
+        return forumService.getAllCategories()
+                .stream()
+                .map(this::convertToCategoryDTO)
+                .collect(Collectors.toList());
     }
 
-    // Get all posts with pagination
+    // --- Posts ---
     @GetMapping("/posts")
-    public ResponseEntity<Map<String, Object>> getAllPosts(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        try {
-            Page<PostResponseDTO> posts = forumService.getAllPosts(page, size);
-            return ResponseEntity.ok(Map.of(
-                    "content", posts.getContent(),
-                    "totalPages", posts.getTotalPages(),
-                    "totalElements", posts.getTotalElements(),
-                    "number", posts.getNumber(),
-                    "size", posts.getSize()
-            ));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public List<PostDTO> getPosts() {
+        return forumService.getAllPosts()
+                .stream()
+                .map(this::convertToPostDTO)
+                .collect(Collectors.toList());
     }
 
-    // Get posts by category
-    @GetMapping("/posts/category/{category}")
-    public ResponseEntity<Map<String, Object>> getPostsByCategory(
-            @PathVariable ForumCategory category,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        try {
-            Page<PostResponseDTO> posts = forumService.getPostsByCategory(category, page, size);
-            return ResponseEntity.ok(Map.of(
-                    "content", posts.getContent(),
-                    "totalPages", posts.getTotalPages(),
-                    "totalElements", posts.getTotalElements(),
-                    "number", posts.getNumber(),
-                    "size", posts.getSize()
-            ));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    // Search posts
-    @GetMapping("/posts/search")
-    public ResponseEntity<Map<String, Object>> searchPosts(
-            @RequestParam String keyword,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        try {
-            Page<PostResponseDTO> posts = forumService.searchPosts(keyword, page, size);
-            return ResponseEntity.ok(Map.of(
-                    "content", posts.getContent(),
-                    "totalPages", posts.getTotalPages(),
-                    "totalElements", posts.getTotalElements(),
-                    "number", posts.getNumber(),
-                    "size", posts.getSize()
-            ));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    // Get popular posts
-    @GetMapping("/posts/popular")
-    public ResponseEntity<Map<String, Object>> getPopularPosts(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        try {
-            Page<PostResponseDTO> posts = forumService.getPopularPosts(page, size);
-            return ResponseEntity.ok(Map.of(
-                    "content", posts.getContent(),
-                    "totalPages", posts.getTotalPages(),
-                    "totalElements", posts.getTotalElements(),
-                    "number", posts.getNumber(),
-                    "size", posts.getSize()
-            ));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    // Get post with comments
     @GetMapping("/posts/{id}")
-    public ResponseEntity<PostDetailDTO> getPost(@PathVariable Long id) {
+    public PostDTO getPost(@PathVariable Long id) {
+        Optional<PostEntity> postOpt = forumService.getPostById(id);
+        return postOpt.map(this::convertToPostDTO).orElse(null);
+    }
+
+    @PostMapping("posting/posts")
+    public PostDTO createPost(@RequestBody Map<String, Object> payload) {
         try {
-            PostDetailDTO postDetail = forumService.getPostWithComments(id);
-            return ResponseEntity.ok(postDetail);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+            // Extract data from payload
+            String title = (String) payload.get("title");
+            String content = (String) payload.get("content");
+
+            // Get author ID
+            Map<String, Object> authorMap = (Map<String, Object>) payload.get("author");
+            Long authorId = Long.valueOf(authorMap.get("id").toString());
+
+            // Get category value
+            Map<String, Object> categoryMap = (Map<String, Object>) payload.get("category");
+            String categoryValue = (String) categoryMap.get("value");
+
+            // Find or create category
+            CategoryEntity category = forumService.getCategoryByValue(categoryValue);
+            if (category == null) {
+                category = new CategoryEntity();
+                category.setValue(categoryValue);
+                category.setLabel((String) categoryMap.get("label"));
+                category = forumService.saveCategory(category);
+            }
+
+            // Create and save post
+            PostEntity post = new PostEntity();
+            post.setTitle(title);
+            post.setContent(content);
+            post.setCreatedAt(LocalDateTime.now());
+
+            // Set author
+            UserEntity author = userService.getUserById(authorId);
+            if (author == null) {
+                throw new RuntimeException("User not found");
+            }
+
+            post.setAuthor(author);
+
+            // Set category
+            post.setCategory(category);
+
+            // Save post
+            PostEntity savedPost = forumService.savePost(post);
+
+            // Return DTO
+            return convertToPostDTO(savedPost);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            throw new RuntimeException("Failed to create post: " + e.getMessage(), e);
         }
     }
 
-    // Create new post
-    @PostMapping("/posts")
-    public ResponseEntity<PostResponseDTO> createPost(@RequestBody CreatePostDTO createPostDTO) {
+    @PostMapping("/posts/{postId}/like")
+    public LikeDTO likePost(@PathVariable Long postId, @RequestBody Map<String, Object> payload) {
         try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String username = authentication.getName();
+            Long userId = Long.valueOf(payload.get("id").toString());
+            UserEntity user = userService.getUserById(userId);
 
-            PostResponseDTO createdPost = forumService.createPost(createPostDTO, username);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdPost);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            if (user == null) {
+                throw new RuntimeException("User not found");
+            }
+
+            Optional<PostEntity> postOpt = forumService.getPostById(postId);
+            if (!postOpt.isPresent()) {
+                throw new RuntimeException("Post not found");
+            }
+
+            // Check if user already liked this post
+            if (forumService.hasUserLikedPost(userId, postId)) {
+                throw new RuntimeException("User already liked this post");
+            }
+
+            LikeEntity like = new LikeEntity();
+            like.setUser(user);
+            like.setPost(postOpt.get());
+
+            LikeEntity savedLike = forumService.saveLike(like);
+            return convertToLikeDTO(savedLike);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            throw new RuntimeException("Failed to like post: " + e.getMessage(), e);
         }
     }
 
-    // Like a post
-    @PostMapping("/posts/{id}/like")
-    public ResponseEntity<PostResponseDTO> likePost(@PathVariable Long id) {
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String username = authentication.getName();
+    // --- Comments ---
+    @GetMapping("/comments")
+    public List<CommentDTO> getCommentsByPostId(@RequestParam Long postId) {
+        List<CommentEntity> comments = forumService.getCommentsByPostId(postId);
+        return comments.stream()
+                .map(this::convertToCommentDTO)
+                .collect(Collectors.toList());
+    }
 
-            PostResponseDTO likedPost = forumService.likePost(id, username);
-            return ResponseEntity.ok(likedPost);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
+    @PostMapping("/posts/{postId}/comments")
+    public CommentDTO addComment(@PathVariable Long postId, @RequestBody Map<String, Object> payload) {
+        try {
+            String content = (String) payload.get("content");
+            Map<String, Object> authorMap = (Map<String, Object>) payload.get("author");
+            Long authorId = Long.valueOf(authorMap.get("id").toString());
+
+            UserEntity author = userService.getUserById(authorId);
+            if (author == null) {
+                throw new RuntimeException("User not found");
+            }
+
+            Optional<PostEntity> postOpt = forumService.getPostById(postId);
+            if (!postOpt.isPresent()) {
+                throw new RuntimeException("Post not found");
+            }
+
+            CommentEntity comment = new CommentEntity();
+            comment.setContent(content);
+            comment.setAuthor(author);
+            comment.setPost(postOpt.get());
+            comment.setCreatedAt(LocalDateTime.now());
+
+            CommentEntity savedComment = forumService.saveComment(comment);
+            return convertToCommentDTO(savedComment);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            throw new RuntimeException("Failed to add comment: " + e.getMessage(), e);
         }
     }
 
-    // Delete a post
-    @DeleteMapping("/posts/{id}")
-    public ResponseEntity<Void> deletePost(@PathVariable Long id) {
+    @PostMapping("/comments/{commentId}/like")
+    public LikeDTO likeComment(@PathVariable Long commentId, @RequestBody Map<String, Object> payload) {
         try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String username = authentication.getName();
+            Long userId = Long.valueOf(payload.get("id").toString());
+            UserEntity user = userService.getUserById(userId);
 
-            forumService.deletePost(id, username);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            if (user == null) {
+                throw new RuntimeException("User not found");
+            }
+
+            Optional<CommentEntity> commentOpt = forumService.getCommentById(commentId);
+            if (!commentOpt.isPresent()) {
+                throw new RuntimeException("Comment not found");
+            }
+
+            // Check if user already liked this comment
+            if (forumService.hasUserLikedComment(userId, commentId)) {
+                throw new RuntimeException("User already liked this comment");
+            }
+
+            LikeEntity like = new LikeEntity();
+            like.setUser(user);
+            like.setComment(commentOpt.get());
+
+            LikeEntity savedLike = forumService.saveLike(like);
+            return convertToLikeDTO(savedLike);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    // Create comment
-    @PostMapping("/posts/{id}/comments")
-    public ResponseEntity<CommentResponseDTO> createComment(
-            @PathVariable Long id,
-            @RequestBody CreateCommentDTO createCommentDTO) {
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String username = authentication.getName();
-
-            CommentResponseDTO createdComment = forumService.createComment(id, createCommentDTO, username);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdComment);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    // Like a comment
-    @PostMapping("/comments/{id}/like")
-    public ResponseEntity<CommentResponseDTO> likeComment(@PathVariable Long id) {
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String username = authentication.getName();
-
-            CommentResponseDTO likedComment = forumService.likeComment(id, username);
-            return ResponseEntity.ok(likedComment);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    // Delete a comment
-    @DeleteMapping("/comments/{id}")
-    public ResponseEntity<Void> deleteComment(@PathVariable Long id) {
-        try {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            String username = authentication.getName();
-
-            forumService.deleteComment(id, username);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    // Get user's posts
-    @GetMapping("/users/{userId}/posts")
-    public ResponseEntity<List<PostResponseDTO>> getUserPosts(@PathVariable Long userId) {
-        try {
-            List<PostResponseDTO> userPosts = forumService.getUserPosts(userId);
-            return ResponseEntity.ok(userPosts);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            throw new RuntimeException("Failed to like comment: " + e.getMessage(), e);
         }
     }
 }
