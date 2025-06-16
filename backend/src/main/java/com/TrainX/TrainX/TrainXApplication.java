@@ -1,6 +1,6 @@
 package com.TrainX.TrainX;
 
-import com.TrainX.TrainX.email.EmailService;
+import com.TrainX.TrainX.scheduler.WorkoutReminderScheduler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -13,14 +13,15 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class TrainXApplication {
 
 	@Autowired
-	private EmailService emailService;
+	private WorkoutReminderScheduler workoutReminderScheduler;
 
 	public static void main(String[] args) {
 		SpringApplication.run(TrainXApplication.class, args);
 	}
 
 	@EventListener(ApplicationReadyEvent.class)
-	public void sendMail() {
-		emailService.sendWorkoutReminderEmail("descalzofranco2004@gmail.com", "Franco");
+	public void sendTestMail() {
+		workoutReminderScheduler.sendReminderToSpecificUser("descalzofranco2004@gmail.com");
+		workoutReminderScheduler.triggerManualReminderForAll();
 	}
 }

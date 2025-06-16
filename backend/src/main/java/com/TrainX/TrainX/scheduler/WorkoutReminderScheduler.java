@@ -35,18 +35,28 @@ public class WorkoutReminderScheduler {
     // Run every day at 10:00 AM
     @Scheduled(cron = "0 0 10 * * ?")
     public void sendWorkoutReminders() {
-        log.info("Starting workout reminder scheduler task...");
+        sendWorkoutReminders(false);
+    }
+
+    // Enhanced method that can handle both scheduled and manual triggers
+    public void sendWorkoutReminders(boolean isManualTrigger) {
+        log.info("Starting workout reminder scheduler task... (Manual trigger: {})", isManualTrigger);
 
         try {
             List<UserEntity> allUsers = userRepository.findAll();
             int emailsSent = 0;
+            int eligibleUsers = 0;
 
             for (UserEntity user : allUsers) {
-                if (shouldSendReminderToUser(user)) {
+                boolean shouldSend = isManualTrigger || shouldSendReminderToUser(user);
+
+                if (shouldSend) {
+                    eligibleUsers++;
                     try {
-                        emailService.sendWorkoutReminderEmail(user.getEmail(), user.getUsername());
+                        emailService.sendWorkoutReminderEmail(user.getEmail(), user.getUsername(), isManualTrigger);
                         emailsSent++;
-                        log.info("Sent workout reminder to user: {} ({})", user.getUsername(), user.getEmail());
+                        log.info("Sent workout reminder to user: {} ({}) - Manual: {}",
+                                user.getUsername(), user.getEmail(), isManualTrigger);
                     } catch (Exception e) {
                         log.error("Failed to send workout reminder to user: {} ({}). Error: {}",
                                 user.getUsername(), user.getEmail(), e.getMessage());
@@ -54,7 +64,13 @@ public class WorkoutReminderScheduler {
                 }
             }
 
-            log.info("Workout reminder scheduler completed. Emails sent: {}", emailsSent);
+            if (isManualTrigger) {
+                log.info("Manual workout reminder completed. Total users: {}, Emails sent: {}",
+                        allUsers.size(), emailsSent);
+            } else {
+                log.info("Scheduled workout reminder completed. Eligible users: {}, Emails sent: {}",
+                        eligibleUsers, emailsSent);
+            }
 
         } catch (Exception e) {
             log.error("Error in workout reminder scheduler: {}", e.getMessage(), e);
@@ -69,6 +85,7 @@ public class WorkoutReminderScheduler {
 
             // If user has never completed any exercises, don't send reminder
             if (userCompletions.isEmpty()) {
+                log.debug("User {} has no exercise completions, skipping reminder", user.getUsername());
                 return false;
             }
 
@@ -85,6 +102,9 @@ public class WorkoutReminderScheduler {
             if (shouldSend) {
                 log.info("User {} last worked out on: {}, should send reminder",
                         user.getUsername(), lastCompletionTime);
+            } else {
+                log.debug("User {} last worked out on: {}, too recent for reminder",
+                        user.getUsername(), lastCompletionTime);
             }
 
             return shouldSend;
@@ -96,9 +116,31 @@ public class WorkoutReminderScheduler {
         }
     }
 
-    // Optional: Method to manually trigger the scheduler (for testing)
-    public void triggerManualReminder() {
-        log.info("Manually triggering workout reminder scheduler...");
-        sendWorkoutReminders();
+    // Method to manually trigger reminders for all users (regardless of conditions)
+    public void triggerManualReminderForAll() {
+        log.info("Manually triggering workout reminder for ALL users...");
+        sendWorkoutReminders(true);
+    }
+
+    // Method to manually trigger normal conditional reminders (for testing)
+    public void triggerManualReminderConditional() {
+        log.info("Manually triggering conditional workout reminder scheduler...");
+        sendWorkoutReminders(false);
+    }
+
+    // Method to send reminder to a specific user (useful for testing)
+    public void sendReminderToSpecificUser(String email) {
+        try {
+            Optional<UserEntity> userOpt = userRepository.findByEmail(email);
+            if (userOpt.isPresent()) {
+                UserEntity user = userOpt.get();
+                emailService.sendWorkoutReminderEmail(user.getEmail(), user.getUsername(), true);
+                log.info("Manual reminder sent to specific user: {} ({})", user.getUsername(), user.getEmail());
+            } else {
+                log.warn("User with email {} not found", email);
+            }
+        } catch (Exception e) {
+            log.error("Error sending reminder to specific user {}: {}", email, e.getMessage());
+        }
     }
 }
