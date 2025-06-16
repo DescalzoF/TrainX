@@ -1,5 +1,4 @@
-// LikeDTO.java
-package com.TrainX.TrainX.forum.dto;
+package com.TrainX.TrainX.forum;
 import lombok.Data;
 
 @Data

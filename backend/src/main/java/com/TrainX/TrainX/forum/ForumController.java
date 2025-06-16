@@ -2,10 +2,6 @@ package com.TrainX.TrainX.forum;
 
 import com.TrainX.TrainX.User.UserEntity;
 import com.TrainX.TrainX.User.UserService;
-import com.TrainX.TrainX.forum.dto.CategoryDTO;
-import com.TrainX.TrainX.forum.dto.CommentDTO;
-import com.TrainX.TrainX.forum.dto.LikeDTO;
-import com.TrainX.TrainX.forum.dto.PostDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

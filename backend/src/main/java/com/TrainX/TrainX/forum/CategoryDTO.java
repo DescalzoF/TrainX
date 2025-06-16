@@ -1,5 +1,4 @@
-// src/main/java/com/TrainX/TrainX/forum/dto/CategoryDTO.java
-package com.TrainX.TrainX.forum.dto;
+package com.TrainX.TrainX.forum;
 
 import lombok.Data;
 

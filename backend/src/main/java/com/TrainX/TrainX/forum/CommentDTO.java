@@ -1,19 +1,16 @@
-package com.TrainX.TrainX.forum.dto;
+package com.TrainX.TrainX.forum;
 
 import lombok.Data;
 
-// In PostDTO.java
 @Data
-public class PostDTO {
+public class CommentDTO {
     private Long id;
-    private String title;
     private String content;
     private String createdAt;
     private String authorName;
     private String authorUsername;
     private String authorPhoto;
-    private String category;
+    private Long postId;
+    private Long parentId;
     private Long likes;
-    private Long commentCount;
 }
-
