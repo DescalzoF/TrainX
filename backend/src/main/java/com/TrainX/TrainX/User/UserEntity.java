@@ -12,6 +12,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
 import java.util.*;
 
 @Entity
@@ -37,7 +38,7 @@ public class UserEntity implements UserDetails {
     private String password;
 
     @Column(nullable = false)
-    private String age;
+    private LocalDate dateOfBirth;
 
     @Column(nullable = false)
     private String phoneNumber;
@@ -98,7 +99,7 @@ public class UserEntity implements UserDetails {
                       String email,
                       String surname,
                       String password,
-                      String age,
+                      LocalDate dateOfBirth,
                       String phoneNumber,
                       Long height,
                       Long weight,
@@ -113,7 +114,7 @@ public class UserEntity implements UserDetails {
         this.email = email;
         this.surname = surname;
         this.password = password;
-        this.age = age;
+        this.dateOfBirth = dateOfBirth;
         this.phoneNumber = phoneNumber;
         this.height = height;
         this.weight = weight;

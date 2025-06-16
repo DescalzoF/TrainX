@@ -83,6 +83,18 @@ public class DuelService {
                     "Bet amount cannot exceed your total coins");
         }
 
+        // Validate challenged user
+        if (challengedId == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Challenged user ID cannot be null");
+        }
+
+        // Check if user is challenging themselves
+        if (challenger.getId().equals(challengedId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "You cannot challenge yourself");
+        }
+
         UserEntity challenged = userRepository.findById(challengedId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         "Challenged user not found"));
@@ -109,12 +121,6 @@ public class DuelService {
         duel.setChallengerScore(0L);
         duel.setChallengedScore(0L);
         duel.setBetAmount(betAmount);
-
-        // Deduct coins from challenger's account if bet is made
-        if (betAmount > 0) {
-            challenger.setCoins(challenger.getCoins() - betAmount);
-            userRepository.save(challenger);
-        }
 
         DuelEntity savedDuel = duelRepository.save(duel);
 
@@ -270,13 +276,32 @@ public class DuelService {
 
     @Transactional(readOnly = true)
     public DuelDiaryExerciseEntity getTodaysExercise(Long duelId) {
+        // Get the duel first
+        DuelEntity duel = duelRepository.findById(duelId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Duel not found"));
+
         LocalDate today = LocalDate.now();
+
+        // If today is before the start date, explain that the duel hasn't started
+        if (today.isBefore(duel.getStartDate())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "The duel hasn't started yet. It will begin on " + duel.getStartDate());
+        }
+
+        // If today is after the end date, explain that the duel has ended
+        if (today.isAfter(duel.getEndDate())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "The duel has already ended on " + duel.getEndDate());
+        }
+
+        // Find the exercise for today
         List<DuelDiaryExerciseEntity> diaryExercises =
                 diaryExerciseRepository.findByDuelIdAndDate(duelId, today);
 
         if (diaryExercises.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    "No exercise scheduled for today in this duel");
+                    "No exercise found for today in this duel");
         }
 
         return diaryExercises.get(0);
@@ -420,5 +445,40 @@ public class DuelService {
             duel.setStatus(DuelStatus.REJECTED);
             duelRepository.save(duel);
         }
+    }
+
+    @Transactional
+    public void deductCoinsForDuel(Long userId, Long betAmount) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        if (user.getCoins() < betAmount) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Not enough coins for the bet");
+        }
+
+        user.setCoins(user.getCoins() - betAmount);
+        userRepository.save(user);
+    }
+    @Transactional(readOnly = true)
+    public List<DuelEntity> getUserDuelHistory(UserEntity user) {
+        return duelRepository.findByUserAndStatus(user, DuelStatus.FINISHED);
+    }
+
+    public Long countUserDuelWins(Long userId) {
+        List<DuelEntity> finishedDuels = duelRepository.findAll().stream()
+                .filter(duel -> duel.getStatus() == DuelStatus.FINISHED)
+                .filter(duel -> duel.getChallenger().getId().equals(userId) || duel.getChallenged().getId().equals(userId))
+                .collect(Collectors.toList());
+
+        return finishedDuels.stream()
+                .filter(duel -> {
+                    if (duel.getChallenger().getId().equals(userId)) {
+                        return duel.getChallengerScore() > duel.getChallengedScore();
+                    } else {
+                        return duel.getChallengedScore() > duel.getChallengerScore();
+                    }
+                })
+                .count();
     }
 }

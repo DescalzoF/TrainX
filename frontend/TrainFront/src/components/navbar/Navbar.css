@@ -331,7 +331,7 @@
     height: 40%; /* Proportional to button size */
     object-fit: cover;
     border-radius: 0 0 50% 50%; /* Consistent curve */
-    z-index: 1; /* Behind profile picture */
+    z-index: 5;
     opacity: 0.9;
     pointer-events: none; /* Prevent interference with clicks */
 }

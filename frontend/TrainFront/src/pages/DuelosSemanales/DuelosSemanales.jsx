@@ -1,9 +1,13 @@
+import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './DuelosSemanales.css';
 import BetDuelButton from '../../components/BetDuelButton/BetDuelButton.jsx';
+import DuelHistory from "../../components/Historial/DuelHistory.jsx";
+
 
 const DuelosSemanales = () => {
+    const navigate = useNavigate();
     const [users, setUsers] = useState([]);
     const [pendingDuels, setPendingDuels] = useState([]);
     const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
@@ -16,6 +20,7 @@ const DuelosSemanales = () => {
     const [sentRequestsCount, setSentRequestsCount] = useState(0);
     const [toast, setToast] = useState({ show: false, message: '', type: '' });
     const toastTimeoutRef = useRef(null);
+    const [userWins, setUserWins] = useState({});
 
     // Fetch pending duel requests on component mount
     useEffect(() => {
@@ -38,6 +43,30 @@ const DuelosSemanales = () => {
         toastTimeoutRef.current = setTimeout(() => {
             setToast(prev => ({ ...prev, show: false }));
         }, 4000);
+    };
+    const fetchUserWins = async (users) => {
+        try {
+            // Create an array of promises for all user win fetch requests
+            const winPromises = users.map(user =>
+                axios.get(`http://localhost:8080/api/duels/user/${user.id}/wins`, {
+                    withCredentials: true
+                })
+            );
+
+            // Wait for all requests to complete
+            const responses = await Promise.all(winPromises);
+
+            // Build a map of userId -> wins
+            const winsMap = {};
+            responses.forEach(response => {
+                const { userId, wins } = response.data;
+                winsMap[userId] = wins;
+            });
+
+            setUserWins(winsMap);
+        } catch (err) {
+            console.error('Error fetching user wins:', err);
+        }
     };
 
     const fetchPendingDuels = async () => {
@@ -63,23 +92,51 @@ const DuelosSemanales = () => {
         setPendingDuelsExpanded(!pendingDuelsExpanded);
     };
 
-    const handleAcceptDuel = async (duelId, challengerUsername) => {
+    const handleAcceptDuel = async (duelId, challengerUsername, betAmount) => {
+        setLoading(true);
         try {
-            await axios.post(`http://localhost:8080/api/duels/${duelId}/accept`, {}, {
+            // First check if user has enough coins
+            const userResponse = await axios.get('http://localhost:8080/api/users/current/coins', {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             });
 
-            // Update pending duels list
-            fetchPendingDuels();
+            const userCoins = userResponse.data.coins;
 
-            // Show success message with custom toast
-            showToast(`Duelo con ${challengerUsername} aceptado con éxito`, 'success');
-        } catch (err) {
-            console.error('Error accepting duel:', err);
-            showToast('Error al aceptar el duelo', 'error');
+            // If user doesn't have enough coins, show error message and return
+            if (userCoins < betAmount) {
+                showToast(`Fondos insuficientes: Necesitas ${betAmount} monedas para aceptar este duelo.`, 'error');
+                setLoading(false);
+                return;
+            }
+
+            // If they have enough coins, proceed with accepting the duel
+            const response = await axios.post(
+                `http://localhost:8080/api/duels/${duelId}/accept`,
+                {},
+                {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                }
+            );
+
+            // Show success message
+            showToast(`Has aceptado el desafío de ${challengerUsername}`, 'success');
+
+            // Important: Wait longer to ensure backend processing is complete
+            setTimeout(() => {
+                // Use window.location instead of navigate for a full page reload and navigation
+                window.location.href = '/duel-competition';
+            }, 1000); // Increased to 1000ms (1 second)
+
+        } catch (error) {
+            console.error('Error accepting duel:', error);
+            showToast('No se pudo aceptar el desafío. Inténtalo de nuevo.', 'error');
+            setLoading(false);
         }
+        // Note: We're not setting loading to false if successful because we're navigating away
     };
 
     const handleRejectDuel = async (duelId, challengerUsername) => {
@@ -111,13 +168,15 @@ const DuelosSemanales = () => {
             await new Promise(resolve => setTimeout(resolve, 2000));
 
             const response = await axios.get('http://localhost:8080/api/duels/users-same-level', {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
+                withCredentials: true
             });
 
-            setUsers(response.data);
+            const fetchedUsers = response.data;
+            setUsers(fetchedUsers);
             setShowUsers(true);
+
+            // Fetch wins for all users
+            await fetchUserWins(fetchedUsers);
         } catch (err) {
             console.error('Error fetching users:', err);
             setError('Error al buscar usuarios. Inténtalo de nuevo más tarde.');
@@ -243,7 +302,7 @@ const DuelosSemanales = () => {
                                         <div className="weekly-duel__actions">
                                             <button
                                                 className="weekly-duel__accept-button"
-                                                onClick={() => handleAcceptDuel(duel.id, duel.challengerUsername)}
+                                                onClick={() => handleAcceptDuel(duel.id, duel.challengerUsername, duel.betAmount)}
                                             >
                                                 <i className="fa fa-check"></i>
                                                 <span>Aceptar</span>
@@ -268,7 +327,7 @@ const DuelosSemanales = () => {
                     )
                 )}
             </div>
-
+            <DuelHistory />
             {/* Search Button or Animation Section */}
             {!showUsers && !searchingAnimation && (
                 <div className="weekly-duel__search">
@@ -348,7 +407,7 @@ const DuelosSemanales = () => {
                                                             Duelos ganados
                                                         </div>
                                                         <div className="weekly-duel__attribute-value">
-                                                            {user.wins || 0}
+                                                            {userWins[user.id] !== undefined ? userWins[user.id] : 0}
                                                         </div>
                                                     </div>
                                                     <div className="weekly-duel__attribute-row">

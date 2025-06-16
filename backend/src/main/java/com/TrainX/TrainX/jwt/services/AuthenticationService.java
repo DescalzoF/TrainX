@@ -48,7 +48,7 @@ public class AuthenticationService {
                 input.getEmail(),
                 input.getSurname(),
                 passwordEncoder.encode(input.getPassword()),
-                input.getAge(),
+                input.getDateOfBirth(),
                 input.getPhoneNumber(),
                 input.getHeight(),
                 input.getWeight(),

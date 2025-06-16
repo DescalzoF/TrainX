@@ -429,7 +429,7 @@
 }
 
 /* Form Actions */
-.form-actions {
+.admin-gym-form-actions {
     display: flex;
     justify-content: center;
     gap: 15px;
@@ -718,7 +718,7 @@
         min-width: 100%;
     }
 
-    .form-actions {
+    .admin-gym-form-actions {
         flex-direction: column;
     }
 

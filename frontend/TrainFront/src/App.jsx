@@ -21,6 +21,9 @@ import LeaderboardPorNivel from "./pages/leaderboard/porNivel/LeaderboardPorNive
 import LeaderboardSemanal from "./pages/leaderboard/semanal/LeaderboardSemanal.jsx";
 import Tienda from './pages/tienda/Tienda.jsx';
 import Duel from "./pages/DuelosSemanales/DuelosSemanales.jsx";
+import DuelCompetition from "./pages/DuelCompetition/DuelCompetition.jsx";
+import DuelRouter from './pages/DuelRouter/DuelRouter.jsx';
+import Foro from "./pages/foro/Foro.jsx";
 
 const ProtectedRoute = ({ children }) => {
     const { isLoggedIn, isLoading } = useAuth();
@@ -186,7 +189,19 @@ function AppContent() {
                         path="/challenges"
                         element={
                             <ProtectedRoute>
-                                <Duel/>
+                                <DuelRouter>
+                                    <Duel />
+                                </DuelRouter>
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/duel-competition"
+                        element={
+                            <ProtectedRoute>
+                                <DuelRouter>
+                                    <DuelCompetition />
+                                </DuelRouter>
                             </ProtectedRoute>
                         }
                     />
@@ -198,6 +213,24 @@ function AppContent() {
                             </ProtectedRoute>
                         }
                     />
+                    <Route
+                        path="/duelos"
+                        element={
+                            <ProtectedRoute>
+                                <DuelRouter>
+                                    <Duel />
+                                </DuelRouter>
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/foro"
+                        element={
+                            <ProtectedRoute>
+                                <Foro />
+                            </ProtectedRoute>
+                        }
+                    />
 
                     <Route path="/forgot-password"
                            element={<ForgotPassword />} />
@@ -205,6 +238,8 @@ function AppContent() {
                         path="/reset-password"
                         element={<ResetPassword />} />
                 </Routes>
+
+
             </main>
         </div>
     );

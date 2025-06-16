@@ -398,7 +398,7 @@ const AdminDesafioSemanales = () => {
                             </div>
                         </div>
 
-                        <div className="form-actions">
+                        <div className="admin-desafio-form-actions">
                             <button
                                 type="button"
                                 className="cancel-button"

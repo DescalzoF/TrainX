@@ -1,0 +1,478 @@
+:root {
+    --blue: #1e90ff;
+    --blue-dark: #0a2342;
+    --black: #181a1b;
+    --gray: #2e2e38;
+    --gray-light: #e5e9f2;
+    --white: #fff;
+}
+
+.foro-container {
+    display: flex;
+    min-height: 100vh;
+    background: linear-gradient(120deg, var(--blue-dark) 0%, var(--black) 100%);
+    color: var(--white);
+    font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+}
+.foro-sidebar {
+    width: 270px;
+    background: var(--gray);
+    padding: 7.5rem 1.5rem 2rem 1.5rem; /* Increased top padding to 4rem */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    border-right: 2px solid var(--blue);
+}
+
+.foro-logo {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--blue);
+    margin-bottom: 2rem;
+    letter-spacing: 1px;
+}
+
+.foro-category-btn {
+    background: none;
+    border: none;
+    color: var(--white);
+    font-size: 1.1rem;
+    padding: 0.7rem 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    width: 100%;
+    text-align: left;
+}
+.foro-category-btn.active,
+.foro-category-btn:hover {
+    background: var(--blue);
+    color: var(--white);
+}
+
+.foro-newpost-btn {
+    margin-top: 2rem;
+    background: var(--blue);
+    color: var(--white);
+    border: none;
+    padding: 0.8rem 1.2rem;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.foro-newpost-btn:hover {
+    background: var(--blue-dark);
+}
+
+.foro-main {
+    flex: 1;
+    padding: 8rem 3rem 2.5rem 3rem; /* Top padding increased to 6rem */
+    display: flex;
+    flex-direction: column;
+}
+
+.foro-header h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--blue);
+    margin-bottom: 2rem;
+}
+
+.foro-posts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.foro-post-card {
+    background: var(--gray);
+    border-radius: 12px;
+    padding: 1.5rem 1.2rem;
+    box-shadow: 0 2px 12px rgba(30, 144, 255, 0.08);
+    cursor: pointer;
+    transition: box-shadow 0.2s, background 0.2s;
+    border: 1.5px solid transparent;
+}
+.foro-post-card:hover {
+    box-shadow: 0 4px 24px rgba(30, 144, 255, 0.18);
+    border: 1.5px solid var(--blue);
+    background: var(--blue-dark);
+}
+
+.foro-post-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 0.5rem;
+}
+
+.foro-post-meta {
+    font-size: 0.95rem;
+    color: var(--gray-light);
+    margin-bottom: 0.7rem;
+    display: flex;
+    gap: 1.5rem;
+}
+
+.foro-post-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+}
+
+.foro-like-btn {
+    background: none;
+    border: none;
+    color: var(--blue);
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+.foro-like-btn:hover {
+    color: var(--white);
+}
+
+.foro-comments-count {
+    color: var(--gray-light);
+    font-size: 1rem;
+}
+
+.foro-empty {
+    color: var(--gray-light);
+    font-size: 1.1rem;
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.foro-post-detail {
+    width: 100%;
+    margin: 0;
+    padding-top: 6rem;
+    position: relative;
+    /* Remove max-width and margin: 0 auto */
+}
+
+.foro-comments-section {
+    width: 100%;
+    background: var(--gray);
+    border-radius: 12px;
+    padding: 1.5rem 1.2rem;
+    box-shadow: 0 2px 12px rgba(30, 144, 255, 0.08);
+    margin-top: 6rem;
+}
+
+.foro-back-btn {
+    background: none;
+    border: none;
+    position: absolute;
+    top: 0.5rem; /* Moved up */
+    left: -25px;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    z-index: 100;
+    transition: filter 0.2s;
+}
+.foro-back-btn:hover svg path {
+    filter: brightness(1.5);
+    stroke: var(--blue);
+}
+.foro-back-btn svg {
+    display: block;
+}
+.foro-post-detail-card {
+    background: var(--gray);
+    border-radius: 12px;
+    padding: 2rem 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 12px rgba(30, 144, 255, 0.08);
+}
+
+.foro-post-detail-card h2 {
+    color: var(--blue);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.7rem;
+}
+
+.foro-post-content {
+    color: var(--white);
+    font-size: 1.1rem;
+    margin: 1.2rem 0;
+}
+
+.foro-comments-section {
+    background: var(--gray);
+    border-radius: 12px;
+    padding: 1.5rem 1.2rem;
+    box-shadow: 0 2px 12px rgba(30, 144, 255, 0.08);
+    margin-top: 6rem; /* Increased further */
+}
+
+.foro-comments-section h3 {
+    color: var(--blue);
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.foro-comment-form {
+    display: flex;
+    gap: 0.7rem;
+    margin-bottom: 1.5rem;
+}
+
+.foro-comment-form input {
+    flex: 1;
+    padding: 0.7rem 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--blue);
+    background: var(--black);
+    color: var(--white);
+    font-size: 1rem;
+}
+
+.foro-comment-form button {
+    background: var(--blue);
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    padding: 0.7rem 1.2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.foro-comment-form button:hover {
+    background: var(--blue-dark);
+}
+
+.foro-comments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.foro-comment-card {
+    background: var(--black);
+    border-radius: 8px;
+    padding: 1rem 1rem 0.7rem 1rem;
+    color: var(--white);
+    box-shadow: 0 1px 6px rgba(30, 144, 255, 0.05);
+    position: relative;
+}
+
+.foro-comment-meta {
+    font-size: 0.95rem;
+    color: var(--gray-light);
+    margin-bottom: 0.5rem;
+    display: flex;
+    gap: 1.2rem;
+}
+
+.foro-comment-content {
+    font-size: 1.05rem;
+    margin-bottom: 0.5rem;
+}
+
+.foro-modal-bg {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(24, 26, 27, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.foro-modal {
+    background: var(--gray);
+    border-radius: 14px;
+    padding: 2.5rem 2rem;
+    min-width: 350px;
+    box-shadow: 0 4px 32px rgba(30, 144, 255, 0.18);
+    color: var(--white);
+}
+
+.foro-modal h2 {
+    color: var(--blue);
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 1.2rem;
+}
+
+.foro-modal form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.foro-modal input,
+.foro-modal textarea {
+    padding: 0.7rem 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--blue);
+    background: var(--black);
+    color: var(--white);
+    font-size: 1rem;
+    resize: none;
+}
+
+.foro-modal button {
+    background: var(--blue);
+    color: var(--white);
+    border: none;
+    border-radius: 8px;
+    padding: 0.7rem 1.2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.foro-modal button:hover {
+    background: var(--blue-dark);
+}
+
+@media (max-width: 900px) {
+    .foro-container {
+        flex-direction: column;
+    }
+    .foro-sidebar {
+        width: 100%;
+        flex-direction: row;
+        align-items: center;
+        border-right: none;
+        border-bottom: 2px solid var(--blue);
+        padding: 1rem 0.5rem;
+        gap: 1rem;
+    }
+    .foro-main {
+        padding: 1.5rem 0.5rem;
+    }
+}
+.foro-modal-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-start; /* Aligns buttons to the left */
+    margin-top: 1rem;
+}
+/* Add these to your existing Foro.css file */
+
+.foro-user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--blue);
+}
+
+.foro-user-info {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.foro-post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.8rem;
+}
+
+.foro-post-author, .foro-comment-author {
+    display: flex;
+    flex-direction: column;
+}
+
+.foro-author-name {
+    font-weight: 600;
+    color: var(--white);
+    font-size: 0.95rem;
+}
+
+.foro-author-username {
+    color: var(--blue);
+    font-size: 0.85rem;
+}
+
+.foro-post-category {
+    background: var(--blue);
+    color: var(--white);
+    padding: 0.3rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.foro-post-date, .foro-comment-date {
+    color: var(--gray-light);
+    font-size: 0.85rem;
+    font-style: italic;
+}
+
+.foro-comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.foro-error {
+    background: rgba(255, 100, 100, 0.8);
+    color: white;
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.foro-error::after {
+    content: "×";
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.foro-loading {
+    text-align: center;
+    padding: 1rem;
+    color: var(--blue);
+    font-size: 1.1rem;
+}
+
+/* Adjustments for comments and posts */
+.foro-comment-card {
+    padding: 1rem;
+}
+
+.foro-post-detail-card h2 {
+    margin-top: 0.5rem;
+}
+
+@media (max-width: 600px) {
+    .foro-post-header, .foro-comment-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .foro-post-category {
+        align-self: flex-start;
+    }
+
+    .foro-comment-date {
+        align-self: flex-start;
+    }
+}

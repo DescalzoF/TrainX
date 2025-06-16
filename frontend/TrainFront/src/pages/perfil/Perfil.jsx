@@ -4,7 +4,7 @@ import axios from 'axios';
 import './Perfil.css';
 import { FaEye, FaEyeSlash, FaTrashAlt, FaExclamationTriangle, FaUser, FaUserEdit, FaSave,
     FaTimes, FaCoins, FaTrophy, FaWeight, FaRulerVertical, FaPhone, FaTransgender,
-    FaMapMarkerAlt, FaEnvelope, FaLock, FaGlobe } from 'react-icons/fa';
+    FaMapMarkerAlt, FaEnvelope, FaLock, FaGlobe, FaCalendarAlt } from 'react-icons/fa';
 import { useAuth } from '../../contexts/AuthContext';
 
 function Perfil() {
@@ -19,7 +19,7 @@ function Perfil() {
         height: 0,
         address: '',
         phoneNumber: '',
-        age: '',
+        dateOfBirth: '',
         sex: 'male',
         userPhoto: null,
         isPublic: true,
@@ -69,7 +69,7 @@ function Perfil() {
                     height: data.height || 0,
                     address: data.address || '',
                     phoneNumber: data.phoneNumber || '',
-                    age: data.age || '',
+                    dateOfBirth: data.dateOfBirth || '',
                     sex: data.sex || 'male',
                     userPhoto: data.userPhoto || null,
                     isPublic: data.isPublic !== undefined ? data.isPublic : true,
@@ -299,8 +299,13 @@ function Perfil() {
     const bmi = calculateBMI();
     const bmiCategory = getBMICategory(bmi);
 
-    if (isLoading && !userData.username) {
+    // Format date for display (YYYY-MM-DD format for input element)
+    const formatDate = (dateString) => {
+        if (!dateString) return '';
+        return dateString;
+    };
 
+    if (isLoading && !userData.username) {
         return (
             <div className="loading">
                 <div className="loading-spinner"></div>
@@ -448,14 +453,12 @@ function Perfil() {
 
                         <div className="form-row">
                             <div className="form-group half">
-                                <label htmlFor="age"><FaUser className="field-icon" /> Edad</label>
+                                <label htmlFor="dateOfBirth"><FaCalendarAlt className="field-icon" /> Fecha de Nacimiento</label>
                                 <input
-                                    type="text"
-                                    id="age"
-                                    name="age"
-                                    value={userData.age || ''}
-                                    min="10"
-                                    max="100"
+                                    type="date"
+                                    id="dateOfBirth"
+                                    name="dateOfBirth"
+                                    value={formatDate(userData.dateOfBirth)}
                                     onChange={handleChange}
                                     disabled={!isEditing}
                                     className={isEditing ? "editable" : ""}

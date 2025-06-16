@@ -12,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -84,17 +85,31 @@ public class DuelController {
     }
 
     @PostMapping("/challenge")
-    public ResponseEntity<DuelResponseDTO> challengeUser(
+    public ResponseEntity<?> challengeUser(
             @AuthenticationPrincipal UserEntity currentUser,
             @RequestBody DuelChallengeRequestDTO request) {
         try {
+            // First deduct coins
+            if (request.getBetAmount() > 0) {
+                duelService.deductCoinsForDuel(currentUser.getId(), request.getBetAmount());
+            }
+
+            // Then create the duel without coin deduction
             DuelEntity duel = duelService.createDuel(
                     currentUser,
                     request.getChallengedUserId(),
                     request.getBetAmount());
+
             return ResponseEntity.status(HttpStatus.CREATED).body(convertToResponseDTO(duel));
         } catch (ResponseStatusException e) {
-            return ResponseEntity.status(e.getStatusCode()).build();
+            return ResponseEntity
+                    .status(e.getStatusCode())
+                    .body(Map.of("error", e.getReason()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "An unexpected error occurred"));
         }
     }
 
@@ -157,6 +172,34 @@ public class DuelController {
 
         return ResponseEntity.ok(duelsDTO);
     }
+    @GetMapping("/active-duel")
+    public ResponseEntity<ActiveDuelResponseDTO> getActiveDuelForUser(
+            @AuthenticationPrincipal UserEntity currentUser) {
+        try {
+            List<DuelEntity> activeDuels = duelService.getActiveDuels(currentUser);
+
+            // Create response object
+            ActiveDuelResponseDTO response = new ActiveDuelResponseDTO();
+
+            // Check if user has any active duel
+            if (activeDuels.isEmpty()) {
+                response.setHasActiveDuel(false);
+                response.setDuel(null);
+            } else {
+                // Get the first active duel (a user should only have one)
+                DuelEntity activeDuel = activeDuels.get(0);
+                DuelResponseDTO duelDTO = convertToResponseDTO(activeDuel);
+
+                response.setHasActiveDuel(true);
+                response.setDuel(duelDTO);
+            }
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
     @GetMapping("/finished")
     public ResponseEntity<List<DuelResponseDTO>> getFinishedDuels(
@@ -191,6 +234,17 @@ public class DuelController {
             return ResponseEntity.ok(convertToDiaryExerciseDTO(diaryExercise));
         } catch (ResponseStatusException e) {
             return ResponseEntity.status(e.getStatusCode()).build();
+        }
+    }
+
+    @PostMapping("/check-expired")
+    public ResponseEntity<CheckExpiredDuelsResponseDTO> checkExpiredDuels() {
+        try {
+            duelService.checkExpiredDuels();
+            return ResponseEntity.ok(new CheckExpiredDuelsResponseDTO("Expired duels checked and updated."));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new CheckExpiredDuelsResponseDTO("Failed to check expired duels."));
         }
     }
 
@@ -244,6 +298,68 @@ public class DuelController {
         dto.setDayOfWeek(diaryExercise.getDayOfWeek().toString());
         dto.setCompletedByChallenger(diaryExercise.getCompletedByChallenger());
         dto.setCompletedByChallenged(diaryExercise.getCompletedByChallenged());
+        return dto;
+    }
+    @GetMapping("/history")
+    public ResponseEntity<List<HistorialDuelDTO>> getUserDuelHistory(
+            @AuthenticationPrincipal UserEntity currentUser) {
+        try {
+            List<DuelEntity> finishedDuels = duelService.getUserDuelHistory(currentUser);
+            List<HistorialDuelDTO> historialDuels = finishedDuels.stream()
+                    .map(duel -> convertToHistorialDTO(duel, currentUser))
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.ok(historialDuels);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/user/{userId}/wins")
+    public ResponseEntity<UserDuelWinsDTO> getUserDuelWins(@PathVariable Long userId) {
+        Long wins = duelService.countUserDuelWins(userId);
+        UserDuelWinsDTO dto = new UserDuelWinsDTO(userId, wins);
+        return ResponseEntity.ok(dto);
+    }
+
+    private HistorialDuelDTO convertToHistorialDTO(DuelEntity duel, UserEntity currentUser) {
+        HistorialDuelDTO dto = new HistorialDuelDTO();
+
+        // Basic duel information
+        dto.setId(duel.getId());
+        dto.setChallengerUsername(duel.getChallenger().getUsername());
+        dto.setChallengedUsername(duel.getChallenged().getUsername());
+        dto.setStartDate(duel.getStartDate());
+        dto.setEndDate(duel.getEndDate());
+        dto.setChallengerScore(duel.getChallengerScore());
+        dto.setChallengedScore(duel.getChallengedScore());
+        dto.setBetAmount(duel.getBetAmount());
+
+        // Determine if current user was challenger
+        boolean isChallenger = duel.getChallenger().getId().equals(currentUser.getId());
+        dto.setWasUserChallenger(isChallenger);
+
+        // Set opponent username based on who the current user is
+        if (isChallenger) {
+            dto.setOpponentUsername(duel.getChallenged().getUsername());
+        } else {
+            dto.setOpponentUsername(duel.getChallenger().getUsername());
+        }
+
+        // Determine winner
+        UserEntity winner = duel.getWinner();
+        if (winner == null) {
+            // It's a tie
+            dto.setWinnerUsername("Empate");
+            dto.setUserWon(false);
+            dto.setWasTie(true);
+        } else {
+            dto.setWinnerUsername(winner.getUsername());
+            dto.setUserWon(winner.getId().equals(currentUser.getId()));
+            dto.setWasTie(false);
+        }
+
         return dto;
     }
 }

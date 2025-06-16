@@ -1,18 +1,23 @@
 package com.TrainX.TrainX.desafioSemanal;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.time.LocalDateTime;
-
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter
+@Setter
 public class DesafioSemanalDTO {
     private Long id;
     private String descripcion;
     private Long valorMonedas;
-    private boolean completado;
-    private LocalDateTime fechaCompletado;
+    private boolean activo;
+
+    public DesafioSemanalDTO() {
+    }
+
+    public DesafioSemanalDTO(Long id, String descripcion, Long valorMonedas, boolean activo) {
+        this.id = id;
+        this.descripcion = descripcion;
+        this.valorMonedas = valorMonedas;
+        this.activo = activo;
+    }
 }

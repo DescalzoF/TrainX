@@ -3,10 +3,10 @@ package com.TrainX.TrainX.desafioSemanal;
 import com.TrainX.TrainX.User.MessageResponse;
 import com.TrainX.TrainX.User.UserEntity;
 import com.TrainX.TrainX.User.UserService;
-import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -29,15 +29,11 @@ public class DesafioSemanalController {
         this.userService = userService;
     }
 
-    @PostConstruct
-    public void initialize() {
-        desafioService.initializeDefaultDesafios();
-    }
-
-    // Public endpoints - no admin restrictions
-    @GetMapping
-    public ResponseEntity<List<DesafioSemanal>> getAllDesafios() {
-        return ResponseEntity.ok(desafioService.getAllDesafios());
+    @GetMapping()
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<DesafioSemanalDTO>> getAllDesafios() {
+        List<DesafioSemanalDTO> desafios = desafioService.getAllDesafiosDTO();
+        return ResponseEntity.ok(desafios);
     }
 
     @GetMapping("/activos")
@@ -53,12 +49,14 @@ public class DesafioSemanalController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DesafioSemanal> createDesafio(@RequestBody DesafioSemanal desafio) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(desafioService.createDesafio(desafio));
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<DesafioSemanal> updateDesafio(
             @PathVariable Long id,
             @RequestBody DesafioSemanal desafioDetails) {
@@ -66,6 +64,7 @@ public class DesafioSemanalController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteDesafio(@PathVariable Long id) {
         desafioService.deleteDesafio(id);
         return ResponseEntity.noContent().build();
