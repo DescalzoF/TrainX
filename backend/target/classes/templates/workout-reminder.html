@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workout Reminder</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .content {
+            color: #666;
+            line-height: 1.6;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>¡Te extrañamos en <span th:text="${appName}">TrainX</span>! 💪</h1>
+    </div>
+    <div class="content">
+        <p>Hola <strong th:text="${username}">Usuario</strong>,</p>
+        <p>Hemos notado que no has estado activo últimamente. ¡Tu cuerpo te está esperando!</p>
+        <p>Recuerda que la constancia es la clave del éxito. Cada día sin entrenar es una oportunidad perdida.</p>
+        <p>¿Qué dices? ¿Listo para retomar tu rutina?</p>
+        <p>¡Nos vemos en el gym! 🏋️‍♂️</p>
+        <p>Saludos,<br>El equipo de <span th:text="${appName}">TrainX</span></p>
+    </div>
+</div>
+</body>
+</html>

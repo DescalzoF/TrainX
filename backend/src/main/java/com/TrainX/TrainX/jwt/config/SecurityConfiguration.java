@@ -37,7 +37,7 @@ public class SecurityConfiguration {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll() // Permitir login y registro
-                        .requestMatchers("/api/caminoFitness/**").permitAll() // Permitir acceso sin login a algunas rutas
+                        .requestMatchers("/api/caminoFitness/**").permitAll()
                         .requestMatchers("/api/profile/**").authenticated() // Solo autenticados
                         .requestMatchers("/api/gimnasios/").hasRole("ADMIN")
                         .requestMatchers("/api/forum/**").authenticated()

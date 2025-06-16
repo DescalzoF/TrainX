@@ -44,7 +44,7 @@ public class WorkoutReminderScheduler {
             for (UserEntity user : allUsers) {
                 if (shouldSendReminderToUser(user)) {
                     try {
-                        emailService.sendSimpleWorkoutReminder(user.getEmail(), user.getUsername());
+                        emailService.sendWorkoutReminderEmail(user.getEmail(), user.getUsername());
                         emailsSent++;
                         log.info("Sent workout reminder to user: {} ({})", user.getUsername(), user.getEmail());
                     } catch (Exception e) {
@@ -76,22 +76,18 @@ public class WorkoutReminderScheduler {
             Optional<ExerciseCompletionEntity> latestCompletion = userCompletions.stream()
                     .max((c1, c2) -> c1.getCompletedAt().compareTo(c2.getCompletedAt()));
 
-            if (latestCompletion.isPresent()) {
-                LocalDateTime lastCompletionTime = latestCompletion.get().getCompletedAt();
-                LocalDateTime oneWeekAgo = LocalDateTime.now().minusWeeks(1);
+            LocalDateTime lastCompletionTime = latestCompletion.get().getCompletedAt();
+            LocalDateTime oneWeekAgo = LocalDateTime.now().minusWeeks(1);
 
-                // Check if last completion was more than a week ago
-                boolean shouldSend = lastCompletionTime.isBefore(oneWeekAgo);
+            // Check if last completion was more than a week ago
+            boolean shouldSend = lastCompletionTime.isBefore(oneWeekAgo);
 
-                if (shouldSend) {
-                    log.info("User {} last worked out on: {}, should send reminder",
-                            user.getUsername(), lastCompletionTime);
-                }
-
-                return shouldSend;
+            if (shouldSend) {
+                log.info("User {} last worked out on: {}, should send reminder",
+                        user.getUsername(), lastCompletionTime);
             }
 
-            return false;
+            return shouldSend;
 
         } catch (Exception e) {
             log.error("Error checking if should send reminder to user {}: {}",

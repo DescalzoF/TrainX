@@ -4,11 +4,10 @@ import com.TrainX.TrainX.email.EmailService;
 import com.TrainX.TrainX.scheduler.WorkoutReminderScheduler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/admin/email")
+@RequestMapping("/api/email")
 public class TestEmailController {
 
     private final EmailService emailService;
@@ -20,11 +19,16 @@ public class TestEmailController {
         this.workoutReminderScheduler = workoutReminderScheduler;
     }
 
+    @GetMapping("/test")
+    public ResponseEntity<String> testEndpoint() {
+        System.out.println("Test endpoint called successfully");
+        return ResponseEntity.ok("Controller is working!");
+    }
+
     @PostMapping("/test-reminder")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> testReminderEmail(@RequestParam String email, @RequestParam String username) {
         try {
-            emailService.sendSimpleWorkoutReminder(email, username);
+            emailService.sendWorkoutReminderEmail(email, username);
             return ResponseEntity.ok("Test reminder email sent successfully to: " + email);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Failed to send email: " + e.getMessage());
@@ -32,7 +36,6 @@ public class TestEmailController {
     }
 
     @PostMapping("/trigger-scheduler")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> triggerScheduler() {
         try {
             workoutReminderScheduler.triggerManualReminder();
