@@ -22,20 +22,14 @@ public class EmailService {
         this.templateEngine = templateEngine;
     }
 
-    public void sendWorkoutReminderEmail(String toEmail, String username) throws MessagingException {
-        sendWorkoutReminderEmail(toEmail, username, false);
-    }
-
     public void sendWorkoutReminderEmail(String toEmail, String username, boolean isManualTrigger) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-        // Create Thymeleaf context with variables
         Context context = new Context();
         context.setVariable("username", username);
         context.setVariable("appName", "TrainX");
 
-        // Process the HTML template
         String htmlContent = templateEngine.process("workout-reminder", context);
 
         helper.setFrom("francodescalzo@gmail.com");
@@ -43,18 +37,9 @@ public class EmailService {
         helper.setSubject(isManualTrigger ?
                 "TrainX - Recordatorio Manual 💪" :
                 "¡Te extrañamos en TrainX! 💪");
-        helper.setText(htmlContent, true); // true indicates HTML content
+        helper.setText(htmlContent, true);
 
         mailSender.send(message);
         System.out.println("HTML workout reminder mail sent to: " + toEmail);
-    }
-
-    // Fallback method for simple text emails (keeping for compatibility)
-    public void sendSimpleWorkoutReminderEmail(String toEmail, String username) {
-        try {
-            sendWorkoutReminderEmail(toEmail, username, false);
-        } catch (MessagingException e) {
-            System.err.println("Failed to send HTML email, this method is deprecated: " + e.getMessage());
-        }
     }
 }
