@@ -21,7 +21,6 @@ public class TrainXApplication {
 
 	@EventListener(ApplicationReadyEvent.class)
 	public void sendTestMail() {
-		workoutReminderScheduler.sendReminderToSpecificUser("descalzofranco2004@gmail.com");
 		workoutReminderScheduler.triggerManualReminderForAll();
 	}
 }
