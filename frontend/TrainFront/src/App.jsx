@@ -25,8 +25,11 @@ import DuelCompetition from "./pages/DuelCompetition/DuelCompetition.jsx";
 import DuelRouter from './pages/DuelRouter/DuelRouter.jsx';
 import Foro from "./pages/foro/Foro.jsx";
 
+
+
 const ProtectedRoute = ({ children }) => {
-    const { isLoggedIn, isLoading } = useAuth();
+    const { isLoggedIn, isLoading,hasChosenCaminoFitness } = useAuth();
+    const location = useLocation();
 
     if (isLoading) {
         return <div>Loading...</div>;
@@ -34,6 +37,10 @@ const ProtectedRoute = ({ children }) => {
 
     if (!isLoggedIn) {
         return <Navigate to="/login" />;
+    }
+    // Allow access to /camino even if camino not chosen
+    if (!hasChosenCaminoFitness() && location.pathname !== '/camino') {
+        return <Navigate to="/" />;
     }
 
     return children;
