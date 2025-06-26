@@ -37,6 +37,7 @@ public class SecurityConfiguration {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll() // Permitir login y registro
+                        .requestMatchers("/api/test/trigger-reminder").permitAll()
                         .requestMatchers("/api/caminoFitness/**").permitAll()
                         .requestMatchers("/api/profile/**").authenticated() // Solo autenticados
                         .requestMatchers("/api/gimnasios/").hasRole("ADMIN")
@@ -44,7 +45,6 @@ public class SecurityConfiguration {
                         .requestMatchers("/api/profile/update", "/api/profile/delete").authenticated()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN") // Rutas de administrador
                         .requestMatchers("/api/desafios-semanales/**").authenticated()
-                        .requestMatchers("/api/test/trigger-reminder").permitAll()
                         .anyRequest().authenticated() // El resto requiere autenticación
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

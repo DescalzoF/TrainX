@@ -42,7 +42,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
         // 🔒 Excluir endpoints públicos del filtro JWT
         String path = request.getServletPath();
-        if (path.startsWith("/api/auth/")) {
+        if (path.startsWith("/api/auth/") || path.equals("/api/test/trigger-reminder")) {
             filterChain.doFilter(request, response);
             return;
         }
