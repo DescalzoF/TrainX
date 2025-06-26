@@ -44,6 +44,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/api/profile/update", "/api/profile/delete").authenticated()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN") // Rutas de administrador
                         .requestMatchers("/api/desafios-semanales/**").authenticated()
+                        .requestMatchers("/api/test/trigger-reminder").permitAll()
                         .anyRequest().authenticated() // El resto requiere autenticación
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
