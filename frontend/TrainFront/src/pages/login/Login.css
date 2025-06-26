@@ -34,19 +34,19 @@
     gap: 20px;
 }
 
-.login-form-group {
+.form-group {
     display: flex;
     flex-direction: column;
     gap: 5px;
 }
 
-.login-form-group label {
+.form-group label {
     font-size: 14px;
     font-weight: 500;
     color: #444;
 }
 
-.login-form-group input {
+.form-group input {
     padding: 12px;
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -55,7 +55,7 @@
     color: #000;
 }
 
-.login-form-group input:focus {
+.form-group input:focus {
     border-color: #4a90e2;
     outline: none;
 }
@@ -81,7 +81,7 @@
     cursor: not-allowed;
 }
 
-.login-error-message {
+.error-message {
     padding: 10px;
     color: #d32f2f;
     background-color: #fdecea;
@@ -89,14 +89,46 @@
     font-size: 14px;
 }
 
-.login-forgot-password-link {
+/* Divider styles */
+.divider {
+    position: relative;
+    text-align: center;
+    margin: 20px 0;
+}
+
+.divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background-color: #ddd;
+}
+
+.divider span {
+    background-color: white;
+    color: #666;
+    padding: 0 15px;
+    font-size: 14px;
+}
+
+/* Google login wrapper */
+.google-login-wrapper {
+    display: flex;
+    justify-content: center;
+    margin: 10px 0;
+}
+
+/* Button forgot password */
+.forgot-password-link {
     text-align: center;
     margin-top: 1rem;
     margin-bottom: 0rem;
     font-family: inherit;
 }
 
-.login-forgot-password-link p {
+.forgot-password-link p {
     color: #0061ff;
     cursor: pointer;
     text-decoration: underline;
@@ -105,17 +137,17 @@
     font-family: inherit;
 }
 
-.login-forgot-password-link p:hover {
+.forgot-password-link p:hover {
     color: #0051a8;
 }
 
-.login-create-account-link {
+.create-account-link {
     text-align: center;
     margin-top: 0;
     font-family: inherit;
 }
 
-.login-create-account-link p {
+.create-account-link p {
     color: #0061ff;
     cursor: pointer;
     text-decoration: underline;
@@ -123,64 +155,6 @@
     font-family: inherit;
 }
 
-.login-create-account-link p:hover {
+.create-account-link p:hover {
     color: #0051a8;
-}
-
-/* Google Sign-In styles */
-.login-divider {
-    display: flex;
-    align-items: center;
-    margin: 20px 0;
-    color: #666;
-    font-size: 14px;
-}
-
-.login-divider::before,
-.login-divider::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background-color: #ddd;
-}
-
-.login-divider::before {
-    margin-right: 10px;
-}
-
-.login-divider::after {
-    margin-left: 10px;
-}
-
-.login-google-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 12px;
-    background-color: white;
-    color: #333;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s;
-    width: 100%;
-}
-
-.login-google-button:hover {
-    background-color: #f8f9fa;
-    border-color: #4a90e2;
-}
-
-.login-google-button:disabled {
-    background-color: #f5f5f5;
-    color: #999;
-    cursor: not-allowed;
-}
-
-.login-google-icon {
-    width: 20px;
-    height: 20px;
 }
