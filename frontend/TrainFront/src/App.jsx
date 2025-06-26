@@ -24,6 +24,7 @@ import Duel from "./pages/DuelosSemanales/DuelosSemanales.jsx";
 import DuelCompetition from "./pages/DuelCompetition/DuelCompetition.jsx";
 import DuelRouter from './pages/DuelRouter/DuelRouter.jsx';
 import Foro from "./pages/foro/Foro.jsx";
+import Chatbot from './components/chatbot/Chatbot.jsx';
 
 
 
@@ -70,6 +71,14 @@ const NavbarWrapper = () => {
     const shouldShowNavbar = !hideNavbarPaths.includes(location.pathname);
 
     return shouldShowNavbar ? <Navbar /> : null;
+};
+
+const ChatbotWrapper = () => {
+    const location = useLocation();
+    const hideChatbotPaths = ['/login', '/signup', '/reset-password', '/forgot-password'];
+    const shouldShowChatbot = !hideChatbotPaths.includes(location.pathname);
+
+    return shouldShowChatbot ? <Chatbot /> : null;
 };
 
 function AppContent() {
@@ -245,9 +254,8 @@ function AppContent() {
                         path="/reset-password"
                         element={<ResetPassword />} />
                 </Routes>
-
-
             </main>
+            <ChatbotWrapper />
         </div>
     );
 }
