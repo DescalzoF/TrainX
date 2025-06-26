@@ -55,8 +55,8 @@ const LeaderboardSemanal = () => {
                                 <div className="sem-weight">
                                     {user.totalWeight ? `${user.totalWeight.toFixed(1)}` : '0.0'}
                                 </div>
-                                <div className="sem-reps">{user.totalWeeklyReps || 0} XP</div>
-                                <div className="sem-xp-cell">{user.weeklyXp || 0} </div>
+                                <div className="sem-reps">{user.totalWeeklyReps || 0} </div>
+                                <div className="sem-xp-cell">{user.weeklyXp || 0} XP </div>
                             </div>
                         );
                     })}
