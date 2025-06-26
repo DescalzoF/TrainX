@@ -89,30 +89,6 @@
     font-size: 14px;
 }
 
-/* Divider styles */
-.divider {
-    position: relative;
-    text-align: center;
-    margin: 20px 0;
-}
-
-.divider::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background-color: #ddd;
-}
-
-.divider span {
-    background-color: white;
-    color: #666;
-    padding: 0 15px;
-    font-size: 14px;
-}
-
 /* Google login wrapper */
 .google-login-wrapper {
     display: flex;

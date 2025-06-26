@@ -137,10 +137,6 @@ function Login() {
                         {isLoading ? 'Logging in...' : 'Login'}
                     </button>
 
-                    <div className="divider">
-                        <span>o</span>
-                    </div>
-
                     <div className="google-login-wrapper">
                         <GoogleLogin
                             onSuccess={handleGoogleSuccess}
