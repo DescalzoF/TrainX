@@ -52,7 +52,7 @@
     border-radius: 4px;
     font-size: 16px;
     transition: border-color 0.3s;
-    color: #000; /* Esto hace que el texto sea negro */
+    color: #000;
 }
 
 .form-group input:focus {
@@ -89,12 +89,69 @@
     font-size: 14px;
 }
 
-/* Button forgot password */
+/* Login separator */
+.login-separator {
+    text-align: center;
+    position: relative;
+    margin: 20px 0;
+}
 
+.login-separator::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background-color: #ddd;
+    z-index: 1;
+}
+
+.login-separator span {
+    background-color: white;
+    padding: 0 15px;
+    color: #666;
+    font-size: 14px;
+    position: relative;
+    z-index: 2;
+}
+
+/* Google Sign-In styles */
+.google-signin-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+#google-signin-button {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    transition: opacity 0.3s;
+}
+
+#google-signin-button.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.google-loading-text {
+    font-size: 14px;
+    color: #666;
+    text-align: center;
+}
+
+/* Ensure Google button has consistent styling */
+#google-signin-button > div {
+    width: 100% !important;
+}
+
+/* Button forgot password */
 .forgot-password-link {
     text-align: center;
     margin-top: 1rem;
-    margin-bottom: 0rem; /* Add this to reduce space */
+    margin-bottom: 0rem;
     font-family: inherit;
 }
 
@@ -111,10 +168,9 @@
     color: #0051a8;
 }
 
-
 .create-account-link {
     text-align: center;
-    margin-top: 0; /* Change from 0.5rem to 0 */
+    margin-top: 0;
     font-family: inherit;
 }
 
@@ -128,4 +184,16 @@
 
 .create-account-link p:hover {
     color: #0051a8;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .login-form-wrapper {
+        padding: 20px;
+        margin: 10px;
+    }
+
+    #google-signin-button {
+        width: 100%;
+    }
 }

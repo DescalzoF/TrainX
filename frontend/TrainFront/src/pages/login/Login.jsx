@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Login.css';
 import LogoTitle from "../../components/logotitle/LogoTitle.jsx";
@@ -10,8 +10,83 @@ function Login() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [googleLoading, setGoogleLoading] = useState(false);
     const navigate = useNavigate();
-    const { login, getCurrentCaminoFitnessId } = useAuth(); // Obtengo la función y estado del contexto
+    const { login, getCurrentCaminoFitnessId } = useAuth();
+
+    // Initialize Google Sign-In
+    useEffect(() => {
+        const initializeGoogleSignIn = () => {
+            if (window.google) {
+                window.google.accounts.id.initialize({
+                    client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID,
+                    callback: handleGoogleSignIn,
+                    auto_select: false,
+                    cancel_on_tap_outside: true,
+                });
+
+                // Render the Google Sign-In button
+                window.google.accounts.id.renderButton(
+                    document.getElementById("google-signin-button"),
+                    {
+                        theme: "outline",
+                        size: "large",
+                        width: "100%",
+                        text: "signin_with",
+                        shape: "rectangular",
+                    }
+                );
+            }
+        };
+
+        // Load Google Sign-In script
+        if (!window.google) {
+            const script = document.createElement('script');
+            script.src = 'https://accounts.google.com/gsi/client';
+            script.async = true;
+            script.defer = true;
+            script.onload = initializeGoogleSignIn;
+            document.head.appendChild(script);
+        } else {
+            initializeGoogleSignIn();
+        }
+    }, []);
+
+    const handleGoogleSignIn = async (response) => {
+        setGoogleLoading(true);
+        setError('');
+
+        try {
+            const result = await axios.post('http://localhost:8080/api/auth/google', {
+                token: response.credential
+            });
+
+            const data = result.data;
+
+            if (result.status === 200) {
+                await login({
+                    token: data.token,
+                    username: data.username
+                });
+
+                const caminoFitnessId = getCurrentCaminoFitnessId();
+
+                if (!caminoFitnessId) {
+                    navigate('/camino');
+                } else {
+                    navigate(`/camino/${caminoFitnessId}/level/principiante`);
+                }
+            } else {
+                throw new Error(data.message || 'Google sign-in failed');
+            }
+
+        } catch (err) {
+            console.error("Google sign-in error:", err);
+            setError(err.response?.data?.message || 'Error al iniciar sesión con Google');
+        } finally {
+            setGoogleLoading(false);
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -27,20 +102,16 @@ function Login() {
             const data = response.data;
 
             if (response.status === 200) {
-                // El JWT token debe estar en la respuesta
                 await login({
                     token: data.token,
                     username: data.username
                 });
 
-                // Esperamos un poco hasta que el estado se haya actualizado
-                const caminoFitnessId = getCurrentCaminoFitnessId(); // Utilizo el estado del contexto
+                const caminoFitnessId = getCurrentCaminoFitnessId();
 
                 if (!caminoFitnessId) {
-                    // Si el usuario no tiene un camino, lo mando a la página para elegir el camino
                     navigate('/camino');
                 } else {
-                    // Si ya tiene un camino asignado, lo mando a la página de ejercicio
                     navigate(`/camino/${caminoFitnessId}/level/principiante`);
                 }
             } else {
@@ -92,6 +163,16 @@ function Login() {
                     <button type="submit" className="login-button" disabled={isLoading}>
                         {isLoading ? 'Logging in...' : 'Login'}
                     </button>
+
+                    <div className="login-separator">
+                        <span>o</span>
+                    </div>
+
+                    <div className="google-signin-container">
+                        <div id="google-signin-button" className={googleLoading ? 'loading' : ''}></div>
+                        {googleLoading && <div className="google-loading-text">Iniciando sesión con Google...</div>}
+                    </div>
+
                     <div className="forgot-password-link">
                         <p onClick={() => navigate('/forgot-password')}>¿Olvidaste tu contraseña?</p>
                     </div>

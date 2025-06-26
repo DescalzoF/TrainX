@@ -1,2 +1,3 @@
 # Ignore sensitive Spring Boot config
 backend/src/main/resources/application.properties
+frontend/TrainFront/.env

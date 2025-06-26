@@ -3,10 +3,11 @@ package com.TrainX.TrainX.auth;
 import com.TrainX.TrainX.User.Role;
 import com.TrainX.TrainX.User.UserEntity;
 import com.TrainX.TrainX.User.UserService;
-import com.TrainX.TrainX.jwt.JwtService;
-import com.TrainX.TrainX.jwt.dtos.AuthResponse;
+import com.TrainX.TrainX.jwt.config.JwtService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -22,7 +23,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://localhost:5173")
 public class GoogleAuthController {
 
     @Autowired
@@ -155,23 +156,14 @@ public class GoogleAuthController {
     }
 
     // Inner class for Google user info
+    @Setter
+    @Getter
     private static class GoogleUserInfo {
+        // Getters and setters
         private String email;
         private String givenName;
         private String familyName;
         private String picture;
 
-        // Getters and setters
-        public String getEmail() { return email; }
-        public void setEmail(String email) { this.email = email; }
-
-        public String getGivenName() { return givenName; }
-        public void setGivenName(String givenName) { this.givenName = givenName; }
-
-        public String getFamilyName() { return familyName; }
-        public void setFamilyName(String familyName) { this.familyName = familyName; }
-
-        public String getPicture() { return picture; }
-        public void setPicture(String picture) { this.picture = picture; }
     }
 }
