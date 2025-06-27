@@ -2,11 +2,13 @@ package com.TrainX.TrainX.jwt.services;
 
 import com.TrainX.TrainX.User.UserEntity;
 import com.TrainX.TrainX.User.UserRepository;
+import com.TrainX.TrainX.email.EmailService;
 import com.TrainX.TrainX.jwt.dtos.LoginRequest;
 import com.TrainX.TrainX.jwt.dtos.RegisterUserDto;
 import com.TrainX.TrainX.jwt.exceptions.EmailAlreadyUsedException;
 import com.TrainX.TrainX.jwt.exceptions.UsernameAlreadyExistsException;
 import com.TrainX.TrainX.jwt.exceptions.UserNotFoundException;
+import com.TrainX.TrainX.xpFitness.XpFitnessEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
@@ -14,20 +16,25 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class AuthenticationService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final EmailService emailService; // ✅ AGREGAR esta línea
 
     public AuthenticationService(UserRepository userRepository,
                                  PasswordEncoder passwordEncoder,
-                                 AuthenticationManager authenticationManager) {
+                                 AuthenticationManager authenticationManager,
+                                 EmailService emailService) { // ✅ AGREGAR parámetro
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
+        this.emailService = emailService; // ✅ AGREGAR esta línea
     }
 
     /**
@@ -59,8 +66,50 @@ public class AuthenticationService {
                 0L,
                 null
         );
+        user.setIsVerified(false);
+        user.setVerificationToken(UUID.randomUUID().toString());
+        user.setVerificationTokenExpires(LocalDateTime.now().plusHours(24));
 
-        return userRepository.save(user);
+        UserEntity savedUser = userRepository.save(user);
+
+        // ✅ AGREGAR ENVÍO DE EMAIL:
+        try {
+            emailService.sendVerificationEmail(
+                    savedUser.getEmail(),
+                    savedUser.getUsername(),
+                    savedUser.getVerificationToken()
+            );
+        } catch (Exception e) {
+            System.err.println("Error sending verification email: " + e.getMessage());
+        }
+
+        return savedUser;
+    }
+    public boolean verifyEmail(String token) {
+        Optional<UserEntity> userOpt = userRepository.findByVerificationToken(token);
+
+        if (userOpt.isEmpty()) {
+            return false;
+        }
+
+        UserEntity user = userOpt.get();
+
+        if (user.getVerificationTokenExpires().isBefore(LocalDateTime.now())) {
+            return false;
+        }
+
+        user.setIsVerified(true);
+        user.setVerificationToken(null);
+        user.setVerificationTokenExpires(null);
+
+        // ✅ CREAR XpFitnessEntity SOLO después de verificar email
+        if (user.getXpFitnessEntity() == null) {
+            user.setXpFitnessEntity(new XpFitnessEntity(user));
+        }
+
+        userRepository.save(user);
+
+        return true;
     }
 
     /**
@@ -78,8 +127,15 @@ public class AuthenticationService {
             throw new UserNotFoundException(input.getUsername());
         }
 
-        return userRepository.findByUsername(input.getUsername())
+        UserEntity user = userRepository.findByUsername(input.getUsername())
                 .orElseThrow(() -> new UserNotFoundException(input.getUsername()));
+
+        // ✅ AGREGAR verificación de email
+        if (!user.getIsVerified()) {
+            throw new RuntimeException("Please verify your email before logging in");
+        }
+
+        return user;
     }
 
     /**

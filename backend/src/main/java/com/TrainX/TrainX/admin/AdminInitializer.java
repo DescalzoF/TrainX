@@ -61,6 +61,9 @@ public class AdminInitializer implements CommandLineRunner {
             admin.setSex("M");
             admin.setIsPublic(true);
             admin.setRole(Role.ADMIN);
+            admin.setIsVerified(true); // ✅ Admin verificado automáticamente
+            admin.setVerificationToken(null);
+            admin.setVerificationTokenExpires(null);
 
             // Asignar CaminoFitness y Level por defecto
             CaminoFitnessEntity defaultCamino = caminoFitnessRepository.findById(1L)

@@ -42,4 +42,24 @@ public class EmailService {
         mailSender.send(message);
         System.out.println("HTML workout reminder mail sent to: " + toEmail);
     }
+    // En EmailService.java, agregar:
+    public void sendVerificationEmail(String toEmail, String username, String token) throws MessagingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+        Context context = new Context();
+        context.setVariable("username", username);
+        context.setVariable("verificationUrl", "http://localhost:5173/verify-email?token=" + token);
+        context.setVariable("appName", "TrainX");
+
+        String htmlContent = templateEngine.process("email-verification", context);
+
+        helper.setFrom("francodescalzo@gmail.com");
+        helper.setTo(toEmail);
+        helper.setSubject("TrainX - Verifica tu cuenta 📧");
+        helper.setText(htmlContent, true);
+
+        mailSender.send(message);
+        System.out.println("Verification email sent to: " + toEmail);
+    }
 }

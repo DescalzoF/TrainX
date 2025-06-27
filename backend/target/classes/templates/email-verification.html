@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify Your Email - TrainX</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+    .email-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+      background-color: #007bff;
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    .content {
+      padding: 30px;
+      text-align: center;
+    }
+    .verify-button {
+      display: inline-block;
+      background-color: #007bff;
+      color: white !important;
+      padding: 15px 30px;
+      text-decoration: none;
+      border-radius: 5px;
+      margin: 20px 0;
+      font-weight: bold;
+    }
+    .footer {
+      background-color: #f8f9fa;
+      padding: 20px;
+      text-align: center;
+      font-size: 14px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+<div class="email-container">
+  <div class="header">
+    <h1>🏋️‍♂️ TrainX</h1>
+    <h2>Verifica tu Email</h2>
+  </div>
+
+  <div class="content">
+    <h3 th:text="'¡Hola, ' + ${username} + '!'">¡Hola, Usuario!</h3>
+    <p>¡Bienvenido a TrainX! Para completar tu registro y comenzar tu journey fitness, verifica tu email haciendo clic en el botón:</p>
+
+    <a th:href="${verificationUrl}" class="verify-button">
+      Verificar Email
+    </a>
+
+    <p>O copia y pega este enlace en tu navegador:</p>
+    <p style="word-break: break-all; color: #007bff;" th:text="${verificationUrl}">
+      URL de verificación
+    </p>
+
+    <p><strong>Este enlace expira en 24 horas.</strong></p>
+
+    <p>Si no creaste una cuenta en TrainX, ignora este email.</p>
+  </div>
+
+  <div class="footer">
+    <p>© 2024 TrainX. Todos los derechos reservados.</p>
+    <p>Este es un mensaje automático, no respondas a este email.</p>
+  </div>
+</div>
+</body>
+</html>

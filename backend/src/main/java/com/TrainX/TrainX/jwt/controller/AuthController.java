@@ -97,5 +97,21 @@ public class AuthController {
         return ResponseEntity.ok("Contraseña actualizada correctamente");
     }
 
+    // En AuthController.java, agregar:
+    @GetMapping("/verify-email")
+    public ResponseEntity<?> verifyEmail(@RequestParam String token) {
+        try {
+            boolean verified = authService.verifyEmail(token);
+
+            if (verified) {
+                return ResponseEntity.ok(new MessageResponse("Email verified successfully. You can now login."));
+            } else {
+                return ResponseEntity.badRequest().body(new MessageResponse("Invalid or expired verification token"));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error during verification: " + e.getMessage()));
+        }
+    }
+
 
 }
