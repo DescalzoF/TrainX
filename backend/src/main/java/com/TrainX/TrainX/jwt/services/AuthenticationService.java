@@ -17,8 +17,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class AuthenticationService {
@@ -26,6 +28,10 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final EmailService emailService; // ✅ AGREGAR esta línea
+    // ✅ Agregar rate limiting maps
+    private final Map<String, LocalDateTime> lastResetRequestByEmail = new ConcurrentHashMap<>();
+    private final Map<String, LocalDateTime> lastResetRequestByIp = new ConcurrentHashMap<>();
+    private static final int RESET_REQUEST_COOLDOWN_MINUTES = 5;
 
     public AuthenticationService(UserRepository userRepository,
                                  PasswordEncoder passwordEncoder,
@@ -177,6 +183,86 @@ public class AuthenticationService {
      */
     public Optional<UserEntity> getUserByUsername(String username) {
         return userRepository.findByUsername(username);
+    }
+
+    @Transactional
+    public boolean sendPasswordResetEmail(String email, String clientIp) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime cooldownTime = now.minusMinutes(RESET_REQUEST_COOLDOWN_MINUTES);
+
+        // ✅ 1. Rate limiting por EMAIL
+        LocalDateTime lastEmailRequest = lastResetRequestByEmail.get(email);
+        if (lastEmailRequest != null && lastEmailRequest.isAfter(cooldownTime)) {
+            return true; // Ya se envió a este email recientemente
+        }
+
+        // ✅ 2. Rate limiting por IP
+        LocalDateTime lastIpRequest = lastResetRequestByIp.get(clientIp);
+        if (lastIpRequest != null && lastIpRequest.isAfter(cooldownTime)) {
+            return true; // Esta IP ya hizo un request recientemente
+        }
+
+        Optional<UserEntity> userOpt = userRepository.findByEmail(email);
+
+        // ✅ 3. Guardar timestamps SIEMPRE
+        lastResetRequestByEmail.put(email, now);
+        lastResetRequestByIp.put(clientIp, now);
+
+        if (userOpt.isEmpty()) {
+            return true; // No revelar si email existe
+        }
+
+        UserEntity user = userOpt.get();
+        user.setPasswordResetToken(UUID.randomUUID().toString());
+        user.setPasswordResetTokenExpires(LocalDateTime.now().plusMinutes(10));
+
+        userRepository.save(user);
+
+        try {
+            emailService.sendPasswordResetEmail(
+                    user.getEmail(),
+                    user.getUsername(),
+                    user.getPasswordResetToken()
+            );
+            return true;
+        } catch (Exception e) {
+            System.err.println("Error sending password reset email: " + e.getMessage());
+            return false;
+        }
+    }
+
+    @Transactional
+    public boolean resetPasswordWithToken(String token, String newPassword) {
+        Optional<UserEntity> userOpt = userRepository.findByPasswordResetToken(token);
+
+        if (userOpt.isEmpty()) {
+            return false;
+        }
+
+        UserEntity user = userOpt.get();
+
+        if (user.getPasswordResetTokenExpires().isBefore(LocalDateTime.now())) {
+            return false;
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setPasswordResetToken(null);
+        user.setPasswordResetTokenExpires(null);
+
+        userRepository.save(user);
+        return true;
+    }
+
+    // En AuthenticationService.java, agregar este método:
+    public boolean isPasswordResetTokenValid(String token) {
+        Optional<UserEntity> userOpt = userRepository.findByPasswordResetToken(token);
+
+        if (userOpt.isEmpty()) {
+            return false;
+        }
+
+        UserEntity user = userOpt.get();
+        return user.getPasswordResetTokenExpires().isAfter(LocalDateTime.now());
     }
 }
 

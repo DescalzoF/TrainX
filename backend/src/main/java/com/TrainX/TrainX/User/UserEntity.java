@@ -85,6 +85,12 @@ public class UserEntity implements UserDetails {
     @Column(name = "verification_token_expires")
     private LocalDateTime verificationTokenExpires;
 
+    @Column(name = "password_reset_token")
+    private String passwordResetToken;
+
+    @Column(name = "password_reset_token_expires")
+    private LocalDateTime passwordResetTokenExpires;
+
 // Getters y setters correspondientes
 
     @ManyToOne(fetch = FetchType.LAZY)

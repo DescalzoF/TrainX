@@ -6,6 +6,7 @@ import com.TrainX.TrainX.User.UserEntity;
 import com.TrainX.TrainX.jwt.config.JwtService;
 import com.TrainX.TrainX.jwt.dtos.*;
 import com.TrainX.TrainX.jwt.services.AuthenticationService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -78,23 +79,58 @@ public class AuthController {
     }
 
     @PostMapping("/forgot-password")
-    public ResponseEntity<String> forgotPassword(@RequestBody ForgotPasswordDto dto) {
-        Optional<UserEntity> userOpt = authService.getUserByUsername(dto.getUsername());
+    public ResponseEntity<String> forgotPassword(
+            @RequestBody ForgotPasswordDto dto,
+            HttpServletRequest request) {
+        try {
+            // ✅ Obtener IP del cliente
+            String clientIp = getClientIp(request);
 
-        if (userOpt.isPresent() && userOpt.get().getEmail().equalsIgnoreCase(dto.getEmail())) {
-            return ResponseEntity.ok("Identidad confirmada");
+            boolean emailSent = authService.sendPasswordResetEmail(dto.getEmail(), clientIp);
+
+            return ResponseEntity.ok(
+                    "Si el correo electrónico está registrado, recibirás un enlace de recuperación. " +
+                            "Solo puedes solicitar un nuevo enlace cada 5 minutos."
+            );
+
+        } catch (Exception e) {
+            System.err.println("Error in forgot password: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error interno del servidor");
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Usuario o email incorrecto");
+    }
+
+    // ✅ Método helper para obtener IP real
+    private String getClientIp(HttpServletRequest request) {
+        String xForwardedFor = request.getHeader("X-Forwarded-For");
+        if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
+            return xForwardedFor.split(",")[0].trim();
+        }
+
+        String xRealIp = request.getHeader("X-Real-IP");
+        if (xRealIp != null && !xRealIp.isEmpty()) {
+            return xRealIp;
+        }
+
+        return request.getRemoteAddr();
     }
 
     @PostMapping("/reset-password")
     public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordDto dto) {
+        if (dto.getToken() == null || dto.getToken().isEmpty()) {
+            return ResponseEntity.badRequest().body("Token requerido");
+        }
+
         if (dto.getNewPassword() == null || dto.getNewPassword().isEmpty()) {
             return ResponseEntity.badRequest().body("La contraseña no puede estar vacía");
         }
 
-        authService.updateUserPassword(dto.getUsername(), dto.getNewPassword());
-        return ResponseEntity.ok("Contraseña actualizada correctamente");
+        boolean reset = authService.resetPasswordWithToken(dto.getToken(), dto.getNewPassword());
+
+        if (reset) {
+            return ResponseEntity.ok("Contraseña actualizada correctamente");
+        }
+        return ResponseEntity.badRequest().body("Token inválido o expirado");
     }
 
     // En AuthController.java, agregar:
@@ -112,6 +148,20 @@ public class AuthController {
             return ResponseEntity.badRequest().body(new MessageResponse("Error during verification: " + e.getMessage()));
         }
     }
+    @GetMapping("/validate-reset-token")
+    public ResponseEntity<?> validateResetToken(@RequestParam String token) {
+        try {
+            // ✅ Usar el AuthenticationService para validar el token de reset
+            boolean isValid = authService.isPasswordResetTokenValid(token);
 
+            if (isValid) {
+                return ResponseEntity.ok().build();
+            } else {
+                return ResponseEntity.badRequest().body("Token expirado o inválido");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Token expirado o inválido");
+        }
+    }
 
 }

@@ -41,4 +41,6 @@ public interface UserRepository extends JpaRepository<UserEntity,Long> {
     @Query("DELETE FROM UserEntity u WHERE u.isVerified = false AND u.verificationTokenExpires < :now")
     int deleteByIsVerifiedFalseAndVerificationTokenExpiresIsBefore(@Param("now") LocalDateTime now);
 
+    Optional<UserEntity> findByPasswordResetToken(String token);
+
 }
