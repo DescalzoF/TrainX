@@ -78,28 +78,28 @@ function ConfirmationModal({ onConfirm, caminoSeleccionado, userId, selectedCami
     };
 
     return (
-        <div className="confirmation-overlay">
-            <div className="confirmation-box">
-                <h2 className="confirmation-title">
+        <div className="confirmationmodal-overlay">
+            <div className="confirmationmodal-box">
+                <h2 className="confirmationmodal-title">
                     ¿Estás seguro de elegir el camino <span>{caminoSeleccionado}</span>?
                 </h2>
-                <div className="confirmation-buttons">
+                <div className="confirmationmodal-buttons">
                     <button
-                        className={`btnconfirm ${loading ? 'loading' : ''}`}
+                        className={`confirmationmodal-btn confirmationmodal-confirm ${loading ? 'loading' : ''}`}
                         onClick={() => handleConfirm(true)}
                         disabled={loading}
                     >
                         {loading ? 'Cargando...' : 'Sí'}
                     </button>
                     <button
-                        className={`btn cancel ${loading ? 'loading' : ''}`}
+                        className={`confirmationmodal-btn confirmationmodal-cancel ${loading ? 'loading' : ''}`}
                         onClick={() => handleConfirm(false)}
                         disabled={loading}
                     >
                         No
                     </button>
                 </div>
-                {error && <p className="error-message">{error}</p>}
+                {error && <p className="confirmationmodal-error-message">{error}</p>}
             </div>
         </div>
     );

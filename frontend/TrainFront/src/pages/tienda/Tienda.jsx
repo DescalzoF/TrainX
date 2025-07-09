@@ -59,14 +59,13 @@ const Tienda = () => {
 
             if (response.ok) {
                 const data = await response.json();
-                // Augment all prices by 100
                 const augmentedData = {};
                 Object.keys(data).forEach(category => {
                     augmentedData[category] = {};
                     Object.keys(data[category]).forEach(itemName => {
                         augmentedData[category][itemName] = {
                             ...data[category][itemName],
-                            price: data[category][itemName].price + 100
+                            price: data[category][itemName].price
                         };
                     });
                 });
@@ -111,7 +110,7 @@ const Tienda = () => {
 
     const handlePurchase = async (itemType, itemName, originalPrice) => {
         // Use original price for API call
-        if (userCoins < originalPrice + 100) {
+        if (userCoins < originalPrice) {
             showMessage('No tienes suficientes monedas', 'error');
             return;
         }
