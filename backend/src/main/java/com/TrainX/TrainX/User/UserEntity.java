@@ -13,6 +13,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Entity
@@ -74,6 +75,23 @@ public class UserEntity implements UserDetails {
 
     @Column(nullable = false, length = 500000)
     private String userPhoto;
+    // En UserEntity.java, agregar estos campos:
+    @Column(name = "is_verified")
+    private Boolean isVerified = false;
+
+    @Column(name = "verification_token")
+    private String verificationToken;
+
+    @Column(name = "verification_token_expires")
+    private LocalDateTime verificationTokenExpires;
+
+    @Column(name = "password_reset_token")
+    private String passwordResetToken;
+
+    @Column(name = "password_reset_token_expires")
+    private LocalDateTime passwordResetTokenExpires;
+
+// Getters y setters correspondientes
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "camino_fitness_id", referencedColumnName = "idCF")
@@ -130,13 +148,6 @@ public class UserEntity implements UserDetails {
         this.xpFitnessEntity = xpFitnessEntity;
         if (xpFitnessEntity != null && xpFitnessEntity.getUser() != this) {
             xpFitnessEntity.setUser(this);
-        }
-    }
-
-    @PrePersist
-    private void ensureXpFitness() {
-        if (this.xpFitnessEntity == null) {
-            setXpFitnessEntity(new XpFitnessEntity(this));
         }
     }
 

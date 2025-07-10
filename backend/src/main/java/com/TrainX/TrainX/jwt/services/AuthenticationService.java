@@ -2,11 +2,13 @@ package com.TrainX.TrainX.jwt.services;
 
 import com.TrainX.TrainX.User.UserEntity;
 import com.TrainX.TrainX.User.UserRepository;
+import com.TrainX.TrainX.email.EmailService;
 import com.TrainX.TrainX.jwt.dtos.LoginRequest;
 import com.TrainX.TrainX.jwt.dtos.RegisterUserDto;
 import com.TrainX.TrainX.jwt.exceptions.EmailAlreadyUsedException;
 import com.TrainX.TrainX.jwt.exceptions.UsernameAlreadyExistsException;
 import com.TrainX.TrainX.jwt.exceptions.UserNotFoundException;
+import com.TrainX.TrainX.xpFitness.XpFitnessEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
@@ -14,20 +16,31 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class AuthenticationService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final EmailService emailService; // ✅ AGREGAR esta línea
+    // ✅ Agregar rate limiting maps
+    private final Map<String, LocalDateTime> lastResetRequestByEmail = new ConcurrentHashMap<>();
+    private final Map<String, LocalDateTime> lastResetRequestByIp = new ConcurrentHashMap<>();
+    private static final int RESET_REQUEST_COOLDOWN_MINUTES = 5;
 
     public AuthenticationService(UserRepository userRepository,
                                  PasswordEncoder passwordEncoder,
-                                 AuthenticationManager authenticationManager) {
+                                 AuthenticationManager authenticationManager,
+                                 EmailService emailService) { // ✅ AGREGAR parámetro
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
+        this.emailService = emailService; // ✅ AGREGAR esta línea
     }
 
     /**
@@ -59,8 +72,50 @@ public class AuthenticationService {
                 0L,
                 null
         );
+        user.setIsVerified(false);
+        user.setVerificationToken(UUID.randomUUID().toString());
+        user.setVerificationTokenExpires(LocalDateTime.now().plusHours(24));
 
-        return userRepository.save(user);
+        UserEntity savedUser = userRepository.save(user);
+
+        // ✅ AGREGAR ENVÍO DE EMAIL:
+        try {
+            emailService.sendVerificationEmail(
+                    savedUser.getEmail(),
+                    savedUser.getUsername(),
+                    savedUser.getVerificationToken()
+            );
+        } catch (Exception e) {
+            System.err.println("Error sending verification email: " + e.getMessage());
+        }
+
+        return savedUser;
+    }
+    public boolean verifyEmail(String token) {
+        Optional<UserEntity> userOpt = userRepository.findByVerificationToken(token);
+
+        if (userOpt.isEmpty()) {
+            return false;
+        }
+
+        UserEntity user = userOpt.get();
+
+        if (user.getVerificationTokenExpires().isBefore(LocalDateTime.now())) {
+            return false;
+        }
+
+        user.setIsVerified(true);
+        user.setVerificationToken(null);
+        user.setVerificationTokenExpires(null);
+
+        // ✅ CREAR XpFitnessEntity SOLO después de verificar email
+        if (user.getXpFitnessEntity() == null) {
+            user.setXpFitnessEntity(new XpFitnessEntity(user));
+        }
+
+        userRepository.save(user);
+
+        return true;
     }
 
     /**
@@ -78,8 +133,15 @@ public class AuthenticationService {
             throw new UserNotFoundException(input.getUsername());
         }
 
-        return userRepository.findByUsername(input.getUsername())
+        UserEntity user = userRepository.findByUsername(input.getUsername())
                 .orElseThrow(() -> new UserNotFoundException(input.getUsername()));
+
+        // ✅ AGREGAR verificación de email
+        if (!user.getIsVerified()) {
+            throw new RuntimeException("Please verify your email before logging in");
+        }
+
+        return user;
     }
 
     /**
@@ -121,6 +183,86 @@ public class AuthenticationService {
      */
     public Optional<UserEntity> getUserByUsername(String username) {
         return userRepository.findByUsername(username);
+    }
+
+    @Transactional
+    public boolean sendPasswordResetEmail(String email, String clientIp) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime cooldownTime = now.minusMinutes(RESET_REQUEST_COOLDOWN_MINUTES);
+
+        // ✅ 1. Rate limiting por EMAIL
+        LocalDateTime lastEmailRequest = lastResetRequestByEmail.get(email);
+        if (lastEmailRequest != null && lastEmailRequest.isAfter(cooldownTime)) {
+            return true; // Ya se envió a este email recientemente
+        }
+
+        // ✅ 2. Rate limiting por IP
+        LocalDateTime lastIpRequest = lastResetRequestByIp.get(clientIp);
+        if (lastIpRequest != null && lastIpRequest.isAfter(cooldownTime)) {
+            return true; // Esta IP ya hizo un request recientemente
+        }
+
+        Optional<UserEntity> userOpt = userRepository.findByEmail(email);
+
+        // ✅ 3. Guardar timestamps SIEMPRE
+        lastResetRequestByEmail.put(email, now);
+        lastResetRequestByIp.put(clientIp, now);
+
+        if (userOpt.isEmpty()) {
+            return true; // No revelar si email existe
+        }
+
+        UserEntity user = userOpt.get();
+        user.setPasswordResetToken(UUID.randomUUID().toString());
+        user.setPasswordResetTokenExpires(LocalDateTime.now().plusMinutes(10));
+
+        userRepository.save(user);
+
+        try {
+            emailService.sendPasswordResetEmail(
+                    user.getEmail(),
+                    user.getUsername(),
+                    user.getPasswordResetToken()
+            );
+            return true;
+        } catch (Exception e) {
+            System.err.println("Error sending password reset email: " + e.getMessage());
+            return false;
+        }
+    }
+
+    @Transactional
+    public boolean resetPasswordWithToken(String token, String newPassword) {
+        Optional<UserEntity> userOpt = userRepository.findByPasswordResetToken(token);
+
+        if (userOpt.isEmpty()) {
+            return false;
+        }
+
+        UserEntity user = userOpt.get();
+
+        if (user.getPasswordResetTokenExpires().isBefore(LocalDateTime.now())) {
+            return false;
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setPasswordResetToken(null);
+        user.setPasswordResetTokenExpires(null);
+
+        userRepository.save(user);
+        return true;
+    }
+
+    // En AuthenticationService.java, agregar este método:
+    public boolean isPasswordResetTokenValid(String token) {
+        Optional<UserEntity> userOpt = userRepository.findByPasswordResetToken(token);
+
+        if (userOpt.isEmpty()) {
+            return false;
+        }
+
+        UserEntity user = userOpt.get();
+        return user.getPasswordResetTokenExpires().isAfter(LocalDateTime.now());
     }
 }
 

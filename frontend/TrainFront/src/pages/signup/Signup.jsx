@@ -23,6 +23,7 @@ function Signup() {
     });
 
     const [error, setError] = useState('');
+    const [successMessage, setSuccessMessage] = useState(''); // ✅ AGREGAR esta línea
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
@@ -73,7 +74,12 @@ function Signup() {
                 throw new Error(response.data.message || 'Registration failed');
             }
 
-            navigate('/login');
+            setSuccessMessage("Registration successful! Please check your email to verify your account before logging in.");
+
+            // Opcional: redirigir después de unos segundos
+            setTimeout(() => {
+                navigate('/login');
+            }, 5000);
         } catch (err) {
             if (err.response) {
                 // Server responded with an error
@@ -104,6 +110,7 @@ function Signup() {
 
                 <form onSubmit={handleSubmit} className="signup-form">
                     {error && <div className="error-message">{error}</div>}
+                    {successMessage && <div className="success-message">{successMessage}</div>} {/* ✅ AGREGAR */}
 
                     <div className="form-grid">
                         <div className="form-group">

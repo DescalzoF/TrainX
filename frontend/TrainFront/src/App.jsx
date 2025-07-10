@@ -25,7 +25,7 @@ import DuelCompetition from "./pages/DuelCompetition/DuelCompetition.jsx";
 import DuelRouter from './pages/DuelRouter/DuelRouter.jsx';
 import Foro from "./pages/foro/Foro.jsx";
 import Chatbot from './components/chatbot/Chatbot.jsx';
-
+import VerifyEmail from './pages/verifyEmail/VerifyEmail.jsx';
 
 
 const ProtectedRoute = ({ children }) => {
@@ -253,6 +253,7 @@ function AppContent() {
                     <Route
                         path="/reset-password"
                         element={<ResetPassword />} />
+                    <Route path="/verify-email" element={<VerifyEmail />} />
                 </Routes>
             </main>
             <ChatbotWrapper />

@@ -23,24 +23,18 @@ public class ShopService {
     private final Map<String, Map<String, Long>> SHOP_ITEMS = Map.of(
             "PROFILE_PICTURE", Map.of(
                     "avatar1", 100L,
-                    "avatar2", 150L,
-                    "avatar3", 200L,
-                    "avatar4", 250L,
-                    "avatar5", 300L
+                    "avatar2", 200L,
+                    "avatar3", 300L
             ),
             "BANNER", Map.of(
                     "banner1", 200L,
                     "banner2", 250L,
-                    "banner3", 300L,
-                    "banner4", 350L,
-                    "banner5", 400L
+                    "banner3", 400L
             ),
             "EMBLEM", Map.of(
-                    "emblem1", 150L,
-                    "emblem2", 200L,
-                    "emblem3", 250L,
-                    "emblem4", 300L,
-                    "emblem5", 350L
+                    "emblem1", 200L,
+                    "emblem2", 300L,
+                    "emblem3", 500L
             )
     );
 

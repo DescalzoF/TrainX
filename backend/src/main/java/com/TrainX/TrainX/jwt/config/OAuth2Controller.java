@@ -98,7 +98,8 @@ public class OAuth2Controller {
 
         String[] sexes = {"male", "female"};
 
-        return new UserEntity(
+
+        UserEntity user = new UserEntity(
                 username,
                 firstName,
                 email,
@@ -115,5 +116,12 @@ public class OAuth2Controller {
                 0L,   // coins
                 Role.USER
         );
+
+        // ✅ AGREGAR ESTAS LÍNEAS - Google ya verificó el email
+        user.setIsVerified(true);
+        user.setVerificationToken(null);
+        user.setVerificationTokenExpires(null);
+
+        return user;
     }
 }

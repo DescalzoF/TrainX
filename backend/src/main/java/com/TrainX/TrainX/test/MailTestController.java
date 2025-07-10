@@ -1,4 +1,4 @@
-package com.TrainX.TrainX;
+package com.TrainX.TrainX.test;
 import com.TrainX.TrainX.scheduler.WorkoutReminderScheduler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
