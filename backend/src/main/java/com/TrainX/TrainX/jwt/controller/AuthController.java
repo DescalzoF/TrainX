@@ -1,7 +1,6 @@
 package com.TrainX.TrainX.jwt.controller;
 
 import com.TrainX.TrainX.User.MessageResponse;
-import com.TrainX.TrainX.User.Role;
 import com.TrainX.TrainX.User.UserEntity;
 import com.TrainX.TrainX.jwt.config.JwtService;
 import com.TrainX.TrainX.jwt.dtos.*;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @AllArgsConstructor

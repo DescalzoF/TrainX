@@ -1,15 +1,11 @@
 package com.TrainX.TrainX.jwt.config;
 
-import com.TrainX.TrainX.User.Role;
 import com.TrainX.TrainX.User.UserEntity;
 import com.TrainX.TrainX.User.UserService;
-import com.TrainX.TrainX.jwt.config.JwtService;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.TrainX.TrainX.xpFitness.XpFitnessEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -56,6 +52,8 @@ public class OAuth2Controller {
             responseMap.put("token", token);
             responseMap.put("username", user.getUsername());
             responseMap.put("email", user.getEmail());
+            responseMap.put("id", user.getId()); // ✅ ADD: Include user ID like in AuthController
+            responseMap.put("expiresIn", jwtService.getExpirationTime()); // ✅ ADD: Include expiration time
             responseMap.put("caminoFitnessId", user.getCaminoFitnessActual() != null ?
                     user.getCaminoFitnessActual().getIdCF() : null);
 
@@ -98,7 +96,7 @@ public class OAuth2Controller {
 
         String[] sexes = {"male", "female"};
 
-
+        // ✅ FIXED: Use the same constructor pattern as AuthenticationService
         UserEntity user = new UserEntity(
                 username,
                 firstName,
@@ -109,18 +107,21 @@ public class OAuth2Controller {
                 "11" + (10000000 + random.nextInt(90000000)), // Random phone
                 160L + random.nextInt(40), // Height between 160-200cm
                 50L + random.nextInt(50),  // Weight between 50-100kg
-                "", // userPhoto - empty for now
+                "default.jpg", // ✅ FIXED: Use same default image as AuthenticationService
                 sexes[random.nextInt(sexes.length)],
                 addresses[random.nextInt(addresses.length)],
                 true, // isPublic
                 0L,   // coins
-                Role.USER
+                null  // ✅ FIXED: Pass null instead of Role.USER to match AuthenticationService constructor
         );
 
-        // ✅ AGREGAR ESTAS LÍNEAS - Google ya verificó el email
+        // ✅ FIXED: Set verification status like AuthenticationService (but verified since Google already verified)
         user.setIsVerified(true);
         user.setVerificationToken(null);
         user.setVerificationTokenExpires(null);
+
+        // ✅ FIXED: Create XpFitnessEntity immediately since user is already verified
+        user.setXpFitnessEntity(new XpFitnessEntity(user));
 
         return user;
     }
