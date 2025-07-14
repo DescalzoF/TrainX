@@ -14,7 +14,7 @@ public class DuelScheduler {
         this.duelService = duelService;
     }
 
-    @Scheduled(cron = "0 0 0 * * ?") // Run at midnight every day
+    @Scheduled(cron = "0 * * * * ?") // Every minute
     public void checkExpiredDuels() {
         duelService.checkExpiredDuels();
         duelService.checkExpiredPendingDuels();
