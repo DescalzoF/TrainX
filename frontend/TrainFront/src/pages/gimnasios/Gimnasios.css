@@ -503,6 +503,8 @@ button:disabled {
 /* Transition for admin panel */
 .admin-toggle-container {
     transition: all 0.3s ease;
+    bottom: 80px;
+    transform: translateY(-70px); /* Mueve 10px hacia arriba */
 }
 
 /* Prevent overlapping of admin toggle button with other elements */
@@ -521,3 +523,4 @@ button:disabled {
     display: inline-block;
     margin-top: 4px;
 }
+
